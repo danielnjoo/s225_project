@@ -17,6 +17,8 @@ As of January 2012, the OpenFlights/Airline Route Mapper Route Database contains
 ```{r}
 data <- read.csv("routes.csv"); nrow(data)
 codes <- read.csv("codes.csv", col.names="data"); nrow(codes)
+
+df_data <- as.data.frame(data)
 ```
 
 ## Variables
@@ -48,6 +50,22 @@ sapply(codes$Airport, function(x){unlist(strsplit(x,'-',''))[[1]]}) -> codes$Air
 codes %>% extract(col=Airport, c("Airport", "Country"), "(.+), (.+) ") -> codes
 na.omit(codes) -> codes
 ```
+
+```{r}
+colnames(codes) <- c("airport","country","airport_code")
+
+hold <- left_join(data, codes, by = c("source.airport" = "airport_code")) %>%
+  filter(!is.na(country))
+
+colnames(hold)[10] <- "source.airport.name"
+colnames(hold)[11] <- "source.country"
+
+hold2 <- left_join(hold, codes, by = c("destination.apirport" = "airport_code")) %>% 
+  filter(!is.na(country))
+
+colnames(hold2)[12:13] <- c("destination.airport.name","destination.country")
+```
+
 
 ```{r}
 # data %>% head(15) -> temp
