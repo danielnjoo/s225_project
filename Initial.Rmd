@@ -1,0 +1,64 @@
+---
+title: "Initial"
+author: "Jocelyn, Daniel"
+date: "3/1/2018"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(stringr)
+```
+
+## Data
+
+As of January 2012, the OpenFlights/Airline Route Mapper Route Database contains 67663 routes between 049 airports on 548 airlines spanning the globe. It was downloaded from https://www.kaggle.com/open-flights/flight-route-database. Our airport codes data was downloaded from http://www.airportcodes.org/#international. 
+
+```{r}
+data <- read.csv("routes.csv"); nrow(data)
+codes <- read.csv("codes.csv", col.names="data"); nrow(codes)
+```
+
+## Variables
+
+```{r}
+data %>% names()
+```
+
+- Airline 2-letter (IATA) or 3-letter (ICAO) code of the airline.
+- Airline ID Unique OpenFlights identifier for airline (see Airline).
+- Source airport 3-letter (IATA) or 4-letter (ICAO) code of the source airport.
+- Source airport ID Unique OpenFlights identifier for source airport (see Airport)
+- Destination airport 3-letter (IATA) or 4-letter (ICAO) code of the destination airport.
+- Destination airport ID Unique OpenFlights identifier for destination airport (see Airport)
+- Codeshare "Y" if this flight is a codeshare (that is, not operated by Airline, but another carrier), empty otherwise.
+- Stops Number of stops on this flight ("0" for direct)
+- Equipment 3-letter codes for plane type(s) generally used on this flight, separated by spaces
+
+```{r}
+data %>% left_join(codes, by=c("source.airport"="ident")) -> temp
+```
+
+
+## Data Wrangling
+
+```{r}
+codes %>% extract(col=data, c("Airport", "Airport Code"), "(.+)\\((...)\\)") -> codes
+sapply(codes$Airport, function(x){unlist(strsplit(x,'-',''))[[1]]}) -> codes$Airport
+codes %>% extract(col=Airport, c("Airport", "Country"), "(.+), (.+) ") -> codes
+na.omit(codes) -> codes
+```
+
+```{r}
+# data %>% head(15) -> temp
+data %>% mutate(source.country = ifelse(data$source.airport %in% codes$`Airport Code`,
+                                        codes[which(data$source.airport %in% codes$`Airport Code` ),]$Country,
+                                        NA),
+                destination.country = ifelse(data$destination.apirport %in% codes$`Airport Code`,
+                                        codes[which(data$destination.apirport %in% codes$`Airport Code` ),]$Country,
+                                        NA)) -> data
+
+
+data[!is.na(data$source.country),] %>% nrow()
+
+```
