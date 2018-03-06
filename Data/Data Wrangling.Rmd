@@ -1,0 +1,125 @@
+---
+title: "Initial"
+author: "Jocelyn, Daniel"
+date: "3/1/2018"
+output: pdf_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+## Data
+
+As of January 2012, the OpenFlights/Airline Route Mapper Route Database contains 67663 routes between 049 airports on 548 airlines spanning the globe. It was downloaded from https://www.kaggle.com/open-flights/flight-route-database. Our airport codes data was downloaded from http://www.airportcodes.org/#international. 
+
+```{r}
+data <- read.csv("data/routes.csv"); nrow(data)
+codes <- read.csv("data/codes.csv", col.names="data"); nrow(codes)
+gdp_data <- read_csv("data/gdp_data.csv") %>% data.frame(); nrow(codes)
+```
+, col.names=c("Country Name",	"Country Code",	"Indicator Name",	"Indicator Code",	"1960",	"1961",	"1962",	"1963",	"1964",	"1965",	"1966",	"1967",	"1968",	"1969",	"1970",	"1971",	"1972",	"1973",	"1974",	"1975",	"1976",	"1977",	"1978",	"1979",	"1980",	"1981",	"1982",	1983,	1984,	1985,	1986,	1987,	1988, 1989,	1990,	1991,	1992,	1993,	1994,	1995,	1996,	1997,	1998,	1999,	2000,	2001,	2002,	2003,	2004,	2005,	2006,	2007,	2008,	2009,	2010,	2011,	2012,	2013,	2014,	2015,	2016,	2017))
+## Variables
+
+### Routes
+
+```{r}
+data %>% names()
+```
+
+- Airline 2-letter (IATA) or 3-letter (ICAO) code of the airline.
+- Airline ID Unique OpenFlights identifier for airline (see Airline).
+- Source airport 3-letter (IATA) or 4-letter (ICAO) code of the source airport.
+- Source airport ID Unique OpenFlights identifier for source airport (see Airport)
+- Destination airport 3-letter (IATA) or 4-letter (ICAO) code of the destination airport.
+- Destination airport ID Unique OpenFlights identifier for destination airport (see Airport)
+- Codeshare "Y" if this flight is a codeshare (that is, not operated by Airline, but another carrier), empty otherwise.
+- Stops Number of stops on this flight ("0" for direct)
+- Equipment 3-letter codes for plane type(s) generally used on this flight, separated by spaces
+
+```{r}
+data %>% head(2)
+```
+
+### Codes
+
+```{r}
+codes %>% head(2)
+```
+
+### GDP
+
+```{r}
+gdp_data %>% names()
+```
+
+- Country.Name
+- Country.Code
+- X2010:X2016
+
+```{r}
+gdp_data %>% head(2)
+```
+
+
+## Data Wrangling
+
+```{r}
+codes %>% extract(col=data, c("Airport", "Airport_Code"), "(.+)\\((...)\\)") -> codes
+sapply(codes$Airport, function(x){unlist(strsplit(x,'-',''))[[1]]}) -> codes$Airport
+codes %>% extract(col=Airport, c("Airport", "Country"), "(.+), (.+) ") -> codes
+na.omit(codes) -> codes; nrow(codes)
+```
+
+Lose some codes 2508->2477
+
+```{r}
+temp <- left_join(data, codes, by = c("source.airport" = "Airport_Code")) %>%
+  filter(!is.na(Country))
+
+colnames(temp)[10:11] <- c("source.airport.name","source.country")
+
+final_data <- left_join(temp, codes, by = c("destination.apirport" = "Airport_Code")) %>% 
+  filter(!is.na(Country))
+
+colnames(final_data)[12:13] <- c("destination.airport.name","destination.country")
+
+nrow(final_data)
+```
+
+67663 -> 42495
+
+```{r}
+sapply(gdp_data[,3:9], function(x){which(is.na(x)) %>% length()})
+is.na(gdp_data$X2010) -> missing
+gdp_data[!missing,] -> gdp_data; nrow(gdp_data)
+```
+
+We have the most data for GDP  (PPP) figures for year 2010, so we'll proceed with this year. We now have n=238.
+
+Using the inflation calculator provided by the BLS, https://data.bls.gov/cgi-bin/cpicalc.pl. \$12000 today would have been worth \$10490.48 in 2010.
+
+```{r}
+gdp_data$developed <- ifelse(gdp_data$X2010>10490.48, 1, 0);gdp_data$developed %>% table()
+```
+
+Using this cutoff, we have 116 developed countries, and 122 developing countries.
+
+```{r}
+gdp_data %>% filter(developed==1) %>% head()
+gdp_data %>% filter(developed==0) %>% head()
+```
+
+```{r}
+final_data %>% left_join(gdp_data, by=c("source.country"="Country.Name")) %>% filter(!is.na(Country.Code)) %>% left_join(gdp_data, by=c("destination.country"="Country.Name")) %>% filter(!is.na(Country.Code.y)) -> final_data; nrow(final_data)
+```
+
+42495->33559, where X2010.x...developed.x relate to source country GDP data, and X2010.y...developed.y relate to destination country GDP data.
+
+
+
+
+```{r}
+write.csv(final_data, "data/final_data.csv")
+```
+

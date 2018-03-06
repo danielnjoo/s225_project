@@ -1,0 +1,67 @@
+---
+title: "Analysis"
+author: "Jocelyn, Daniel"
+date: "3/1/2018"
+output: pdf_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+## Data Summary
+
+```{r}
+data <- read.csv("data/final_data.csv") %>% .[2:ncol(data)]
+data %>% dim()
+data %>% head()
+```
+
+## Data Codebook
+
+```{r}
+data %>% names()
+```
+
+- airline
+- airline.ID
+- source.airport
+- source.airport.id 
+- destination.apirport
+- destination.airport.id
+- codeshare 
+- stops 
+- equipment
+- source.airport.name
+- source.country     
+- destination.airport.name
+- destination.country
+- Country.Code.x          
+- X2010.x:X2016.x
+- developed.x
+- Country.Code.y          
+- X2010.y:X2016.y
+- developed.y
+
+### Selected Variable Analysis
+
+#### Outbound Flights
+
+```{r}
+data %>% group_by(source.country) %>% summarize(count=n())  %>% 
+  ggplot(aes(count)) + geom_histogram()
+```
+
+#### Inbound Flights
+```{r}
+data %>% group_by(destination.country) %>% summarize(count=n())  %>% 
+  ggplot(aes(count)) + geom_histogram()
+```
+
+#### Developed vs Developing Countries Outbound Flights
+
+```{r}
+data %>% group_by(developed.x) %>% summarize(count=n()) %>% ggplot(aes(as.factor(developed.x),count)) + geom_bar(stat='identity')
+```
+
+## Analysis Plan
