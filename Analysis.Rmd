@@ -12,7 +12,7 @@ library(tidyverse)
 ## Data Summary
 
 ```{r}
-data <- read.csv("data/final_data.csv") %>% .[2:ncol(data)]
+data <- read.csv("data/final_data.csv") %>% .[2:ncol(.)]
 data %>% dim()
 data %>% head()
 ```
@@ -45,23 +45,57 @@ data %>% names()
 
 ### Selected Variable Analysis
 
+#### Countries
+
+```{r}
+data$source.country %>% unique() %>% length()
+data$destination.country %>% unique() %>% length()
+```
+
+156 unique source and destination countries.
+
+```{r}
+length(which(data$developed.x==1))/nrow(data)
+```
+
+Of which 68% of the outbound countries are developed.
+
+```{r}
+length(which(data$developed.y==1))/nrow(data)
+```
+
+And 68% of the inbound countries are developed.
+
+
+### Distributions
+
 #### Outbound Flights
 
 ```{r}
 data %>% group_by(source.country) %>% summarize(count=n())  %>% 
-  ggplot(aes(count)) + geom_histogram()
+  ggplot(aes(count)) + geom_histogram() + xlab("number of outbound flights for a country")
 ```
 
 #### Inbound Flights
 ```{r}
 data %>% group_by(destination.country) %>% summarize(count=n())  %>% 
-  ggplot(aes(count)) + geom_histogram()
+  ggplot(aes(count)) + geom_histogram() + xlab("number of inbound flights for a country")
 ```
 
 #### Developed vs Developing Countries Outbound Flights
 
 ```{r}
-data %>% group_by(developed.x) %>% summarize(count=n()) %>% ggplot(aes(as.factor(developed.x),count)) + geom_bar(stat='identity')
+data %>% group_by(developed.x) %>% summarize(count=n()) %>% ggplot(aes(as.factor(developed.x),count)) + geom_bar(stat='identity') + xlab("developed (1) vs developing (0) countries") + ggtitle("outbound flights for developing vs developed countries")
 ```
 
 ## Analysis Plan
+
+
+```{r}
+data %>% group_by(source.country, avg_growth.x) %>% summarize(count=n()) -> temp
+```
+
+```{r}
+temp %>% ggplot(aes(avg_growth.x, count)) + geom_point()
+```
+

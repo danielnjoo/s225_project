@@ -110,6 +110,23 @@ gdp_data %>% filter(developed==1) %>% head()
 gdp_data %>% filter(developed==0) %>% head()
 ```
 
+We then calculate GDP growth from year to year and finally an average GDP growth.
+
+```{r}
+gdp_data %>% mutate(growth10_11=(X2011-X2010)/X2010*100,
+                    growth11_12=(X2012-X2011)/X2011*100,
+                    growth12_13=(X2013-X2012)/X2012*100,
+                    growth13_14=(X2014-X2013)/X2013*100,
+                    growth14_15=(X2015-X2014)/X2014*100,
+                    growth15_16=(X2016-X2015)/X2015*100,
+                    avg_growth=(growth10_11+growth11_12+growth12_13+growth13_14+growth14_15+growth15_16)/6) -> gdp_data
+```
+
+```{r}
+gdp_data %>% ggplot(aes(avg_growth)) +  geom_histogram()
+```
+
+
 ```{r}
 final_data %>% left_join(gdp_data, by=c("source.country"="Country.Name")) %>% filter(!is.na(Country.Code)) %>% left_join(gdp_data, by=c("destination.country"="Country.Name")) %>% filter(!is.na(Country.Code.y)) -> final_data; nrow(final_data)
 ```
