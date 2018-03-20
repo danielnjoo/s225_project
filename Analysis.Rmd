@@ -1,20 +1,41 @@
 ---
-title: "Analysis"
+title: "Prelim Project Look - GroupF"
 author: "Jocelyn, Daniel"
 date: "3/1/2018"
-output: pdf_document
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
 ---
+
+### Project Title: Travel in Developed and Developing Countries
 
 ```{r}
 library(tidyverse)
+require(mosaic)
+require(NSM3)
+require(readr)
 ```
 
 ## Data Summary
+
+### Data Read-In:
 
 ```{r}
 data <- read.csv("data/final_data.csv") %>% .[2:ncol(.)]
 data %>% dim()
 data %>% head()
+```
+
+### Summary Command:
+```{r}
+summary(data)
 ```
 
 ## Data Codebook
