@@ -16,7 +16,7 @@ output:
 
 ### Project Title: Travel in Developed and Developing Countries
 
-```{r}
+```{r, include = FALSE}
 library(tidyverse)
 require(mosaic)
 require(NSM3)
@@ -26,9 +26,8 @@ require(readr)
 ## Data Summary
 
 ### Data Read-In:
-
 ```{r}
-data <- read.csv("data/final_data.csv") %>% .[2:ncol(.)]
+data <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
 data %>% dim()
 data %>% head()
 ```
@@ -40,29 +39,31 @@ summary(data)
 
 ## Data Codebook
 
-```{r}
-data %>% names()
-```
-
 - airline
 - airline.ID
 - source.airport
 - source.airport.id 
 - destination.apirport
 - destination.airport.id
-- codeshare 
-- stops 
-- equipment
+- codeshare ("Y" if codeshare, empty otherwise)
+- stops ("0" for direct flight)
+- equipment (3-letter codes for plane types generally used on the flight, seperated by spaces if more than one)
 - source.airport.name
 - source.country     
 - destination.airport.name
 - destination.country
 - Country.Code.x          
-- X2010.x:X2016.x
+- X2010.x:X2016.x (GDP each year from 2010 - 2016)
 - developed.x
-- Country.Code.y          
-- X2010.y:X2016.y
-- developed.y
+- growth10_11.x:growth15_16.x (GDP growth between two years from 2010 - 2016)
+- avg_growth.x
+- Country.Code.y  
+- X2010.y:X2016.y (GDP each year from 2010 - 2016)
+- developed.y 
+- growth10_11.y:growth15_16.y (GDP growth between two years from 2010 - 2016)
+- avg_growth.y
+
+Please note that a variable name with a '.x' corresponds to the source country of the flight and a variable name with a '.y' correpsonds to the destination country of the flight. Additionally, `developed` is a categorical variable that indicates whether a country is developing or developed using the GDP cutoff of 10,490 dollars. This value is inflation adjusted from $12,000 today's dollars.
 
 ### Selected Variable Analysis
 
