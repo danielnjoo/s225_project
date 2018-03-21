@@ -91,6 +91,37 @@ And 68% of the inbound countries are developed.
 
 ### Distributions
 
+### GDP
+
+```{r}
+# Distribution of GDP:
+data2 <- dplyr::select(data, X2010.x, X2011.x, X2012.x, X2013.x, X2014.x, X2015.x, X2016.x, Country.Code.x, developed.x)
+data2 <- gather(data2, key = "year", value = "GDP", -Country.Code.x, -developed.x)
+
+# GDP Each Year:
+ggplot(data2, aes(x = GDP, color = year)) + geom_density()
+
+# GDP by developed or developing:
+ggplot(data2, aes(x = GDP, color = as.factor(developed.x))) + geom_density()
+```
+
+```{r}
+# Distribution of GDP Growth:
+data3 <- dplyr::select(data, growth10_11.x, growth11_12.x, growth12_13.x, growth13_14.x, growth14_15.x, growth15_16.x, Country.Code.x, developed.x)
+data3 <- gather(data3, key = "year", value = "GDP_Growth", -Country.Code.x, -developed.x)
+
+# GDP Growth Each Year:
+ggplot(data3, aes(x = GDP_Growth, color = year)) + geom_density()
+
+# GDP Growth by developed or developing:
+ggplot(data3, aes(x = GDP_Growth, color = as.factor(developed.x))) + geom_density()
+
+# Distribution of Average GDP Growth:
+ggplot(data, aes(x = avg_growth.x)) + geom_density()
+ggplot(data, aes(x = avg_growth.x, color = as.factor(developed.x))) + geom_density()
+```
+
+
 #### Outbound Flights
 
 ```{r}
@@ -99,6 +130,7 @@ data %>% group_by(source.country) %>% summarize(count=n())  %>%
 ```
 
 #### Inbound Flights
+
 ```{r}
 data %>% group_by(destination.country) %>% summarize(count=n())  %>% 
   ggplot(aes(count)) + geom_histogram() + xlab("number of inbound flights for a country")
