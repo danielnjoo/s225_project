@@ -1,5 +1,5 @@
 ---
-title: "Initial"
+title: "Data Read-In"
 author: "Jocelyn, Daniel"
 date: "3/1/2018"
 output: pdf_document
@@ -7,19 +7,18 @@ output: pdf_document
 
 ```{r}
 library(tidyverse)
+require(mosaic)
 ```
 
 ## Data
 
-As of January 2012, the OpenFlights/Airline Route Mapper Route Database contains 67663 routes between 049 airports on 548 airlines spanning the globe. It was downloaded from https://www.kaggle.com/open-flights/flight-route-database. Our airport codes data was downloaded from http://www.airportcodes.org/#international. 
+As of January 2012, the OpenFlights/Airline Route Mapper Route Database contains 67663 routes between 49 airports on 548 airlines spanning the globe. It was downloaded from https://www.kaggle.com/open-flights/flight-route-database. Our airport codes data was downloaded from http://www.airportcodes.org/#international. GDP data was downloaded from https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD. 
 
 ```{r}
 data <- read.csv("data/routes.csv"); nrow(data)
 codes <- read.csv("data/codes.csv", col.names="data"); nrow(codes)
 gdp_data <- read_csv("data/gdp_data.csv") %>% data.frame(); nrow(codes)
 ```
-
-## Variables
 
 ### Routes
 
