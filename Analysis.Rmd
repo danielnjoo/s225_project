@@ -21,6 +21,7 @@ library(tidyverse)
 require(mosaic)
 require(NSM3)
 require(readr)
+require(Rfit)
 ```
 
 ## Data Summary
@@ -144,12 +145,89 @@ data %>% group_by(developed.x) %>% summarize(count=n()) %>% ggplot(aes(as.factor
 
 ## Analysis Plan
 
+### SLR - Average Growth to predict flights:
+
+#### Scatterplots of the variables:
 
 ```{r}
 data %>% group_by(source.country, avg_growth.x) %>% summarize(count=n()) -> temp
 ```
 
 ```{r}
-temp %>% ggplot(aes(avg_growth.x, count)) + geom_point()
+temp %>% ggplot(aes(avg_growth.x, count)) + geom_point() + geom_smooth(method = 'lm')
 ```
+
+```{r}
+temp2 <- temp %>% mutate(log_count = log(count))
+ggplot(temp2, aes(x = avg_growth.x, y = log_count)) + geom_point() 
++ geom_smooth(method = 'lm')
+```
+
+```{r}
+temp3 <- temp %>% mutate(sqrt_count = sqrt(count))
+ggplot(temp3, aes(x = avg_growth.x, y = sqrt_count)) + geom_point() + 
+  geom_smooth(method = 'lm')
+```
+
+#### Parametric Regression:
+
+```{r}
+p_mod <- lm(count ~ avg_growth.x, data = temp)
+summary(p_mod)
+```
+
+```{r}
+p_mod2 <- lm(log_count ~ avg_growth.x, data = temp2)
+summary(p_mod2)
+```
+
+```{r}
+p_mod3 <- lm(sqrt_count ~ avg_growth.x, data = temp3)
+summary(p_mod3)
+```
+
+> None of the above are significant
+> May be better described by a non-linear model
+
+> Add developed into the model?
+
+```{r}
+data %>% group_by(source.country, avg_growth.x, developed.x) %>% summarize(count=n()) -> temp
+
+# Growth + developed
+d_mod <- lm(count ~ avg_growth.x + developed.x, data = temp)
+summary(d_mod)
+
+# Just Developed - Parallel Slopes Model:
+d_mod2 <- lm(count ~ developed.x, data = temp)
+summary(d_mod2)
+```
+
+> Developed with avg growth has p-value of .02, but is still sig at .05 (p-val of .0447) when used alone as a predictor.
+
+
+#### Non-parametric Regression:
+
+```{r}
+np_mod <- rfit(count ~ avg_growth.x, data = temp)
+summary(np_mod, overall = 'drop')
+```
+
+```{r}
+np_mod2 <- rfit(log_count ~ avg_growth.x, data = temp2)
+summary(np_mod2, overall = 'drop')
+```
+
+```{r}
+np_mod3 <- rfit(sqrt_count ~ avg_growth.x, data = temp3)
+summary(np_mod3, data = temp3)
+```
+
+> None significant. Try smoothing.
+
+
+### Travel Increased in Recently Developed Countries?
+
+
+### Travel Locations
 
