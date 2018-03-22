@@ -15,9 +15,9 @@ require(mosaic)
 As of January 2012, the OpenFlights/Airline Route Mapper Route Database contains 67663 routes between 49 airports on 548 airlines spanning the globe. It was downloaded from https://www.kaggle.com/open-flights/flight-route-database. Our airport codes data was downloaded from http://www.airportcodes.org/#international. GDP data was downloaded from https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD. 
 
 ```{r}
-data <- read.csv("data/routes.csv"); nrow(data)
-codes <- read.csv("data/codes.csv", col.names="data"); nrow(codes)
-gdp_data <- read_csv("data/gdp_data.csv") %>% data.frame(); nrow(codes)
+data <- read.csv("Data/routes.csv"); nrow(data)
+codes <- read.csv("Data/codes.csv", col.names="data"); nrow(codes)
+gdp_data <- read_csv("Data/gdp_data.csv") %>% data.frame(); nrow(codes)
 ```
 
 ### Routes
