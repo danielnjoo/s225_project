@@ -1,0 +1,96 @@
+---
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+---
+### STAT 225 - Data Read In - Group F
+
+```{r, include=FALSE}
+require(mosaic)
+library(tidyverse)
+```
+
+Our project is about exploring differences in  travel, via  plane, between developed and developing  countries.
+
+### Data Sources
+
+Our data sources are: 
+- the Flight Routes Database from Kaggle [link](kaggle.com/open-flights/flight-route-database),
+- airport codes from [airportcodes.org](airportcodes.org), and
+- national Per Capita GDP figures from the World Bank [link](data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD).
+
+### Workflow to Generate your Data Set
+
+```{r}
+data <- read.csv("Data/routes.csv")
+codes <- read.csv("Data/codes.csv", col.names="data")
+gdp_data <- read_csv("Data/gdp_data.csv") %>% data.frame()
+codes %>% extract(col=data, c("Airport", "Airport_Code"), "(.+)\\((...)\\)") -> codes
+sapply(codes$Airport, function(x){unlist(strsplit(x,'-',''))[[1]]}) -> codes$Airport
+codes %>% extract(col=Airport, c("Airport", "Country"), "(.+), (.+) ") -> codes
+na.omit(codes) -> codes; nrow(codes)
+```
+
+Lose some codes 2508->2477
+
+```{r}
+temp <- left_join(data, codes, by = c("source.airport" = "Airport_Code")) %>%
+  filter(!is.na(Country))
+
+colnames(temp)[10:11] <- c("source.airport.name","source.country")
+
+final_data <- left_join(temp, codes, by = c("destination.apirport" = "Airport_Code")) %>% 
+  filter(!is.na(Country))
+
+colnames(final_data)[12:13] <- c("destination.airport.name","destination.country")
+
+nrow(final_data)
+```
+
+67663 -> 42495
+
+```{r}
+sapply(gdp_data[,3:9], function(x){which(is.na(x)) %>% length()})
+is.na(gdp_data$X2010) -> missing
+gdp_data[!missing,] -> gdp_data; nrow(gdp_data)
+```
+
+We have the most data for GDP  (PPP) figures for year 2010, so we'll proceed with this year. We now have n=238.
+
+Using the inflation calculator provided by the BLS, https://data.bls.gov/cgi-bin/cpicalc.pl. \$12000 today would have been worth \$10490.48 in 2010.
+
+```{r}
+gdp_data$developed <- ifelse(gdp_data$X2010>10490.48, 1, 0); gdp_data$developed %>% table()
+```
+
+Using this cutoff, we have 116 developed countries, and 122 developing countries.
+
+```{r}
+gdp_data %>% filter(developed==1) %>% head()
+gdp_data %>% filter(developed==0) %>% head()
+```
+
+We then calculate GDP growth from year to year and finally an average GDP growth.
+
+```{r}
+gdp_data %>% mutate(growth10_11=(X2011-X2010)/X2010*100,
+                    growth11_12=(X2012-X2011)/X2011*100,
+                    growth12_13=(X2013-X2012)/X2012*100,
+                    growth13_14=(X2014-X2013)/X2013*100,
+                    growth14_15=(X2015-X2014)/X2014*100,
+                    growth15_16=(X2016-X2015)/X2015*100,
+                    avg_growth=(growth10_11+growth11_12+growth12_13+growth13_14+growth14_15+growth15_16)/6) -> gdp_data
+```
+
+```{r}
+final_data %>% left_join(gdp_data, by=c("source.country"="Country.Name")) %>% filter(!is.na(Country.Code)) %>% left_join(gdp_data, by=c("destination.country"="Country.Name")) %>% filter(!is.na(Country.Code.y)) -> final_data; nrow(final_data)
+```
+
+42495->33559, where X2010.x...developed.x relate to source country GDP data, and X2010.y...developed.y relate to destination country GDP data.
+
+
+```{r}
+write.csv(final_data, "data/final_data.csv")
+```
+
