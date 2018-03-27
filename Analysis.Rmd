@@ -130,12 +130,26 @@ data %>% group_by(source.country) %>% summarize(count=n())  %>%
   ggplot(aes(count)) + geom_histogram() + xlab("number of outbound flights for a country")
 ```
 
+```{r}
+# Identify Extreme Points:
+data %>% group_by(source.country) %>% summarize(count = n()) %>% 
+  filter(count > 850) %>% arrange(count)
+```
+
+
 #### Inbound Flights
 
 ```{r}
 data %>% group_by(destination.country) %>% summarize(count=n())  %>% 
   ggplot(aes(count)) + geom_histogram() + xlab("number of inbound flights for a country")
 ```
+
+```{r}
+# Identify Extreme Points:
+data %>% group_by(destination.country) %>% summarize(count = n()) %>% 
+  filter(count > 850) %>% arrange(count) # Same as above.
+```
+
 
 #### Developed vs Developing Countries Outbound Flights
 
