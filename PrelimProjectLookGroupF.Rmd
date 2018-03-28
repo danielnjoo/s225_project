@@ -5,10 +5,10 @@ date: "3/1/2018"
 output:
   pdf_document:
     fig_height: 3
-    fig_width: 5
+    fig_width: 7
 ---
 
-### Project Title: Travel in Developed and Developing Countries
+# Project Title: Travel in Developed and Developing Countries
 
 ```{r, include = FALSE}
 library(tidyverse)
@@ -24,7 +24,6 @@ require(Rfit)
 ```{r}
 data <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
 data %>% dim()
-data %>% head()
 ```
 
 ### Summary Command:
@@ -45,7 +44,7 @@ summary(data)
 - stops ("0" for direct flight)
 - equipment (3-letter codes for plane types generally used on the flight, seperated by spaces if more than one)
 - source.airport.name
-- source.country     
+- source.country
 - destination.airport.name
 - destination.country
 - Country.Code.x 
@@ -88,9 +87,9 @@ length(which(data$developed.y==1))/nrow(data)
 
 And 68% of the inbound countries are developed.
 
-Numbers of flights/source country over entire dataset:
+Numbers of flights for each source country over entire dataset:
 
-```{r}
+```{r, fig.height=6, fig.width=7}
 data %>% group_by(Country.Code.x, developed.x) %>% summarize(count=n()) -> temp 
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
@@ -149,6 +148,7 @@ ggplot(data3, aes(x = GDP_Growth, color = year)) +
 ```
 
 Orange spike on the right corroborates earlier hypothesis of growth in numbers of flights between year 2010-2011.
+> Plot of GDP not flights? 
 
 ```{r}
 # GDP Growth by developed or developing:
@@ -185,7 +185,7 @@ temp %>% ggplot(aes(count)) +
 favstats(temp$count)
 ```
 
-Huge sd (531.3929) and IQR of 150.25... identifying countries 2sds above the mean (i.e. 1278):
+Huge SD (531.3929) and IQR (150.25)... identifying countries 2 SDs above the mean (i.e. 1278):
 
 ```{r}
 # Identify Extreme Points:
@@ -207,7 +207,7 @@ temp %>% ggplot(aes(count)) +
 favstats(temp$count)
 ```
 
-Similarly huge  sd (530.3375, difference of 1.05 from outbound flights) and same IQR of 150.25... identifying countries 2sds above the mean (i.e. 1276):
+Similarly huge SD (530.3375, difference of 1.05 from outbound flights) and same IQR of 150.25... identifying countries 2 SDs above the mean (i.e. 1276):
 
 ```{r}
 # Identify Extreme Points:
@@ -225,6 +225,8 @@ data %>% group_by(developed.x) %>% summarize(count=n()) %>% ggplot(aes(as.factor
   ggtitle("outbound flights for developing vs developed countries")
 ```
 
+We can very clearly see that there are more outbound flights from developed than developing countries.
+
 ### SLR - Average Growth to predict flights:
 
 #### Parametric Regression:
@@ -237,7 +239,7 @@ temp %>% ggplot(aes(avg_growth.x, count)) +
   ggtitle("SLR between source country avg GDP growth and # flights")
 ```
 
-Positive linear relationship suggests more GDP growth -> more flights, note this is a count of flights across the entire dataset, and does not therefore suggest a direct increase in the number of flights for countries with high GDP growth.
+Positive linear relationship suggests more GDP growth is associated with more flights. **Note** that this is a count of flights across the entire dataset, and does not therefore suggest a direct increase in the number of flights for countries with high GDP growth.
 
 Investigating whether GDP growth leads to an increase in the number of  flights in the consecutive year is worth investigating, but not available to us given the current dataset which does not inform us  of the date  of any given flight.
 
@@ -246,6 +248,8 @@ mod <-  lm(count ~ avg_growth.x, data = temp)
 summary(mod)
 ```
 
+The p-value of $0.4419$ is not significant at any appropriate $\alpha$ level. Average GDP growth does not appear to be a significant predictor of the total count of flights.
+
 #### Non-parametric Regression:
 
 ```{r}
@@ -253,7 +257,7 @@ np_mod <- rfit(count ~ avg_growth.x, data = temp)
 summary(np_mod, overall = 'drop')
 ```
 
-Currently both overall models tests give insignificant results, but the parametric model is closer to significant.
+Currently both overall models tests give insignificant results, but the parametric model is closer to significant. 
 
 ### Travel Increased in Recently Developed Countries?
 
@@ -275,8 +279,49 @@ temp %>% filter(developed.x==1, destination.country!=source.country) %>% arrange
 temp %>% filter(developed.x==0, destination.country!=source.country) %>% arrange(desc(count)) %>% head(5)
 ```
 
+
 Without normalization, we find that the top 5 overseas destinations of developed countries are Spain, the UK, Germany (x2), and Spain.
 
 Whereas for developing countries, these destinations are Japan, the UAE, China, Guinea, and Singapore.
 
 In our analysis we'll conduct a z-test for proportions.
+
+> I think we want destination counts not connected to a specific source. Revision below?
+
+```{r}
+hold <- data %>% filter(destination.country != source.country) %>%
+  filter(developed.x == 1) %>%
+  group_by(destination.country) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  head(5); hold
+```
+
+```{r}
+hold2 <- data %>% filter(destination.country != source.country) %>%
+  filter(developed.x == 0) %>%
+  group_by(destination.country) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  head(5); hold2
+```
+
+> If we include travel within one's own country:
+
+```{r}
+hold3 <- data %>% filter(developed.x == 1) %>%
+  group_by(destination.country) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  head(5); hold3
+```
+> Exactly the same.
+
+```{r}
+hold4 <- data %>% filter(developed.x == 0) %>%
+  group_by(destination.country) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  head(5); hold4
+```
+> Does change.
