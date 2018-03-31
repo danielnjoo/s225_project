@@ -26,6 +26,8 @@ data <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
 data %>% dim()
 ```
 
+The dataset includes 45 variables and 33,559 flights.
+
 ### Summary Command:
 ```{r}
 summary(data)
@@ -93,7 +95,8 @@ Numbers of flights for each source country over entire dataset:
 data %>% group_by(Country.Code.x, developed.x) %>% summarize(count=n()) -> temp 
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
-  coord_flip()
+  coord_flip() + 
+  labs(title = "Number of Flights per Source Country", x = "Country", y = "Count")
 ```
 
 The developing outlier is China:
@@ -132,7 +135,6 @@ ggplot(data2, aes(x = GDP, color = as.factor(developed.x))) +
 
 GDP is clearly differentiated by developing/developed status of the source country. This is as expected.
 
-
 ```{r}
 # Distribution of GDP Growth:
 data3 <- dplyr::select(data, growth10_11=growth10_11.x, growth11_12=growth11_12.x, growth12_13=growth12_13.x, growth13_14=growth13_14.x, growth14_15=growth14_15.x, growth15_16=growth15_16.x, Country.Code.x, developed.x)
@@ -147,9 +149,6 @@ ggplot(data3, aes(x = GDP_Growth, color = year)) +
   ggtitle("Density plot of source country GDP growth")
 ```
 
-Orange spike on the right corroborates earlier hypothesis of growth in numbers of flights between year 2010-2011.
-> Plot of GDP not flights? 
-
 ```{r}
 # GDP Growth by developed or developing:
 ggplot(data3, aes(x = GDP_Growth, color = as.factor(developed.x))) + 
@@ -159,7 +158,6 @@ ggplot(data3, aes(x = GDP_Growth, color = as.factor(developed.x))) +
   ggtitle("Density plot of source country GDP growth by status") + 
   theme(legend.position='bottom')
 ```
-
 
 ```{r}
 # Distribution of Average GDP Growth:
@@ -239,7 +237,7 @@ temp %>% ggplot(aes(avg_growth.x, count)) +
   ggtitle("SLR between source country avg GDP growth and # flights")
 ```
 
-Positive linear relationship suggests more GDP growth is associated with more flights. **Note** that this is a count of flights across the entire dataset, and does not therefore suggest a direct increase in the number of flights for countries with high GDP growth.
+Positive linear relationship suggests more GDP growth is associated with more flights. There appears to be one major outlier. **Note** that this is a count of flights across the entire dataset, and does not therefore suggest a direct increase in the number of flights for countries with high GDP growth.
 
 Investigating whether GDP growth leads to an increase in the number of  flights in the consecutive year is worth investigating, but not available to us given the current dataset which does not inform us  of the date  of any given flight.
 
@@ -273,31 +271,17 @@ As we don't have date information, we can compare normalized flights for this gr
 
 ### Travel Locations
 
-```{r}
-data %>% group_by(destination.country, source.country, developed.x) %>% summarize(count=n())  -> temp
-temp %>% filter(developed.x==1, destination.country!=source.country) %>% arrange(desc(count)) %>% head(5)
-temp %>% filter(developed.x==0, destination.country!=source.country) %>% arrange(desc(count)) %>% head(5)
-```
-
-
-Without normalization, we find that the top 5 overseas destinations of developed countries are Spain, the UK, Germany (x2), and Spain.
-
-Whereas for developing countries, these destinations are Japan, the UAE, China, Guinea, and Singapore.
-
-In our analysis we'll conduct a z-test for proportions.
-
-> I think we want destination counts not connected to a specific source. Revision below?
+First, we can look at travel outside of one's own country (source does not equal destination):
 
 ```{r}
+# Developed
 hold <- data %>% filter(destination.country != source.country) %>%
   filter(developed.x == 1) %>%
   group_by(destination.country) %>%
   summarize(count = n()) %>%
   arrange(desc(count)) %>%
   head(5); hold
-```
-
-```{r}
+# Developing
 hold2 <- data %>% filter(destination.country != source.country) %>%
   filter(developed.x == 0) %>%
   group_by(destination.country) %>%
@@ -306,16 +290,12 @@ hold2 <- data %>% filter(destination.country != source.country) %>%
   head(5); hold2
 ```
 
-> If we include travel within one's own country:
 
-```{r}
-hold3 <- data %>% filter(developed.x == 1) %>%
-  group_by(destination.country) %>%
-  summarize(count = n()) %>%
-  arrange(desc(count)) %>%
-  head(5); hold3
-```
-> Exactly the same.
+Without normalization, we find that the top 5 overseas destinations of developed countries are the UK, Germany, Spain, Italy, and France.
+
+Whereas for developing countries, these destinations are the UAE, Singapore, Japan, France, and China.
+
+If we include travel within one's own country (souce can equal destination), the results are the same for the developed countries, but differ slightly for the developing ones:
 
 ```{r}
 hold4 <- data %>% filter(developed.x == 0) %>%
@@ -324,4 +304,8 @@ hold4 <- data %>% filter(developed.x == 0) %>%
   arrange(desc(count)) %>%
   head(5); hold4
 ```
-> Does change.
+
+Now the top five destinations for developing countries are China, India, Indonesia, UAE, and Singapore.
+
+In our analysis we'll conduct a z-test for proportions.
+
