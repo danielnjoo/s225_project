@@ -22,6 +22,7 @@ require(Rfit)
 
 ### Data Read-In:
 ```{r}
+groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv") %>% dplyr::select(-X1)
 data <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
 data %>% dim()
 ```
