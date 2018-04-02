@@ -225,7 +225,7 @@ data %>% group_by(developed.x) %>% summarize(count=n()) %>% ggplot(aes(as.factor
 
 We can very clearly see that there are more outbound flights from developed than developing countries.
 
-### SLR - Average Growth to predict flights:
+### SLR - Average Growth to Predict Total Number of Flights per Country:
 
 #### Parametric Regression:
 
@@ -246,7 +246,16 @@ mod <-  lm(count ~ avg_growth.x, data = temp)
 summary(mod)
 ```
 
+```{r}
+# Conditions:
+plot(mod, which = 1)
+plot(mod, which = 2)
+```
 The p-value of $0.4419$ is not significant at any appropriate $\alpha$ level. Average GDP growth does not appear to be a significant predictor of the total count of flights.
+
+Conditions do not appear to be met for parametric linear regression. The points do not appear to be equally distributed above and below zero. Additionally, they appear to following a negative trend (as indicated by the red line). Normality is also violated. The observed residuals diverge from the reference line heavily at the upper end. 
+
+Normalizing the counts by population may fix this problem.
 
 #### Non-parametric Regression:
 
@@ -259,6 +268,8 @@ Currently both overall models tests give insignificant results, but the parametr
 
 ### Travel Increased in Recently Developed Countries?
 
+Given that there is no `year` associated with each flight, we can determine if the average number of flights (normalized by population size for each country) is significantly greater for recently developed countries versus developing countries. An additional comparison can be made between recently developed countries and established, developed countries.
+
 ```{r}
 data %>% group_by(source.country, X2010.x, X2016.x, developed.x) %>% summarize() -> temp
 temp %>% mutate(developed.x2 = ifelse(X2016.x>12000,1,0)) -> temp
@@ -266,8 +277,6 @@ temp[which(temp$developed.x2-temp$developed.x==1),]
 ```
 
 We find that 7 of the 156 countries in the dataset were undeveloped in 2010 (\$10490.48), and developed in 2016 (\$12000). 
-
-As we don't have date information, we can compare normalized flights for this group of countries vs. undeveloped countries, and see if there's a significant difference.
 
 ### Travel Locations
 
