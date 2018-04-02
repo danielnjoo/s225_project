@@ -105,13 +105,12 @@ hold <- left_join(hold, pop, by = c("destination.country" = "Country"))
 colnames(hold)[48:49] <- c("destination.population", "destination.rank")
 
 final_data <- hold
-
 ```
 
 There were 3 countries whose name was entered different between the population data and `final_data`. These were changed before the join.
 
 
 ```{r}
-write.csv(final_data, "data/final_data.csv")
+write.csv(final_data, "Data/final_data.csv")
 ```
 
