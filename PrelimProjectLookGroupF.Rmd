@@ -3,6 +3,7 @@ title: "Prelim Project Look - GroupF"
 author: "Jocelyn, Daniel"
 date: "3/1/2018"
 output:
+  html_document: default
   pdf_document:
     fig_height: 3
     fig_width: 7
@@ -107,6 +108,19 @@ temp %>% arrange(count) %>% tail(1)
 ```
 
 If we normalized flights for population, this would be less of an outlier.
+
+```{r}
+groupfdata %>% group_by(Country.Code.x, developed.x, source.population) %>% 
+  summarize(count=n()) -> temp; temp
+
+temp <- temp %>% mutate(count = count/source.population) %>% group_by(Country.Code.x,developed.x) %>% summarize(count = sum(count)); temp # Two very similar values of population for countries? 
+
+temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
+  geom_bar(stat='identity') + 
+  coord_flip() + 
+  labs(title = "Normalized Number of Flights per Source Country", x = "Country", y = "Count")
+```
+
 
 ### GDP (source countries)
 
@@ -258,12 +272,81 @@ Conditions do not appear to be met for parametric linear regression. The points 
 
 Normalizing the counts by population may fix this problem.
 
+```{r}
+groupfdata %>% group_by(source.country, avg_growth.x, source.population, developed.x) %>% 
+  summarize(count=n()) -> temp; temp
+
+afg <- groupfdata %>% filter(source.country == "Afghanistan")
+afg # All the same - some not rounding in the above code?
+
+temp <- temp %>% mutate(count = count/source.population) %>% group_by(source.country, avg_growth.x, developed.x) %>% summarize(count = sum(count)); temp # Two very similar values of population for countries?
+
+temp <- temp %>% mutate(log_count = log(count))
+
+temp %>% ggplot(aes(avg_growth.x, log_count, color = as.factor(developed.x))) + 
+  geom_point() + 
+  geom_smooth(method = 'lm', se=F) +
+  ggtitle("SLR between source country avg GDP growth and Normalized # flights")
+```
+
+```{r}
+mod2 <- lm(log_count ~ avg_growth.x, data = temp)
+summary(mod2)
+
+mod3 <- lm(log_count ~ avg_growth.x + developed.x, data = temp)
+summary(mod3)
+```
+
+Normalizing does not improve the model, but logging the normalized counts does. Logging fixes the conditions. R-squared is miniscule:
+
+```{r}
+plot(mod2, which = 1)
+plot(mod2, which = 2)
+
+plot(mod3, which = 1)
+plot(mod3, which = 2)
+```
+
+Just a parallel slopes model? 
+
+```{r}
+mod4 <- lm(log_count ~ developed.x, data = temp)
+summary(mod4)
+```
+
+Growth is maybe significant (see mod2), but developed is. And developed accounts for 26% of the variation.
+
+```{r}
+plot(mod4, which = 1)
+plot(mod4, which = 2)
+```
+
+> May have minor normality concern.
+
 #### Non-parametric Regression:
 
 ```{r}
 np_mod <- rfit(count ~ avg_growth.x, data = temp)
 summary(np_mod, overall = 'drop')
 ```
+
+> avg growth significant now after normalization
+
+```{r}
+np_mod2 <- rfit(log_count ~ avg_growth.x, data = temp)
+summary(np_mod2, overall = 'drop')
+```
+
+> Even more significant than the above as well as the parametric equivalent. R squared obnoxiously low.
+
+```{r}
+np_mod3 <- rfit(log_count ~ developed.x, data = temp)
+summary(np_mod3, overall = 'drop')
+```
+
+> Similar to parametric procedure here.
+> Do we want to add in a procedure to see if there is a difference in the average counts (or log counts) for devloped vs. developing countries? 
+
 
 Currently both overall models tests give insignificant results, but the parametric model is closer to significant. 
 
