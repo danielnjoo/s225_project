@@ -22,7 +22,7 @@ require(Rfit)
 ## Data Summary
 
 ### Data Read-In:
-```{r}
+```{r, message = FALSE}
 groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv") %>% dplyr::select(-X1)
 data <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
 data %>% dim()
@@ -243,6 +243,8 @@ We can very clearly see that there are more outbound flights from developed than
 
 ### Prediction of Total Number of Flights per Country by Average Growth
 
+Investigating whether GDP growth leads to an increase in the number of flights in the consecutive year is worth investigating, but not available to us given the current dataset which does not inform us of the date of any given flight. Our data does allow us to see if we can predict the total number of flights per country by that countries average Per Capita GDP growth.
+
 #### Smoothing
 
 To analyze the relationship between the Total Number of Flights per Country and Average Per Capita GDP, we begin by looking at a scatterplot to verify if the Linearity condition is met and whether or not transformations may be necessary.
@@ -293,109 +295,87 @@ The Loess smoother suggests a curved relationship between the data, rather than 
 ```{r, warning = FALSE}
 normal <- normal %>% mutate(log_count = log(count))
 
-normal %>% ggplot(aes(avg_growth.x, log_count, color = as.factor(developed.x))) + 
+normal %>% ggplot(aes(avg_growth.x, log_count)) + 
   geom_point() + 
   geom_smooth(method = 'lm', se=F) +
-  ggtitle("SLR between source country avg GDP growth and Normalized # flights")
+  labs(title = "Normalized Log Number of Flights Per Source Country vs. Avg GDP Growth", x = "Average Growth", y = "Natural Log Counts")
 ```
 
-
-
-Investigating whether GDP growth leads to an increase in the number of  flights in the consecutive year is worth investigating, but not available to us given the current dataset which does not inform us  of the date  of any given flight.
+> Add Commentary
 
 ```{r}
-mod <-  lm(count ~ avg_growth.x, data = temp)
-summary(mod)
+normal %>% ggplot(aes(avg_growth.x, log_count)) + 
+  geom_point() + 
+  geom_smooth(method = 'loess', se=F, color = "red") +
+  labs(title = "Normalized Log Number of Flights Per Source Country vs. Avg GDP Growth", x = "Average Growth", y = "Natural Log Counts")
 ```
+
+> Add commentary
+
+```{r}
+normal_minus <- normal %>% filter(avg_growth.x < 12)
+outliers <- normal %>% filter(avg_growth.x > 12)
+
+normal_minus %>% ggplot(aes(avg_growth.x, log_count)) + 
+  geom_point() + 
+  geom_smooth(method = 'loess', se=F, color = "red") +
+  labs(title = "Normalized Log Number of Flights Per Source Country vs. Avg GDP Growth", x = "Average Growth", y = "Natural Log Counts")
+
+```
+
+> Add commentary.
+> Outlier: Nauru - developing country - include or not? or try both?
+
+For this analysis, parametric and non-parametric regression procedures will be carried out on average GDP growth and the normalized, natural log of the number of flights per source country.
+
+
+#### Parametric Regression
+
+> Insert Commentary
+
+```{r}
+p_mod <-  lm(log_count ~ avg_growth.x, data = normal)
+summary(p_mod)
+```
+
+The T-value for the slope coefficient of `avg_growth.x` is $-2.32$ with an associated p-value of $0.0211$. At $\alpha = 0.05$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity is met and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
 
 ```{r}
 # Conditions:
-plot(mod, which = 1)
-plot(mod, which = 2)
-```
-The p-value of $0.4419$ is not significant at any appropriate $\alpha$ level. Average GDP growth does not appear to be a significant predictor of the total count of flights.
+plot(p_mod, which = 1)
+plot(p_mod, which = 2)
 
-Conditions do not appear to be met for parametric linear regression. The points do not appear to be equally distributed above and below zero. Additionally, they appear to following a negative trend (as indicated by the red line). Normality is also violated. The observed residuals diverge from the reference line heavily at the upper end. 
-
-Normalizing the counts by population may fix this problem.
-
-```{r}
-groupfdata %>% group_by(source.country, avg_growth.x, source.population, developed.x) %>% 
-  summarize(count=n()) -> temp; temp
-
-afg <- groupfdata %>% filter(source.country == "Afghanistan")
-afg # All the same - some not rounding in the above code?
-
-temp <- temp %>% mutate(count = count/source.population) %>% group_by(source.country, avg_growth.x, developed.x) %>% summarize(count = sum(count)); temp # Two very similar values of population for countries?
-
-temp <- temp %>% mutate(log_count = log(count))
-
-temp %>% ggplot(aes(avg_growth.x, log_count, color = as.factor(developed.x))) + 
-  geom_point() + 
-  geom_smooth(method = 'lm', se=F) +
-  ggtitle("SLR between source country avg GDP growth and Normalized # flights")
 ```
 
-```{r}
-mod2 <- lm(log_count ~ avg_growth.x, data = temp)
-summary(mod2)
+For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around 0. There is one point to take note of: 179, which corresponds to the outlier identified earlier (Nauru). Looking at the QQ plot, there is very little deviation from the reference line. Therefore, the Noramlity condition is also met. 
 
-mod3 <- lm(log_count ~ avg_growth.x + developed.x, data = temp)
-summary(mod3)
-```
+> Conclusion - significance, point out very low R-squared.
 
-Normalizing does not improve the model, but logging the normalized counts does. Logging fixes the conditions. R-squared is miniscule:
+> Looking at just Developed as a Predictor.
 
-```{r}
-plot(mod2, which = 1)
-plot(mod2, which = 2)
 
-plot(mod3, which = 1)
-plot(mod3, which = 2)
-```
+#### Non-parametric Regression
 
-Just a parallel slopes model? 
+> Insert Commentary:
 
 ```{r}
-mod4 <- lm(log_count ~ developed.x, data = temp)
-summary(mod4)
-```
-
-Growth is maybe significant (see mod2), but developed is. And developed accounts for 26% of the variation.
-
-```{r}
-plot(mod4, which = 1)
-plot(mod4, which = 2)
-```
-
-> May have minor normality concern.
-
-#### Non-parametric Regression:
-
-```{r}
-np_mod <- rfit(count ~ avg_growth.x, data = temp)
+np_mod <- rfit(log_count ~ avg_growth.x, data = normal)
 summary(np_mod, overall = 'drop')
 ```
 
-> avg growth significant now after normalization
+> Report t value and p-value.
+> Don't need to check Normality - just Equal Variance
 
 ```{r}
-np_mod2 <- rfit(log_count ~ avg_growth.x, data = temp)
-summary(np_mod2, overall = 'drop')
+plot(np_mod$residuals ~ np_mod$fitted.values)
 ```
 
-> Even more significant than the above as well as the parametric equivalent. R squared obnoxiously low.
+> Same outlier seen in parametric.
 
-```{r}
-np_mod3 <- rfit(log_count ~ developed.x, data = temp)
-summary(np_mod3, overall = 'drop')
-```
+> Conclusions
 
-> Similar to parametric procedure here.
-> Do we want to add in a procedure to see if there is a difference in the average counts (or log counts) for devloped vs. developing countries? 
+> Comparison.
 
-
-Currently both overall models tests give insignificant results, but the parametric model is closer to significant. 
 
 ### Travel Increased in Recently Developed Countries?
 
@@ -408,6 +388,26 @@ temp[which(temp$developed.x2-temp$developed.x==1),]
 ```
 
 We find that 7 of the 156 countries in the dataset were undeveloped in 2010 (\$10490.48), and developed in 2016 (\$12000). 
+
+> Add recently developed to the below plots:
+
+```{r, warning = FALSE}
+normal %>% ggplot(aes(avg_growth.x, log_count, color = as.factor(developed.x))) + 
+  geom_point() + 
+  geom_smooth(method = 'lm', se=F) +
+  ggtitle("SLR between source country avg GDP growth and Normalized # flights")
+```
+
+```{r, warning = FALSE}
+normal %>% ggplot(aes(avg_growth.x, log_count, color = as.factor(developed.x))) + 
+  geom_point() + 
+  geom_smooth(method = 'loess', se=F) +
+  ggtitle("SLR between source country avg GDP growth and Normalized # flights")
+```
+
+> Anova?
+> Or just fit parallel slopes model?
+
 
 ### Travel Locations
 
