@@ -240,11 +240,14 @@ data %>% group_by(developed.x) %>% summarize(count=n()) %>% ggplot(aes(as.factor
 
 We can very clearly see that there are more outbound flights from developed than developing countries.
 
-### SLR - Average Growth to Predict Total Number of Flights per Country:
 
-#### Parametric Regression:
+### Prediction of Total Number of Flights per Country by Average Growth
 
-```{r}
+#### Smoothing
+
+To analyze the relationship between the Total Number of Flights per Country and Average Per Capita GDP, we begin by looking at a scatterplot to verify if the Linearity condition is met and whether or not transformations may be necessary.
+
+```{r, warning = FALSE}
 data %>% group_by(source.country, avg_growth.x) %>% summarize(count=n()) -> temp
 temp %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
@@ -252,7 +255,51 @@ temp %>% ggplot(aes(avg_growth.x, count)) +
   ggtitle("SLR between source country avg GDP growth and # flights")
 ```
 
-Positive linear relationship suggests more GDP growth is associated with more flights. There appears to be one major outlier. **Note** that this is a count of flights across the entire dataset, and does not therefore suggest a direct increase in the number of flights for countries with high GDP growth.
+The plot above is a simple scatterplot of the average growth of the source country against the total count of flights for each source country. There does not appear to be any obvious trend in the data as the majority appear to be clustered together. There is one particularly extreme outlier at approximately 2900 flights. As discussed above, this outlier is China. The blue line represents the least squares fitted line. From this, we see that there is possibly a positive linear relationship between average growth and the number of flights. 
+
+Using the `loess` smoother, another fitted line was generated from the same data as above:
+```{r, warning = FALSE}
+temp %>% ggplot(aes(avg_growth.x, count)) + 
+  geom_point() + 
+  geom_smooth(method = 'loess', se=F, color = "red") +
+  ggtitle("SLR between source country avg GDP growth and # flights")
+```
+
+This new fitted line is curved with two small peaks around an average growth of 2.5 and another around 11. This is not a linear line. Additionally, the second peak is in alignment with China and one other outlier, which may suggest that the second peak is a result of the 'pull' of the outliers. To attempt to produce a more linear relationship, we first normalize by population.
+
+```{r, warning = FALSE}
+groupfdata %>% group_by(source.country, avg_growth.x, source.population, developed.x) %>% 
+  summarize(count=n()) -> temp
+
+normal <- temp %>% mutate(count = count/source.population) %>% group_by(source.country, avg_growth.x, developed.x) %>% summarize(count = sum(count))
+
+normal %>% ggplot(aes(avg_growth.x, count)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm', se=F) +
+  ggtitle("SLR between source country avg GDP growth and Normalized # flights")
+```
+
+Despite normalizing, there are still outliers present.
+
+```{r, warning = FALSE}
+normal %>% ggplot(aes(avg_growth.x, count)) + 
+  geom_point() + 
+  geom_smooth(method = 'loess', se=F, col = "red") +
+  ggtitle("SLR between source country avg GDP growth and Normalized # flights")
+```
+
+The Loess smoother suggests a curved relationship between the data, rather than a strictly linear one. It appears that the trend may be exponential or close to an exponential curve. Keeping the normalized data, we can compare average growth to the natural log of the counts.
+
+```{r, warning = FALSE}
+normal <- normal %>% mutate(log_count = log(count))
+
+normal %>% ggplot(aes(avg_growth.x, log_count, color = as.factor(developed.x))) + 
+  geom_point() + 
+  geom_smooth(method = 'lm', se=F) +
+  ggtitle("SLR between source country avg GDP growth and Normalized # flights")
+```
+
+
 
 Investigating whether GDP growth leads to an increase in the number of  flights in the consecutive year is worth investigating, but not available to us given the current dataset which does not inform us  of the date  of any given flight.
 
