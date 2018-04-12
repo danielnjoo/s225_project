@@ -270,10 +270,10 @@ temp %>% ggplot(aes(avg_growth.x, count)) +
 This new fitted line is curved with two small peaks around an average growth of 2.5 and another around 11. This is not a linear line. Additionally, the second peak is in alignment with China and one other outlier, which may suggest that the second peak is a result of the 'pull' of the outliers. To attempt to produce a more linear relationship, we first normalize by population.
 
 ```{r, warning = FALSE}
-groupfdata %>% group_by(source.country, avg_growth.x, source.population, developed.x) %>% 
+groupfdata %>% group_by(source.country, avg_growth.x, source.population, developed.x, X2016.x) %>% 
   summarize(count=n()) -> temp
 
-normal <- temp %>% mutate(count = count/source.population) %>% group_by(source.country, avg_growth.x, developed.x) %>% summarize(count = sum(count))
+normal <- temp %>% mutate(count = count/source.population) %>% group_by(source.country, avg_growth.x, developed.x, X2016.x) %>% summarize(count = sum(count))
 
 normal %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
@@ -303,7 +303,7 @@ normal %>% ggplot(aes(avg_growth.x, log_count)) +
 
 > Add Commentary
 
-```{r}
+```{r, warning = FALSE}
 normal %>% ggplot(aes(avg_growth.x, log_count)) + 
   geom_point() + 
   geom_smooth(method = 'loess', se=F, color = "red") +
@@ -312,7 +312,7 @@ normal %>% ggplot(aes(avg_growth.x, log_count)) +
 
 > Add commentary
 
-```{r}
+```{r, warning = FALSE}
 normal_minus <- normal %>% filter(avg_growth.x < 12)
 outliers <- normal %>% filter(avg_growth.x > 12)
 
@@ -332,9 +332,10 @@ For this analysis, parametric and non-parametric regression procedures will be c
 #### Parametric Regression
 
 > Insert Commentary
+> Exclusion of outlier leads to minor improvement of conditions, increase in R-squared, and smaller p-value. Fit with or without outlier?
 
 ```{r}
-p_mod <-  lm(log_count ~ avg_growth.x, data = normal)
+p_mod <-  lm(log_count ~ avg_growth.x, data = normal_minus)
 summary(p_mod)
 ```
 
@@ -359,7 +360,7 @@ For the most part, the Equal Variance condition appears to be met. The residuals
 > Insert Commentary:
 
 ```{r}
-np_mod <- rfit(log_count ~ avg_growth.x, data = normal)
+np_mod <- rfit(log_count ~ avg_growth.x, data = normal_minus)
 summary(np_mod, overall = 'drop')
 ```
 
@@ -389,17 +390,26 @@ temp[which(temp$developed.x2-temp$developed.x==1),]
 
 We find that 7 of the 156 countries in the dataset were undeveloped in 2010 (\$10490.48), and developed in 2016 (\$12000). 
 
-> Add recently developed to the below plots:
+> Add Commentary - proceed with or without outlier? Changes the shape of the smoother
 
 ```{r, warning = FALSE}
-normal %>% ggplot(aes(avg_growth.x, log_count, color = as.factor(developed.x))) + 
+check <- normal %>% mutate(developed.x2 = ifelse(X2016.x > 12000, 1, 0)) %>% 
+  mutate(recent_development.x = ifelse(developed.x == 0 & developed.x2 == 0, "Developing", ifelse(developed.x == 0 & developed.x2 == 1, "Recently Developed", "Developed"))) %>% filter(!is.na(recent_development.x))
+
+check2 <- check %>% filter(avg_growth.x < 12)
+
+check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) + 
   geom_point() + 
   geom_smooth(method = 'lm', se=F) +
   ggtitle("SLR between source country avg GDP growth and Normalized # flights")
+
+check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot()
 ```
 
+> Insert Commentary:
+
 ```{r, warning = FALSE}
-normal %>% ggplot(aes(avg_growth.x, log_count, color = as.factor(developed.x))) + 
+check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) + 
   geom_point() + 
   geom_smooth(method = 'loess', se=F) +
   ggtitle("SLR between source country avg GDP growth and Normalized # flights")
@@ -407,6 +417,39 @@ normal %>% ggplot(aes(avg_growth.x, log_count, color = as.factor(developed.x))) 
 
 > Anova?
 > Or just fit parallel slopes model?
+> OR BOTH?
+
+```{r}
+# With outlier:
+p_mod2 <- lm(log_count ~ recent_development.x, data = check)
+anova(p_mod2) 
+# Without:
+p_mod3 <- lm(log_count ~ recent_development.x, data = check2)
+anova(p_mod3)
+```
+
+> Verify Equal Variance:
+
+```{r}
+favstats(log_count ~ recent_development.x, data = check) # Fine
+```
+
+> Concern for Normality.
+
+> Commentary for NP ANOVA:
+
+```{r}
+# Not working?
+
+```
+
+> Verify Shift Model - Roughly appropriate:
+
+```{r}
+check %>% ggplot(aes(log_count, color = recent_development.x)) + geom_density()
+```
+
+> Report results + Compare
 
 
 ### Travel Locations
