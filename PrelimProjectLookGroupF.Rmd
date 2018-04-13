@@ -403,7 +403,6 @@ check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) +
   geom_smooth(method = 'lm', se=F) +
   ggtitle("SLR between source country avg GDP growth and Normalized # flights")
 
-check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot()
 ```
 
 > Insert Commentary:
@@ -428,19 +427,26 @@ p_mod3 <- lm(log_count ~ recent_development.x, data = check2)
 anova(p_mod3)
 ```
 
-> Verify Equal Variance:
+> Commentary - Verify conditions.
 
 ```{r}
 favstats(log_count ~ recent_development.x, data = check) # Fine
+check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot()
 ```
 
-> Concern for Normality.
+> Concern for Normality - do NP, Equal Variance Looks good. 
+
+```{r}
+# Fisher's LSD:
+with(check, pairwise.t.test(log_count, recent_development.x))
+```
+
+> Commentary on Parametric MC
 
 > Commentary for NP ANOVA:
 
 ```{r}
-# Not working?
-
+kruskal.test(log_count~as.factor(recent_development.x), data=check)
 ```
 
 > Verify Shift Model - Roughly appropriate:
@@ -449,7 +455,15 @@ favstats(log_count ~ recent_development.x, data = check) # Fine
 check %>% ggplot(aes(log_count, color = recent_development.x)) + geom_density()
 ```
 
-> Report results + Compare
+> Comments on Plot
+
+> Report results of NP ANOVA - MC
+
+```{r}
+with(check, pairwise.wilcox.test(log_count, recent_development.x))
+```
+
+> Report, Conclude, and Compare
 
 
 ### Travel Locations
