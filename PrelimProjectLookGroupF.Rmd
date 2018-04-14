@@ -1,15 +1,15 @@
 ---
-title: "Prelim Project Look - GroupF"
+title: "Travel in Developed and Developing Countries"
 author: "Jocelyn, Daniel"
 date: "3/1/2018"
 output:
-  html_document: default
   pdf_document:
     fig_height: 3
     fig_width: 7
+  html_document: default
 ---
 
-# Project Title: Travel in Developed and Developing Countries
+# Technical Appendix
 
 ```{r, include = FALSE}
 library(tidyverse)
@@ -22,22 +22,23 @@ require(Rfit)
 ## Data Summary
 
 ### Data Read-In:
-```{r, message = FALSE}
-groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv") %>% dplyr::select(-X1)
-data <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
-data %>% dim()
+```{r, message = FALSE, warning = FALSE}
+groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv") 
+groupfdata <- groupfdata %>% dplyr::select(-X1)
+
+#data <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
+#data %>% dim()
 ```
 
-The dataset includes 45 variables and 33,559 flights.
+The dataset includes 49 variables and 33,559 flights.
 
-### Summary Command:
+### Variables:
 ```{r}
-summary(data)
+# summary(groupfdata)
 ```
 
-## Data Codebook
+**Categorical Variables:**
 
-### Categorical Variables:
 - airline
 - airline.ID
 - source.airport
@@ -56,7 +57,8 @@ summary(data)
 - Country.Code.y
 - developed.y (0 = developing; 1 = developed)
 
-### Quantitative Variables:
+**Quantitative Variables:**
+
 - X2010.x:X2016.x (GDP each year from 2010 - 2016)
 - growth10_11.x:growth15_16.x (GDP growth between two years from 2010 - 2016)
 - avg_growth.x
@@ -64,37 +66,35 @@ summary(data)
 - growth10_11.y:growth15_16.y (GDP growth between two years from 2010 - 2016)
 - avg_growth.y
 
-**Please note** that a variable name with a '.x' corresponds to the source country of the flight and a variable name with a '.y' correpsonds to the destination country of the flight. Additionally, `developed` is a categorical variable that indicates whether a country is developing or developed using the GDP cutoff of 10,490 dollars. This value is inflation adjusted from $12,000 today's dollars.
+**Please note** that a variable name with a '.x' corresponds to the source country of the flight and a variable name with a '.y' corresponds to the destination country of the flight. Additionally, `developed` is a categorical variable that indicates whether a country is developing or developed using the GDP cutoff of 10,490 dollars. This value is inflation adjusted from 12,000 today's dollars.
 
-## Analysis Plan
+## Preliminary Univariate Analysis
 
-### Selected Univariate Analysis
-
-#### Countries
+### Countries
 
 ```{r}
-data$source.country %>% unique() %>% length()
-data$destination.country %>% unique() %>% length()
+groupfdata$source.country %>% unique() %>% length()
+groupfdata$destination.country %>% unique() %>% length()
 ```
 
 156 unique source and destination countries.
 
 ```{r}
-length(which(data$developed.x==1))/nrow(data)
+length(which(groupfdata$developed.x==1))/nrow(groupfdata)
 ```
 
 Of which 68% of the outbound countries are developed.
 
 ```{r}
-length(which(data$developed.y==1))/nrow(data)
+length(which(groupfdata$developed.y==1))/nrow(groupfdata)
 ```
 
 And 68% of the inbound countries are developed.
 
 Numbers of flights for each source country over entire dataset:
 
-```{r, fig.height=6, fig.width=7}
-data %>% group_by(Country.Code.x, developed.x) %>% summarize(count=n()) -> temp 
+```{r, fig.height=6, fig.width=7, echo = FALSE}
+groupfdata %>% group_by(Country.Code.x, developed.x) %>% summarize(count=n()) -> temp 
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
   coord_flip() + 
@@ -107,13 +107,13 @@ The developing outlier is China:
 temp %>% arrange(count) %>% tail(1)
 ```
 
-If we normalized flights for population, this would be less of an outlier.
+After normalizing the flight counts by population, China is no longer an outlier:
 
-```{r}
+```{r, fig.height = 6, fig.width = 7, echo = FALSE}
 groupfdata %>% group_by(Country.Code.x, developed.x, source.population) %>% 
-  summarize(count=n()) -> temp; temp
+  summarize(count=n()) -> temp
 
-temp <- temp %>% mutate(count = count/source.population) %>% group_by(Country.Code.x,developed.x) %>% summarize(count = sum(count)); temp # Two very similar values of population for countries? 
+temp <- temp %>% mutate(count = count/source.population) %>% group_by(Country.Code.x,developed.x) %>% summarize(count = sum(count)) # Two very similar values of population for countries? 
 
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
@@ -122,15 +122,15 @@ temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) +
 ```
 
 
-### GDP (source countries)
+### Source Country Per Capita GDP
 
-```{r}
+```{r, echo = FALSE}
 # Distribution of GDP:
-data2 <- dplyr::select(data, '2010'=X2010.x, '2011'=X2011.x, '2012'=X2012.x, '2013'=X2013.x, '2014'=X2014.x, '2015'=X2015.x, '2016'=X2016.x, Country.Code.x, developed.x)
+data2 <- dplyr::select(groupfdata, '2010'=X2010.x, '2011'=X2011.x, '2012'=X2012.x, '2013'=X2013.x, '2014'=X2014.x, '2015'=X2015.x, '2016'=X2016.x, Country.Code.x, developed.x)
 data2 <- gather(data2, key = "year", value = "GDP", -Country.Code.x, -developed.x)
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # GDP Each Year:
 ggplot(data2, aes(x = GDP, color = year)) + 
   geom_density() +
@@ -139,7 +139,7 @@ ggplot(data2, aes(x = GDP, color = year)) +
 
 We find that in the time period studied (2010-2016), composition of GDP of source countries is mainly consistent. This is likely because the composition of countries themselves is relatively consistent. The orange blip (year=2010) on the lower end of GDP is removed in 2011, which suggests a shift towards higher source country GDPs in later years.
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # GDP by developed or developing:
 ggplot(data2, aes(x = GDP, color = as.factor(developed.x))) + 
   geom_density() + 
@@ -148,15 +148,15 @@ ggplot(data2, aes(x = GDP, color = as.factor(developed.x))) +
   theme(legend.position='bottom')
 ```
 
-GDP is clearly differentiated by developing/developed status of the source country. This is as expected.
+GDP is clearly differentiated by the development status of the source country. Developing countries have a narrower range of Per Capita GDP and the center of this distribution is located at the lower end of the overall Per Capita GDP range. Developed countries have a wider range of Per Capita GDP with a center located aboe the entire distribution of developing Per Capita GDP.
 
-```{r}
+```{r, echo = FALSE}
 # Distribution of GDP Growth:
-data3 <- dplyr::select(data, growth10_11=growth10_11.x, growth11_12=growth11_12.x, growth12_13=growth12_13.x, growth13_14=growth13_14.x, growth14_15=growth14_15.x, growth15_16=growth15_16.x, Country.Code.x, developed.x)
+data3 <- dplyr::select(groupfdata, growth10_11=growth10_11.x, growth11_12=growth11_12.x, growth12_13=growth12_13.x, growth13_14=growth13_14.x, growth14_15=growth14_15.x, growth15_16=growth15_16.x, Country.Code.x, developed.x)
 data3 <- gather(data3, key = "year", value = "GDP_Growth", -Country.Code.x, -developed.x)
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # GDP Growth Each Year:
 ggplot(data3, aes(x = GDP_Growth, color = year)) + 
   geom_density() + 
@@ -164,59 +164,56 @@ ggplot(data3, aes(x = GDP_Growth, color = year)) +
   ggtitle("Density plot of source country GDP growth")
 ```
 
-```{r}
-# GDP Growth by developed or developing:
-ggplot(data3, aes(x = GDP_Growth, color = as.factor(developed.x))) + 
-  geom_density() + 
-  scale_x_continuous(limits=c(-20,20)) +
-  guides(color=guide_legend(title="Developed (1) or Developing (0)")) + 
-  ggtitle("Density plot of source country GDP growth by status") + 
-  theme(legend.position='bottom')
-```
+The distributions of Per Capita GDP growth appear to be more variable between different pairs of years than the distribution of Per Capita GDP by year.
 
 ```{r}
 # Distribution of Average GDP Growth:
-ggplot(data, aes(x = avg_growth.x, color = as.factor(developed.x))) + 
+ggplot(groupfdata, aes(x = avg_growth.x, color = as.factor(developed.x))) + 
   geom_density() +
   guides(color=guide_legend(title="Developed (1) or Developing (0)")) + 
   ggtitle("Density plot of source country average GDP growth by status") + 
   theme(legend.position='bottom')
 ```
 
+The above is the distribution of the average Per Capita GDP Growth betwen 2010-2016 for developed and developing countries. Average growth for developing countries is shifted above the growth of developed countries. Additionally, the distribution is more symmetric for developed countries and left skewed for developing countries.
 
-#### Outbound Flights
+> For the above, may want to do some density estimation.
 
-```{r}
-data %>% group_by(source.country) %>% summarize(count=n()) -> temp
+
+### Outbound Flights
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+groupfdata %>% group_by(source.country) %>% summarize(count=n()) -> temp
 temp %>% ggplot(aes(count)) + 
   geom_histogram() + 
   xlab("number of outbound flights for a country") +
   ggtitle("Histogram of outbound flights/country")
 ```
 
-```{r}
+```{r, echo = FALSE}
 favstats(temp$count)
 ```
 
 Huge SD (531.3929) and IQR (150.25)... identifying countries 2 SDs above the mean (i.e. 1278):
 
-```{r}
+```{r, echo = FALSE}
 # Identify Extreme Points:
-data %>% group_by(source.country) %>% summarize(count = n()) %>% 
+groupfdata %>% group_by(source.country) %>% summarize(count = n()) %>% 
   filter(count > 1278) %>% arrange(desc(count))
 ```
 
-#### Inbound Flights
 
-```{r}
-data %>% group_by(destination.country) %>% summarize(count=n()) -> temp
+### Inbound Flights
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+groupfdata %>% group_by(destination.country) %>% summarize(count=n()) -> temp
 temp %>% ggplot(aes(count)) + 
   geom_histogram() + 
   xlab("number of inbound flights for a country") +
   ggtitle("Histogram of inbound flights/country")
 ```
 
-```{r}
+```{r, echo = FALSE}
 favstats(temp$count)
 ```
 
@@ -224,15 +221,15 @@ Similarly huge SD (530.3375, difference of 1.05 from outbound flights) and same 
 
 ```{r}
 # Identify Extreme Points:
-data %>% group_by(destination.country) %>% summarize(count = n()) %>% 
+groupfdata %>% group_by(destination.country) %>% summarize(count = n()) %>% 
   filter(count > 1276) %>% arrange(desc(count)) 
 ```
 
 
-#### Developed vs Developing Countries Outbound Flights
+### Developed vs. Developing Countries Outbound Flights
 
-```{r}
-data %>% group_by(developed.x) %>% summarize(count=n()) %>% ggplot(aes(as.factor(developed.x),count)) + 
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+groupfdata %>% group_by(developed.x) %>% summarize(count=n()) %>% ggplot(aes(as.factor(developed.x),count)) + 
   geom_bar(stat='identity') + 
   xlab("developed (1) vs developing (0) countries") + 
   ggtitle("outbound flights for developing vs developed countries")
@@ -241,16 +238,16 @@ data %>% group_by(developed.x) %>% summarize(count=n()) %>% ggplot(aes(as.factor
 We can very clearly see that there are more outbound flights from developed than developing countries.
 
 
-### Prediction of Total Number of Flights per Country by Average Growth
+## Prediction of Total Number of Flights per Country by Average Growth
 
 Investigating whether GDP growth leads to an increase in the number of flights in the consecutive year is worth investigating, but not available to us given the current dataset which does not inform us of the date of any given flight. Our data does allow us to see if we can predict the total number of flights per country by that countries average Per Capita GDP growth.
 
-#### Smoothing
+### Smoothing
 
 To analyze the relationship between the Total Number of Flights per Country and Average Per Capita GDP, we begin by looking at a scatterplot to verify if the Linearity condition is met and whether or not transformations may be necessary.
 
 ```{r, warning = FALSE}
-data %>% group_by(source.country, avg_growth.x) %>% summarize(count=n()) -> temp
+groupfdata %>% group_by(source.country, avg_growth.x) %>% summarize(count=n()) -> temp
 temp %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
   geom_smooth(method = 'lm', se=F) +
@@ -383,7 +380,7 @@ plot(np_mod$residuals ~ np_mod$fitted.values)
 Given that there is no `year` associated with each flight, we can determine if the average number of flights (normalized by population size for each country) is significantly greater for recently developed countries versus developing countries. An additional comparison can be made between recently developed countries and established, developed countries.
 
 ```{r}
-data %>% group_by(source.country, X2010.x, X2016.x, developed.x) %>% summarize() -> temp
+groupfdata %>% group_by(source.country, X2010.x, X2016.x, developed.x) %>% summarize() -> temp
 temp %>% mutate(developed.x2 = ifelse(X2016.x>12000,1,0)) -> temp
 temp[which(temp$developed.x2-temp$developed.x==1),]
 ```
@@ -472,14 +469,14 @@ First, we can look at travel outside of one's own country (source does not equal
 
 ```{r}
 # Developed
-hold <- data %>% filter(destination.country != source.country) %>%
+hold <- groupfdata %>% filter(destination.country != source.country) %>%
   filter(developed.x == 1) %>%
   group_by(destination.country) %>%
   summarize(count = n()) %>%
   arrange(desc(count)) %>%
   head(5); hold
 # Developing
-hold2 <- data %>% filter(destination.country != source.country) %>%
+hold2 <- groupfdata %>% filter(destination.country != source.country) %>%
   filter(developed.x == 0) %>%
   group_by(destination.country) %>%
   summarize(count = n()) %>%
@@ -495,7 +492,7 @@ Whereas for developing countries, these destinations are the UAE, Singapore, Jap
 If we include travel within one's own country (souce can equal destination), the results are the same for the developed countries, but differ slightly for the developing ones:
 
 ```{r}
-hold4 <- data %>% filter(developed.x == 0) %>%
+hold4 <- groupfdata %>% filter(developed.x == 0) %>%
   group_by(destination.country) %>%
   summarize(count = n()) %>%
   arrange(desc(count)) %>%
