@@ -246,7 +246,7 @@ Investigating whether GDP growth leads to an increase in the number of flights i
 
 To analyze the relationship between the Total Number of Flights per Country and Average Per Capita GDP, we begin by looking at a scatterplot to verify if the Linearity condition is met and whether or not transformations may be necessary.
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, echo = FALSE}
 groupfdata %>% group_by(source.country, avg_growth.x) %>% summarize(count=n()) -> temp
 temp %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
@@ -257,7 +257,7 @@ temp %>% ggplot(aes(avg_growth.x, count)) +
 The plot above is a simple scatterplot of the average growth of the source country against the total count of flights for each source country. There does not appear to be any obvious trend in the data as the majority appear to be clustered together. There is one particularly extreme outlier at approximately 2900 flights. As discussed above, this outlier is China. The blue line represents the least squares fitted line. From this, we see that there is possibly a positive linear relationship between average growth and the number of flights. 
 
 Using the `loess` smoother, another fitted line was generated from the same data as above:
-```{r, warning = FALSE}
+```{r, warning = FALSE, echo = FALSE}
 temp %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
   geom_smooth(method = 'loess', se=F, color = "red") +
@@ -266,7 +266,7 @@ temp %>% ggplot(aes(avg_growth.x, count)) +
 
 This new fitted line is curved with two small peaks around an average growth of 2.5 and another around 11. This is not a linear line. Additionally, the second peak is in alignment with China and one other outlier, which may suggest that the second peak is a result of the 'pull' of the outliers. To attempt to produce a more linear relationship, we first normalize by population.
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, echo = FALSE}
 groupfdata %>% group_by(source.country, avg_growth.x, source.population, developed.x, X2016.x) %>% 
   summarize(count=n()) -> temp
 
@@ -280,7 +280,7 @@ normal %>% ggplot(aes(avg_growth.x, count)) +
 
 Despite normalizing, there are still outliers present.
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, echo = FALSE}
 normal %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
   geom_smooth(method = 'loess', se=F, col = "red") +
@@ -289,7 +289,7 @@ normal %>% ggplot(aes(avg_growth.x, count)) +
 
 The Loess smoother suggests a curved relationship between the data, rather than a strictly linear one. It appears that the trend may be exponential or close to an exponential curve. Keeping the normalized data, we can compare average growth to the natural log of the counts.
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, echo = FALSE}
 normal <- normal %>% mutate(log_count = log(count))
 
 normal %>% ggplot(aes(avg_growth.x, log_count)) + 
@@ -298,18 +298,18 @@ normal %>% ggplot(aes(avg_growth.x, log_count)) +
   labs(title = "Normalized Log Number of Flights Per Source Country vs. Avg GDP Growth", x = "Average Growth", y = "Natural Log Counts")
 ```
 
-> Add Commentary
+While the relationship between average growth and the natural log of counts does not appear to be a strong one, it is more linear. The linear regression line fit through the above scatterplot suggests a weak to moderate, negative association between average growth and the natural log of counts.
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, wcho = FALSE}
 normal %>% ggplot(aes(avg_growth.x, log_count)) + 
   geom_point() + 
   geom_smooth(method = 'loess', se=F, color = "red") +
   labs(title = "Normalized Log Number of Flights Per Source Country vs. Avg GDP Growth", x = "Average Growth", y = "Natural Log Counts")
 ```
 
-> Add commentary
+The Loess smoother still suggests a more curved relationship between the two variables. There is only one data point above an average growth of 10 that appears to be influencing the smoother. We remove this point below:
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, echo = FALSE}
 normal_minus <- normal %>% filter(avg_growth.x < 12)
 outliers <- normal %>% filter(avg_growth.x > 12)
 
@@ -320,13 +320,13 @@ normal_minus %>% ggplot(aes(avg_growth.x, log_count)) +
 
 ```
 
-> Add commentary.
+The outlier was Nauru, a small, developing country. Without Nauru, the Loess smoother fits a line that is still slightly curved, but is definitely more linear than previously.
 > Outlier: Nauru - developing country - include or not? or try both?
 
 For this analysis, parametric and non-parametric regression procedures will be carried out on average GDP growth and the normalized, natural log of the number of flights per source country.
 
 
-#### Parametric Regression
+### Parametric Regression
 
 > Insert Commentary
 > Exclusion of outlier leads to minor improvement of conditions, increase in R-squared, and smaller p-value. Fit with or without outlier?
@@ -336,9 +336,9 @@ p_mod <-  lm(log_count ~ avg_growth.x, data = normal_minus)
 summary(p_mod)
 ```
 
-The T-value for the slope coefficient of `avg_growth.x` is $-2.32$ with an associated p-value of $0.0211$. At $\alpha = 0.05$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity is met and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
+The t-value for the slope coefficient of `avg_growth.x` is $-2.32$ with an associated p-value of $0.0211$. At $\alpha = 0.05$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity is met and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
 
-```{r}
+```{r, echo = FALSE}
 # Conditions:
 plot(p_mod, which = 1)
 plot(p_mod, which = 2)
@@ -352,7 +352,7 @@ For the most part, the Equal Variance condition appears to be met. The residuals
 > Looking at just Developed as a Predictor.
 
 
-#### Non-parametric Regression
+### Non-parametric Regression
 
 > Insert Commentary:
 
@@ -364,7 +364,7 @@ summary(np_mod, overall = 'drop')
 > Report t value and p-value.
 > Don't need to check Normality - just Equal Variance
 
-```{r}
+```{r, echo = FALSE}
 plot(np_mod$residuals ~ np_mod$fitted.values)
 ```
 
@@ -375,11 +375,11 @@ plot(np_mod$residuals ~ np_mod$fitted.values)
 > Comparison.
 
 
-### Travel Increased in Recently Developed Countries?
+## Has Travel Increased in Recently Developed Countries?
 
 Given that there is no `year` associated with each flight, we can determine if the average number of flights (normalized by population size for each country) is significantly greater for recently developed countries versus developing countries. An additional comparison can be made between recently developed countries and established, developed countries.
 
-```{r}
+```{r, echo = FALSE}
 groupfdata %>% group_by(source.country, X2010.x, X2016.x, developed.x) %>% summarize() -> temp
 temp %>% mutate(developed.x2 = ifelse(X2016.x>12000,1,0)) -> temp
 temp[which(temp$developed.x2-temp$developed.x==1),]
@@ -389,7 +389,7 @@ We find that 7 of the 156 countries in the dataset were undeveloped in 2010 (\$1
 
 > Add Commentary - proceed with or without outlier? Changes the shape of the smoother
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, echo = FALSE}
 check <- normal %>% mutate(developed.x2 = ifelse(X2016.x > 12000, 1, 0)) %>% 
   mutate(recent_development.x = ifelse(developed.x == 0 & developed.x2 == 0, "Developing", ifelse(developed.x == 0 & developed.x2 == 1, "Recently Developed", "Developed"))) %>% filter(!is.na(recent_development.x))
 
