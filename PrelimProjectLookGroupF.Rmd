@@ -328,15 +328,16 @@ For this analysis, parametric and non-parametric regression procedures will be c
 
 ### Parametric Regression
 
-> Insert Commentary
+A parametric, simple linear regression model was then with the normalized `log_counts` as the response variable and `avg_growth.x` as the predictor variable. The summary output for the parametric model is below:
+
 > Exclusion of outlier leads to minor improvement of conditions, increase in R-squared, and smaller p-value. Fit with or without outlier?
 
 ```{r}
-p_mod <-  lm(log_count ~ avg_growth.x, data = normal_minus)
+p_mod <-  lm(log_count ~ avg_growth.x, data = normal)
 summary(p_mod)
 ```
 
-The t-value for the slope coefficient of `avg_growth.x` is $-2.32$ with an associated p-value of $0.0211$. At $\alpha = 0.05$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity is met and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
+The t-value for the slope coefficient of `avg_growth.x` is $-0.109$ with an associated p-value of $0.0211$. At $\alpha = 0.05$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity condition is satisfied and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
 
 ```{r, echo = FALSE}
 # Conditions:
@@ -345,11 +346,9 @@ plot(p_mod, which = 2)
 
 ```
 
-For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around 0. There is one point to take note of: 179, which corresponds to the outlier identified earlier (Nauru). Looking at the QQ plot, there is very little deviation from the reference line. Therefore, the Noramlity condition is also met. 
+For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around 0. There is one point to take note of: 179, which corresponds to the outlier identified earlier (Nauru). Looking at the QQ plot, there is very little deviation from the reference line. Therefore, the Normality condition is also met. 
 
-> Conclusion - significance, point out very low R-squared.
-
-> Looking at just Developed as a Predictor.
+Since the p-value is small, at $\alpha = 0.05$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from 0. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.109$ indicates that for every 1 unit increase in the `avg_growth.x`, the noramlized `log_counts` is estimated to decrease by approximately $-0.109$. While `avg_growth.x` is a significant predicotr, the model itself has low predictive power. The model only accounts for $1.89%$ of the variability in `log_counts` (Multiple $R^{2} = 0.0189$).
 
 
 ### Non-parametric Regression
@@ -372,7 +371,7 @@ plot(np_mod$residuals ~ np_mod$fitted.values)
 
 > Conclusions
 
-> Comparison.
+> Comparison - can't really use to predict despite being significant because of low R-squared value.
 
 
 ## Has Travel Increased in Recently Developed Countries?
