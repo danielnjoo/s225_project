@@ -169,6 +169,36 @@ Regression Results and Comparison
 Has Travel Increased in Recently Developed Countries?
 ========================================================
 
+- Identified 7 countries that were developing in 2010, but were developed in 2016:
+  - China
+  - Mongolia
+  - Bosnia and Herzegovina
+  - Nauru
+  - Peru
+  - Sri Lanka
+  - Turkmenistan
+  
+Parametric ANOVA
+========================================================
+
+Parametric Multiple Comparisons 
+========================================================
+
+Non-Parametric ANOVA
+========================================================
+
+Shift Model
+========================================================
+
+Non-Parametric Multiple Comparisons
+========================================================
+
+ANOVA Results and Conclusions
+========================================================
+
+Travel Locations
+========================================================
+
 Conclusion and Limitations
 ========================================================
 

@@ -290,7 +290,7 @@ While the relationship between average growth and the natural log of counts does
 
 The Loess smoother still suggests a more curved relationship between the two variables. There is only one data point above an average growth of 10 that appears to be influencing the smoother. We remove this point below:
 
-```{r, warning = FALSE, echo = FALSE}
+```{r, warning = FALSE}
 normal_minus <- normal %>% filter(avg_growth.x < 12)
 outliers <- normal %>% filter(avg_growth.x > 12)
 
@@ -318,7 +318,7 @@ summary(p_mod)
 
 The t-value for the slope coefficient of `avg_growth.x` is $-0.152$ with an associated p-value of $0.00181$. At $\alpha = 0.01$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity condition is satisfied and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
 
-```{r, echo = FALSE}
+```{r}
 # Conditions:
 plot(p_mod, which = 1)
 plot(p_mod, which = 2)
@@ -342,7 +342,7 @@ summary(np_mod, overall = 'drop')
 The t-value for the slope coefficient of `avg_growth.x` is $-.1683$ with an associated p-value of $0.00049$. At $\alpha = 0.001$, this is a significant p-value. Although we've already verified the Equal Variance condition above, we plot the residuals directly from the our non-parametric model below:
 
 
-```{r, echo = FALSE}
+```{r}
 plot(np_mod$residuals ~ np_mod$fitted.values)
 ```
 
@@ -357,7 +357,7 @@ Despite this conclusion, both the parametric and non-parametric model have extre
 
 Given that there is no `year` associated with each flight, we can determine if the average number of flights (normalized by population size for each country) is significantly greater for recently developed countries versus developing countries. An additional comparison can be made between recently developed countries and established, developed countries.
 
-```{r, echo = FALSE}
+```{r}
 groupfdata %>% group_by(source.country, X2010.x, X2016.x, developed.x) %>% summarize() -> temp
 temp %>% mutate(developed.x2 = ifelse(X2016.x>12000,1,0)) -> temp
 temp[which(temp$developed.x2-temp$developed.x==1),]
@@ -367,7 +367,7 @@ We find that 7 of the 156 countries in the dataset were undeveloped in 2010 (\$1
 
 > Add Commentary - proceed with or without outlier? Changes the shape of the smoother
 
-```{r, warning = FALSE, echo = FALSE}
+```{r, warning = FALSE}
 check <- normal %>% mutate(developed.x2 = ifelse(X2016.x > 12000, 1, 0)) %>% 
   mutate(recent_development.x = ifelse(developed.x == 0 & developed.x2 == 0, "Developing", ifelse(developed.x == 0 & developed.x2 == 1, "Recently Developed", "Developed"))) %>% filter(!is.na(recent_development.x))
 
