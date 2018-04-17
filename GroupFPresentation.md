@@ -64,23 +64,22 @@ Parametric Regression: log_count ~ avg_growth.x
 ```
 
 Call:
-lm(formula = log_count ~ avg_growth.x, data = normal)
+lm(formula = log_count ~ avg_growth.x, data = normal_minus)
 
 Residuals:
-   Min     1Q Median     3Q    Max 
--4.583 -1.129 -0.130  1.165  5.593 
+    Min      1Q  Median      3Q     Max 
+-4.4549 -1.0849 -0.1135  1.1765  4.5242 
 
 Coefficients:
              Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  -5.35963    0.20967  -25.56   <2e-16 ***
-avg_growth.x -0.10978    0.04732   -2.32   0.0211 *  
+(Intercept)  -5.22043    0.21060 -24.788  < 2e-16 ***
+avg_growth.x -0.15224    0.04834  -3.149  0.00181 ** 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 1.826 on 279 degrees of freedom
-  (6 observations deleted due to missingness)
-Multiple R-squared:  0.01893,	Adjusted R-squared:  0.01541 
-F-statistic: 5.383 on 1 and 279 DF,  p-value: 0.02106
+Residual standard error: 1.795 on 278 degrees of freedom
+Multiple R-squared:  0.03445,	Adjusted R-squared:  0.03098 
+F-statistic: 9.919 on 1 and 278 DF,  p-value: 0.001814
 ```
 
 Parametric Conditions
@@ -111,14 +110,20 @@ Regression Results and Comparison
 ========================================================
 
 - Conditions met for both Parametric and Non-Parametric regression
-- Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = .002 & .0005$)
+- Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = .00181 & .0005$)
 - However, both models suggested that `avg_growth.x` explained very little variability in `log_count` ($R^{2} = .034 & .041$)
 - Although `avg_growth.x` is a significant predictor, the model lacks any substantial predicting power.
 
-Conclusion
+Has Travel Increased in Recently Developed Countries?
 ========================================================
 
-Slide With Plot
+Conclusion and Limitations
 ========================================================
 
-![plot of chunk unnamed-chunk-10](GroupFPresentation-figure/unnamed-chunk-10-1.png)
+- Average Per Capita GDP Growth is a significant predictor of the normalized natural log of the number of flights, but lacks any substantial predictive power
+- Second Question Conclusion
+- Third Question and Conclusion
+
+THE END
+========================================================
+

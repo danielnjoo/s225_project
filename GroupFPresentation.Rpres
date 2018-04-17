@@ -120,19 +120,24 @@ normal <- normal %>% mutate(log_count = log(count))
 normal %>% ggplot(aes(avg_growth.x, log_count)) + 
   geom_point() + 
   geom_smooth(method = 'lm', se=F) +
-  labs(title = "Normalized Log Number of Flights Per Source Country vs. Avg GDP Growth", x = "Average Growth", y = "Natural Log Counts")
+  geom_smooth(method = 'loess', se=F, col = "red") +
+  labs(title = "Normalized Log Number of Flights Per Source Country vs. Average Growth", x = "Average Per Capita GDP Growth", y = "Natural Log Counts")
 
-normal %>% ggplot(aes(avg_growth.x, log_count)) + 
+normal_minus <- normal %>% filter(avg_growth.x < 12)
+outliers <- normal %>% filter(avg_growth.x > 12)
+
+normal_minus %>% ggplot(aes(avg_growth.x, log_count)) + 
   geom_point() + 
+  geom_smooth(method = 'lm', se=F) +
   geom_smooth(method = 'loess', se=F, color = "red") +
-  labs(title = "Normalized Log Number of Flights Per Source Country vs. Avg GDP Growth", x = "Average Growth", y = "Natural Log Counts")
+  labs(title = "Normalized Log Number of Flights Per Source Country vs. Average Growth", x = "Average Per Capita Growth", y = "Natural Log Counts")
 ```
 
 Parametric Regression: log_count ~ avg_growth.x
 ========================================================
 
 ```{r, echo = FALSE, fig.height = 3}
-p_mod <-  lm(log_count ~ avg_growth.x, data = normal)
+p_mod <-  lm(log_count ~ avg_growth.x, data = normal_minus)
 summary(p_mod)
 ```
 
@@ -157,16 +162,20 @@ Regression Results and Comparison
 ========================================================
 
 - Conditions met for both Parametric and Non-Parametric regression
-- Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = .002 & .0005$)
+- Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = .00181 & .0005$)
 - However, both models suggested that `avg_growth.x` explained very little variability in `log_count` ($R^{2} = .034 & .041$)
 - Although `avg_growth.x` is a significant predictor, the model lacks any substantial predicting power.
 
-Conclusion
+Has Travel Increased in Recently Developed Countries?
 ========================================================
 
-Slide With Plot
+Conclusion and Limitations
 ========================================================
 
-```{r, echo=FALSE}
-plot(cars)
-```
+- Average Per Capita GDP Growth is a significant predictor of the normalized natural log of the number of flights, but lacks any substantial predictive power
+- Second Question Conclusion
+- Third Question and Conclusion
+
+THE END
+========================================================
+
