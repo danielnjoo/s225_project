@@ -309,16 +309,14 @@ For this analysis, parametric and non-parametric regression procedures will be c
 
 ### Parametric Regression
 
-A parametric, simple linear regression model was then with the normalized `log_counts` as the response variable and `avg_growth.x` as the predictor variable. The summary output for the parametric model is below:
-
-> Exclusion of outlier leads to minor improvement of conditions, increase in R-squared, and smaller p-value. Fit with or without outlier?
+A parametric, simple linear regression model was then fit on the normalized `log_counts` as the response variable and `avg_growth.x` as the predictor variable. The summary output for the parametric model is below:
 
 ```{r}
-p_mod <-  lm(log_count ~ avg_growth.x, data = normal)
+p_mod <-  lm(log_count ~ avg_growth.x, data = normal_minus)
 summary(p_mod)
 ```
 
-The t-value for the slope coefficient of `avg_growth.x` is $-0.109$ with an associated p-value of $0.0211$. At $\alpha = 0.05$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity condition is satisfied and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
+The t-value for the slope coefficient of `avg_growth.x` is $-0.152$ with an associated p-value of $0.00181$. At $\alpha = 0.01$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity condition is satisfied and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
 
 ```{r, echo = FALSE}
 # Conditions:
@@ -327,32 +325,32 @@ plot(p_mod, which = 2)
 
 ```
 
-For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around 0. There is one point to take note of: 179, which corresponds to the outlier identified earlier (Nauru). Looking at the QQ plot, there is very little deviation from the reference line. Therefore, the Normality condition is also met. 
+For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around $0$. Looking at the QQ plot, there is some minor deviation from the reference line at the lower end, but the remainer of the observations adhere to the reference line rather faithfully. Therefore, the Normality condition is also met. 
 
-Since the p-value is small, at $\alpha = 0.05$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from 0. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.109$ indicates that for every 1 unit increase in the `avg_growth.x`, the noramlized `log_counts` is estimated to decrease by approximately $-0.109$. While `avg_growth.x` is a significant predicotr, the model itself has low predictive power. The model only accounts for $1.89%$ of the variability in `log_counts` (Multiple $R^{2} = 0.0189$).
+Since the p-value is small, at $\alpha = 0.01$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from $0$. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.152$ indicates that for every 1 unit increase in the `avg_growth.x`, the noramlized `log_counts` is estimated to decrease by approximately $-0.152$. While `avg_growth.x` is a significant predicotr, the model itself has low predictive power. The model only accounts for $3.45%$ of the variability in `log_counts` (Multiple $R^{2} = 0.03445$).
 
 
 ### Non-parametric Regression
 
-> Insert Commentary:
+Although we concluded that all of the conditions for parametric regression were met, we also chose to fit a rank-based, non-parametric regression model on the same variables. This model does not require the residuals to be normally distributed. Since we did see some deviations in the QQplot, this model can be used to affirm the results obtained above. We fit this model below:
 
 ```{r}
 np_mod <- rfit(log_count ~ avg_growth.x, data = normal_minus)
 summary(np_mod, overall = 'drop')
 ```
 
-> Report t value and p-value.
-> Don't need to check Normality - just Equal Variance
+The t-value for the slope coefficient of `avg_growth.x` is $-.1683$ with an associated p-value of $0.00049$. At $\alpha = 0.001$, this is a significant p-value. Although we've already verified the Equal Variance condition above, we plot the residuals directly from the our non-parametric model below:
+
 
 ```{r, echo = FALSE}
 plot(np_mod$residuals ~ np_mod$fitted.values)
 ```
 
-> Same outlier seen in parametric.
+Once again, the residuals appear to be evenly distributed and symmetric about zero. Therefore, we have no concerns regarding the conditions for non-parametric regression.
 
-> Conclusions
+Both models, parametric and non-parametric, conclude that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights per source country. The parametric model rejects the null hypothesis at $\alpha = 0.01$. The non-parametric model also rejects the null, but at a smaller $\alpha$ level ($\alpha = 0.001$). Additionally, the slope estimates are very similar. The parametric slope estimate was $-0.152$ and the non-parametric slope estimate was $-0.168$. The estimated intercepts, as well, are quite similar.
 
-> Comparison - can't really use to predict despite being significant because of low R-squared value.
+Despite this conclusion, both the parametric and non-parametric model have extremely low predictive power (Multiple $R^{2} = 0.03445$, Robust Multiple $R^{2} = 0.0414$). Therefore, although `avg_growth.x` is a significant predictor, this model is essentially useless in terms of predicing the normalized `log_counts`.
 
 
 ## Has Travel Increased in Recently Developed Countries?
