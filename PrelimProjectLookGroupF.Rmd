@@ -271,10 +271,13 @@ The plot above is a scatterplot of the average growth of the source country agai
 The blue line represents the least squares fitted line. From this, we see that there is possibly a positive linear relationship between average growth and the number of flights. Using the `loess` smoother, another fitted line was generated (red). This new fitted line is curved with two small peaks around an average growth of 2.5 and another around 11. This is not a linear line. Additionally, the second peak is in alignment with China and one other outlier, which may suggest that the second peak is a result of the 'pull' of the outliers. To attempt to produce a more linear relationship and remove the influence of outliers, we first normalize by population.
 
 ```{r, warning = FALSE}
-groupfdata %>% group_by(source.country, avg_growth.x, source.population, developed.x, X2016.x) %>% 
+groupfdata %>% 
+  group_by(source.country, avg_growth.x, source.population, developed.x, X2016.x) %>%
   summarize(count=n()) -> temp
 
-normal <- temp %>% mutate(count = count/source.population) %>% group_by(source.country, avg_growth.x, developed.x, X2016.x) %>% summarize(count = sum(count))
+normal <- temp %>% mutate(count = count/source.population) %>%
+  group_by(source.country, avg_growth.x, developed.x, X2016.x) %>%
+  summarize(count = sum(count))
 
 normal %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
@@ -293,7 +296,8 @@ normal %>% ggplot(aes(avg_growth.x, log_count)) +
   geom_point() + 
   geom_smooth(method = 'lm', se=F) +
   geom_smooth(method = 'loess', se=F, col = "red") +
-  labs(title = "Normalized Log Number of Flights Per Source Country vs. Average Growth", x = "Average Per Capita GDP Growth", y = "Natural Log Counts")
+  labs(title = "Normalized Log Number of Flights Per Source Country vs. Average Growth", 
+       x = "Average Per Capita GDP Growth", y = "Natural Log Counts")
 ```
 
 While the relationship between average growth and the natural log of counts does not appear to be a strong one, it is more linear. The linear regression line (blue) fit through the above scatterplot suggests a weak to moderate, negative association between average growth and the natural log of counts.
@@ -308,7 +312,8 @@ normal_minus %>% ggplot(aes(avg_growth.x, log_count)) +
   geom_point() + 
   geom_smooth(method = 'lm', se=F) +
   geom_smooth(method = 'loess', se=F, color = "red") +
-  labs(title = "Normalized Log Number of Flights Per Source Country vs. Average Growth", x = "Average Per Capita Growth", y = "Natural Log Counts")
+  labs(title = "Normalized Log Number of Flights Per Source Country vs. Average Growth", 
+       x = "Average Per Capita Growth", y = "Natural Log Counts")
 
 ```
 
