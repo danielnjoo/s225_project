@@ -441,7 +441,7 @@ The results of Fisher's LSD suggest that the mean normalized `log_counts` are si
 
 ### Non-Parametric ANOVA
 
-> Commentary for NP ANOVA:
+The Non-parametric Kruskal Wallis test provides an alternative to the one-way Parametric ANOVA. Similar to the ANOVA, it tests for differences in center. 
 
 ```{r}
 kruskal.test(log_count~as.factor(recent_development.x), data=check)
