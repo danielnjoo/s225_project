@@ -17,6 +17,7 @@ require(mosaic)
 require(NSM3)
 require(readr)
 require(Rfit)
+require(ggplot2)
 ```
 
 ## Data Summary
@@ -177,24 +178,26 @@ ggplot(groupfdata, aes(x = avg_growth.x, color = as.factor(developed.x))) +
 
 The above is the distribution of the average Per Capita GDP Growth betwen 2010-2016 for developed and developing countries. Average growth for developing countries is shifted above the growth of developed countries. Additionally, the distribution is more symmetric for developed countries and left skewed for developing countries.
 
-> For the above, may want to do some density estimation.
-
 
 ### Outbound Flights
 
 ```{r, message = FALSE, warning = FALSE}
 groupfdata %>% group_by(source.country) %>% summarize(count=n()) -> temp
 temp %>% ggplot(aes(count)) + 
-  geom_histogram() + 
-  xlab("number of outbound flights for a country") +
-  ggtitle("Histogram of outbound flights/country")
+  geom_histogram(fill = "blue") +
+  labs(title = "Distribution of Outbound Flights Per Source Country",
+       x = "Number of Outbound Flights", y = "Count")
 ```
+
+The distribution of the number of outband flights per source country is heavily right skewed and unimodal. China, once again, is seen as an outlier with approximately $5000$ flights.
 
 ```{r}
 favstats(temp$count)
 ```
 
-Huge SD (531.3929) and IQR (150.25)... identifying countries 2 SDs above the mean (i.e. 1278):
+Looking at some summary statistics for the distribution above, there is a significant difference between the mean ($215.12$) and the median ($46$). Additionally, the standard deviation is incredibly large ($531.39$), while the IQR is much smaller ($150.25$). The differences in mean and median as well as the large standard deviation demonstrate how the skewed distribution and outliers are influencing the mean. We may want to pursue transformations on the data to mitigate this effect.
+
+Below, we identify all countries greater than 2 standard deviations away from the mean: 
 
 ```{r}
 # Identify Extreme Points:
@@ -208,16 +211,21 @@ groupfdata %>% group_by(source.country) %>% summarize(count = n()) %>%
 ```{r, warning = FALSE, message = FALSE}
 groupfdata %>% group_by(destination.country) %>% summarize(count=n()) -> temp
 temp %>% ggplot(aes(count)) + 
-  geom_histogram() + 
+  geom_histogram(fill = "purple") + 
   xlab("number of inbound flights for a country") +
-  ggtitle("Histogram of inbound flights/country")
+  labs(title = "Distribution of Inbound Flights Per Source Country", 
+       x = "Number of Inbound Flights", y = "Count")
 ```
+
+The distribution of the number of inbound flights per source country is practically identical to the distribution of the number of outbound flights.
 
 ```{r}
 favstats(temp$count)
 ```
 
-Similarly huge SD (530.3375, difference of 1.05 from outbound flights) and same IQR of 150.25... identifying countries 2 SDs above the mean (i.e. 1276):
+Again, we see a large standard deviation and big difference between the mean and the median.
+
+Below, we identify all countries greater than 2 standard deviations away from the mean, which are the same countries as above: 
 
 ```{r}
 # Identify Extreme Points:
@@ -228,11 +236,13 @@ groupfdata %>% group_by(destination.country) %>% summarize(count = n()) %>%
 
 ### Developed vs. Developing Countries Outbound Flights
 
+Below, we examine the total number of outbound flights for developing versus developed countries:
+
 ```{r, warning = FALSE, message = FALSE}
 groupfdata %>% group_by(developed.x) %>% summarize(count=n()) %>% ggplot(aes(as.factor(developed.x),count)) + 
-  geom_bar(stat='identity') + 
-  xlab("developed (1) vs developing (0) countries") + 
-  ggtitle("outbound flights for developing vs developed countries")
+  geom_bar(stat='identity', fill = "blue") + 
+  labs(title = "Total Outbound Flights by Development Status",
+       x = "Developing (0) vs. Developed (1)", y = "Count")
 ```
 
 We can very clearly see that there are more outbound flights from developed than developing countries.
@@ -302,7 +312,7 @@ normal_minus %>% ggplot(aes(avg_growth.x, log_count)) +
 
 ```
 
-The outlier was the Republic of Naura, a small Pacific island country northeast of Australia. Without Nauru, the Loess smoother fits an almost linear line. For positive `avg_growth.x` values, the smoother is practically linear and deviates only slightly from the least squares fitted line. For negative `avg_growth.x` values, the loess smoothers shows a curve towarnd, away from the least squares fitted line. Despite this, the true estimate of the relationship between the normalized `log_counts` of flights and `avg_growth.x` appears to be linear enough to satisfy the Linearity condition required to proceed with regression.
+The outlier was the Republic of Naura, a small Pacific island country northeast of Australia. Without Nauru, the Loess smoother fits an almost linear line ($Span = 0.75$). For positive `avg_growth.x` values, the smoother is practically linear and deviates only slightly from the least squares fitted line. For negative `avg_growth.x` values, the loess smoothers shows a curve towarnd, away from the least squares fitted line. Despite this, the true estimate of the relationship between the normalized `log_counts` of flights and `avg_growth.x` appears to be linear enough to satisfy the Linearity condition required to proceed with regression.
 
 For this analysis, parametric and non-parametric regression procedures will be carried out on average GDP growth and the normalized, natural log of the number of flights per source country, with the outlier, Nauru, removed.
 
@@ -327,7 +337,7 @@ plot(p_mod, which = 2)
 
 For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around $0$. Looking at the QQ plot, there is some minor deviation from the reference line at the lower end, but the remainer of the observations adhere to the reference line rather faithfully. Therefore, the Normality condition is also met. 
 
-Since the p-value is small, at $\alpha = 0.01$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from $0$. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.152$ indicates that for every 1 unit increase in the `avg_growth.x`, the noramlized `log_counts` is estimated to decrease by approximately $-0.152$. While `avg_growth.x` is a significant predicotr, the model itself has low predictive power. The model only accounts for $3.45%$ of the variability in `log_counts` (Multiple $R^{2} = 0.03445$).
+Since the p-value is small, at $\alpha = 0.01$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from $0$. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.152$ indicates that for every 1 unit increase in the `avg_growth.x`, the noramlized `log_counts` is estimated to decrease by approximately $-0.152$. While `avg_growth.x` is a significant predicotr, the model itself has low predictive power. The model only accounts for $3.45$% of the variability in `log_counts` (Multiple $R^{2} = 0.03445$).
 
 
 ### Non-parametric Regression
