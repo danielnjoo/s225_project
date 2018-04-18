@@ -126,23 +126,100 @@ Has Travel Increased in Recently Developed Countries?
   - Sri Lanka
   - Turkmenistan
   
-Parametric ANOVA
+Development Status
 ========================================================
 
-Parametric Multiple Comparisons 
+![plot of chunk unnamed-chunk-10](GroupFPresentation-figure/unnamed-chunk-10-1.png)
+
+Parametric ANOVA:
 ========================================================
+
+
+```
+Analysis of Variance Table
+
+Response: log_count
+                      Df Sum Sq Mean Sq F value    Pr(>F)    
+recent_development.x   2  258.7 129.349  51.426 < 2.2e-16 ***
+Residuals            282  709.3   2.515                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+Parametric Conditions:
+========================================================
+
+
+```
+  recent_development.x        min        Q1    median        Q3       max
+1            Developed  -9.127169 -5.807052 -4.799897 -3.804811 -1.504283
+2           Developing -10.633726 -7.823550 -6.844428 -5.892568 -1.285613
+3   Recently Developed  -8.161533 -7.534035 -6.521690 -6.116737 -1.327252
+       mean       sd   n missing
+1 -4.812397 1.393995 145       0
+2 -6.741624 1.759436 128       0
+3 -6.418771 1.817377  12       0
+```
+
+![plot of chunk unnamed-chunk-12](GroupFPresentation-figure/unnamed-chunk-12-1.png)
+
+Parametric Multiple Comparisons - Fisher's LSD:
+========================================================
+
+
+```
+
+	Pairwise comparisons using t tests with pooled SD 
+
+data:  log_count and recent_development.x 
+
+                   Developed Developing
+Developing         <2e-16    -         
+Recently Developed 0.0017    0.5007    
+
+P value adjustment method: holm 
+```
 
 Non-Parametric ANOVA
 ========================================================
 
-Shift Model
+
+```
+
+	Kruskal-Wallis rank sum test
+
+data:  log_count by as.factor(recent_development.x)
+Kruskal-Wallis chi-squared = 86.641, df = 2, p-value < 2.2e-16
+```
+
+Non-Parametric Conditions - Shift Model:
 ========================================================
 
-Non-Parametric Multiple Comparisons
+![plot of chunk unnamed-chunk-15](GroupFPresentation-figure/unnamed-chunk-15-1.png)
+
+Non-Parametric Multiple Comparisons - Wilcoxon Rank Sum
 ========================================================
+
+
+```
+
+	Pairwise comparisons using Wilcoxon rank sum test 
+
+data:  log_count and recent_development.x 
+
+                   Developed Developing
+Developing         < 2e-16   -         
+Recently Developed 0.00054   0.70699   
+
+P value adjustment method: holm 
+```
 
 ANOVA Results and Conclusions
 ========================================================
+
+- ANOVA results, p-values
+- Multiple comparison results
+- Comparison - prefer NP due to conditions?
 
 Travel Locations
 ========================================================

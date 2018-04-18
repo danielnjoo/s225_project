@@ -178,23 +178,76 @@ Has Travel Increased in Recently Developed Countries?
   - Sri Lanka
   - Turkmenistan
   
-Parametric ANOVA
+Development Status
 ========================================================
 
-Parametric Multiple Comparisons 
+```{r, echo = FALSE, fig.width = 14, fig.height = 8}
+check <- normal %>% mutate(developed.x2 = ifelse(X2016.x > 12000, 1, 0)) %>% 
+  mutate(recent_development.x = ifelse(developed.x == 0 & developed.x2 == 0, "Developing", ifelse(developed.x == 0 & developed.x2 == 1, "Recently Developed", "Developed"))) %>% filter(!is.na(recent_development.x))
+
+check2 <- check %>% filter(avg_growth.x < 12) # Remove Nauru (an outlier)
+
+check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm', se=F) +
+  labs(title = "Normalized Log Number of Flights vs. Average Growth",
+       x = "Average Per Capita GDP Growth", y = "Log Count of Flights")
+```
+
+Parametric ANOVA:
 ========================================================
+
+```{r, echo = FALSE}
+p_mod2 <- lm(log_count ~ recent_development.x, data = check)
+anova(p_mod2) 
+```
+
+Parametric Conditions:
+========================================================
+
+```{r, echo = FALSE}
+favstats(log_count ~ recent_development.x, data = check) # Fine
+check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot() +
+  labs("Boxplot of Normalized Log Counts by Development Status",
+       x = "Development Status", y = "Log Count of Flights")
+```
+
+Parametric Multiple Comparisons - Fisher's LSD:
+========================================================
+
+```{r, echo = FALSE}
+with(check, pairwise.t.test(log_count, recent_development.x))
+```
 
 Non-Parametric ANOVA
 ========================================================
 
-Shift Model
+```{r, echo = FALSE}
+kruskal.test(log_count~as.factor(recent_development.x), data=check)
+```
+
+Non-Parametric Conditions - Shift Model:
 ========================================================
 
-Non-Parametric Multiple Comparisons
+```{r, echo = FALSE, fig.height = 8, fig.width = 14}
+check %>% ggplot(aes(log_count, color = recent_development.x)) + geom_density() +
+  labs(title = "Distribution of Normalized Log Count by Development Status",
+       x = "Log Count of Flights", y = "Density")
+```
+
+Non-Parametric Multiple Comparisons - Wilcoxon Rank Sum
 ========================================================
+
+```{r, echo = FALSE}
+with(check, pairwise.wilcox.test(log_count, recent_development.x))
+```
 
 ANOVA Results and Conclusions
 ========================================================
+
+- ANOVA results, p-values
+- Multiple comparison results
+- Comparison - prefer NP due to conditions?
 
 Travel Locations
 ========================================================

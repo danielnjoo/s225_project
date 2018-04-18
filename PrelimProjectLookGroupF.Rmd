@@ -18,6 +18,7 @@ require(NSM3)
 require(readr)
 require(Rfit)
 require(ggplot2)
+require(dunn.test)
 ```
 
 ## Data Summary
@@ -370,58 +371,52 @@ Despite this conclusion, both the parametric and non-parametric model have extre
 
 ## Has Travel Increased in Recently Developed Countries?
 
-Given that there is no `year` associated with each flight, we can determine if the average number of flights (normalized by population size for each country) is significantly greater for recently developed countries versus developing countries. An additional comparison can be made between recently developed countries and established, developed countries.
+Although there is no `year` associated with each flight, we can still determine if the average number of flights (normalized by population size for each country) is significantly greater for recently developed countries versus developing countries. An additional comparison can be made between recently developed countries and established, developed countries.
+
+### Recently Developed Countries
+
+We define a recently developed country as one that was developing in 2010 (Per Capita GDP in 2010 $< 10490.48$), but developed in 2012 (Per Capita GDP in 2012 $> 12,000$).
 
 ```{r}
 groupfdata %>% group_by(source.country, X2010.x, X2016.x, developed.x) %>% summarize() -> temp
 temp %>% mutate(developed.x2 = ifelse(X2016.x>12000,1,0)) -> temp
 temp[which(temp$developed.x2-temp$developed.x==1),]
 ```
+> Not sure why getting doubles
 
-We find that 7 of the 156 countries in the dataset were undeveloped in 2010 (\$10490.48), and developed in 2016 (\$12000). 
-
-> Add Commentary - proceed with or without outlier? Changes the shape of the smoother
+We find that 7 of the 156 countries in the dataset were developing in 2010 and developed in 2016.  
 
 ```{r, warning = FALSE}
 check <- normal %>% mutate(developed.x2 = ifelse(X2016.x > 12000, 1, 0)) %>% 
   mutate(recent_development.x = ifelse(developed.x == 0 & developed.x2 == 0, "Developing", ifelse(developed.x == 0 & developed.x2 == 1, "Recently Developed", "Developed"))) %>% filter(!is.na(recent_development.x))
 
-check2 <- check %>% filter(avg_growth.x < 12)
+check2 <- check %>% filter(avg_growth.x < 12) # Remove Nauru (an outlier)
 
 check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) + 
   geom_point() + 
   geom_smooth(method = 'lm', se=F) +
-  ggtitle("SLR between source country avg GDP growth and Normalized # flights")
+  labs(title = "Normalized Log Number of Flights vs. Average Growth",
+       x = "Average Per Capita GDP Growth", y = "Log Count of Flights")
 
 ```
 
-> Insert Commentary:
+### Parametric ANOVA
 
-```{r, warning = FALSE}
-check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) + 
-  geom_point() + 
-  geom_smooth(method = 'loess', se=F) +
-  ggtitle("SLR between source country avg GDP growth and Normalized # flights")
-```
+> Intro
 
-> Anova?
-> Or just fit parallel slopes model?
-> OR BOTH?
 
 ```{r}
-# With outlier:
 p_mod2 <- lm(log_count ~ recent_development.x, data = check)
 anova(p_mod2) 
-# Without:
-p_mod3 <- lm(log_count ~ recent_development.x, data = check2)
-anova(p_mod3)
 ```
 
 > Commentary - Verify conditions.
 
 ```{r}
 favstats(log_count ~ recent_development.x, data = check) # Fine
-check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot()
+check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot() +
+  labs("Boxplot of Normalized Log Counts by Development Status",
+       x = "Development Status", y = "Log Count of Flights")
 ```
 
 > Concern for Normality - do NP, Equal Variance Looks good. 
@@ -433,6 +428,9 @@ with(check, pairwise.t.test(log_count, recent_development.x))
 
 > Commentary on Parametric MC
 
+
+### Non-Parametric ANOVA
+
 > Commentary for NP ANOVA:
 
 ```{r}
@@ -442,7 +440,9 @@ kruskal.test(log_count~as.factor(recent_development.x), data=check)
 > Verify Shift Model - Roughly appropriate:
 
 ```{r}
-check %>% ggplot(aes(log_count, color = recent_development.x)) + geom_density()
+check %>% ggplot(aes(log_count, color = recent_development.x)) + geom_density() +
+  labs(title = "Distribution of Normalized Log Count by Development Status",
+       x = "Log Count of Flights", y = "Density")
 ```
 
 > Comments on Plot
@@ -451,12 +451,13 @@ check %>% ggplot(aes(log_count, color = recent_development.x)) + geom_density()
 
 ```{r}
 with(check, pairwise.wilcox.test(log_count, recent_development.x))
+dunn.test(x = check$log_count, g = check$recent_development.x)
 ```
 
 > Report, Conclude, and Compare
 
 
-### Travel Locations
+## Travel Locations
 
 First, we can look at travel outside of one's own country (source does not equal destination):
 
