@@ -400,33 +400,43 @@ check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) +
 
 ```
 
+From the above scatterplot, developed countries appear to be clustered at higher normalized `log_count` values across most of the range of average Per Capita GDP growth, with some exceptions. Similarly, developing countries appear to be clustered at lower noramlized `log_count` values across most of the range of average Per Capita GDP growth. There is a region of significant overlap around $-6$ `log_count` for developed and developing. However, the fitted lines suggest that there may be a difference in the average `log_count`. Recently developed countries appear to have lower noramlized `log_count`, with the exception of the Repbulic of Nauru. Additionally, these countries are clustered at the upper half of the average Per Capita GDP growth range. The plot suggests that there may be a difference in center between at least two of the development classifications.
+
+
 ### Parametric ANOVA
 
-> Intro
-
+To determine if there is a difference in the mean number of normalized, natural log of the number of flights between developed, developing, and recently developed countries, we first fit a parallel slopes model and carry out the parametric ANOVA.
 
 ```{r}
 p_mod2 <- lm(log_count ~ recent_development.x, data = check)
 anova(p_mod2) 
 ```
 
-> Commentary - Verify conditions.
+The F-value for the parametric ANOVA with `recent_development.x` is $52.583$, with an associated p-value of approximately $0$. Before drawing any further conclusions, the conditions must be met. It seems safe to assume that Independence holds. We verify below that the Equal Variance and Normality conditions are also met:
 
 ```{r}
 favstats(log_count ~ recent_development.x, data = check) # Fine
+plot(p_mod2, which = 1)
+plot(p_mod2, which = 2)
 check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot() +
-  labs("Boxplot of Normalized Log Counts by Development Status",
+  labs(title = "Boxplot of Normalized Log Counts by Development Status",
        x = "Development Status", y = "Log Count of Flights")
 ```
 
-> Concern for Normality - do NP, Equal Variance Looks good. 
+The boxplot and residual plot suggest that the spreads of developed and developing countries appear to be very similar, but the spread of recently developed countries is slightly smaller. Looking at the standard deviations, recently developed countries have the largest, $1.817$, and developed countries have the smallest, $1.394$. Since the ratio of the largest standard deviation to the smallest is less thatn $2$ (approximately $1.303$), the Equal Variance condition appears to be roughly satisfied. 
+
+Additionally, the asymmetry of the recently developed box in the boxplot suggests that we may have concerns for Normality. Looking at the QQ plot, there appears to be some divergence from the reference line near the upper end. While the rest of the QQ plot appears to adhere to the reference line, we still have some concerns regarding whether or not the Normality condition is met.
+
+Therefore, we interpret the p-value associated with the parametric ANOVA with some caution. At all of the most commonly chosen significance levels, this is a significant p-value. We can reject the null hypothesis that there is no difference in the mean normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in means between development status groups. 
+
+From the ANOVA by itself, we cannot determine which pairs have significantly different means. Below, we conduct FIsher's LSD to determine which pairs are significantly different:
 
 ```{r}
 # Fisher's LSD:
 with(check, pairwise.t.test(log_count, recent_development.x))
 ```
 
-> Commentary on Parametric MC
+The results of Fisher's LSD suggest that the mean normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $= 0.0017$), at a significance level of $0.005$. At any significant $\alpha$ level, however, we cannot reject the null hypothesis that there is no difference in means for developing and recently developed countries. 
 
 
 ### Non-Parametric ANOVA
