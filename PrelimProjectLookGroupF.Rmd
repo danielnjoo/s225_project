@@ -28,8 +28,8 @@ require(dunn.test)
 groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv") 
 groupfdata <- groupfdata %>% dplyr::select(-X1)
 
-#data <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
-#data %>% dim()
+groupfdata <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)] # Fixed Issue.
+groupfdata %>% dim()
 ```
 
 The dataset includes 49 variables and 33,559 flights.
@@ -115,7 +115,7 @@ After normalizing the flight counts by population, China is no longer an outlier
 groupfdata %>% group_by(Country.Code.x, developed.x, source.population) %>% 
   summarize(count=n()) -> temp
 
-temp <- temp %>% mutate(count = count/source.population) %>% group_by(Country.Code.x,developed.x) %>% summarize(count = sum(count)) # Two very similar values of population for countries? 
+temp <- temp %>% mutate(count = count/source.population)
 
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
@@ -276,10 +276,7 @@ groupfdata %>%
   group_by(source.country, avg_growth.x, source.population, developed.x, X2016.x) %>%
   summarize(count=n()) -> temp
 
-normal <- temp %>% mutate(count = count/source.population,
-                          avg_growth.x2 = round(avg_growth.x,6)) %>%
-  group_by(source.country, avg_growth.x2, developed.x, X2016.x) %>%
-  summarize(count = sum(count))
+normal <- temp %>% mutate(count = count/source.population)
 
 normal %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
@@ -333,7 +330,7 @@ p_mod <-  lm(log_count ~ avg_growth.x, data = normal_minus)
 summary(p_mod)
 ```
 
-The t-value for the slope coefficient of `avg_growth.x` is $-0.152$ with an associated p-value of $0.00181$. At $\alpha = 0.01$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity condition is satisfied and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
+The t-value for the slope coefficient of `avg_growth.x` is $-0.172$ with an associated p-value of $0.00871$. At $\alpha = 0.01$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity condition is satisfied and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
 
 ```{r}
 # Conditions:
@@ -342,9 +339,9 @@ plot(p_mod, which = 2)
 
 ```
 
-For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around $0$. Looking at the QQ plot, there is some minor deviation from the reference line at the lower end, but the remainer of the observations adhere to the reference line rather faithfully. Therefore, the Normality condition is also met. 
+For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around $0$. Looking at the QQ plot, there is some minor deviation from the reference line at the lower and upper ends, but the remainder of the observations adhere to the reference line rather faithfully. Still, we may have some minor concerns for Normality. 
 
-Since the p-value is small, at $\alpha = 0.01$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from $0$. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.152$ indicates that for every 1 unit increase in the `avg_growth.x`, the noramlized `log_counts` is estimated to decrease by approximately $-0.152$. While `avg_growth.x` is a significant predicotr, the model itself has low predictive power. The model only accounts for $3.45$% of the variability in `log_counts` (Multiple $R^{2} = 0.03445$).
+Since the p-value is small, at $\alpha = 0.01$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from $0$. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.172$ indicates that for every 1 unit increase in the `avg_growth.x`, the noramlized `log_counts` is estimated to decrease by approximately $0.172$. While `avg_growth.x` is a significant predicotr, the model itself has low predictive power. The model only accounts for $4.58$% of the variability in `log_counts` (Multiple $R^{2} = 0.04588$).
 
 
 ### Non-parametric Regression
@@ -356,8 +353,7 @@ np_mod <- rfit(log_count ~ avg_growth.x, data = normal_minus)
 summary(np_mod, overall = 'drop')
 ```
 
-The t-value for the slope coefficient of `avg_growth.x` is $-.1683$ with an associated p-value of $0.00049$. At $\alpha = 0.001$, this is a significant p-value. Although we've already verified the Equal Variance condition above, we plot the residuals directly from the our non-parametric model below:
-
+The t-value for the slope coefficient of `avg_growth.x` is $-.178$ with an associated p-value of $0.00065$. At $\alpha = 0.01$, this is a significant p-value. Although we've already verified the Equal Variance condition above, we plot the residuals directly from the our non-parametric model below:
 
 ```{r}
 plot(np_mod$residuals ~ np_mod$fitted.values)
@@ -365,9 +361,9 @@ plot(np_mod$residuals ~ np_mod$fitted.values)
 
 Once again, the residuals appear to be evenly distributed and symmetric about zero. Therefore, we have no concerns regarding the conditions for non-parametric regression.
 
-Both models, parametric and non-parametric, conclude that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights per source country. The parametric model rejects the null hypothesis at $\alpha = 0.01$. The non-parametric model also rejects the null, but at a smaller $\alpha$ level ($\alpha = 0.001$). Additionally, the slope estimates are very similar. The parametric slope estimate was $-0.152$ and the non-parametric slope estimate was $-0.168$. The estimated intercepts, as well, are quite similar.
+Both models, parametric and non-parametric, conclude that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights per source country. The parametric and non-parametric models reject the null hypothesis at $\alpha = 0.01$.  Additionally, the slope estimates are very similar. The parametric slope estimate was $-0.172$ and the non-parametric slope estimate was $-0.178$. The estimated intercepts, as well, are quite similar.
 
-Despite this conclusion, both the parametric and non-parametric model have extremely low predictive power (Multiple $R^{2} = 0.03445$, Robust Multiple $R^{2} = 0.0414$). Therefore, although `avg_growth.x` is a significant predictor, this model is essentially useless in terms of predicing the normalized `log_counts`.
+Despite this conclusion, both the parametric and non-parametric model have extremely low predictive power (Multiple $R^{2} = 0.04588$, Robust Multiple $R^{2} = 0.0485$). Therefore, although `avg_growth.x` is a significant predictor, this model is essentially useless in terms of predicting the normalized `log_counts`.
 
 
 ## Has Travel Increased in Recently Developed Countries?
