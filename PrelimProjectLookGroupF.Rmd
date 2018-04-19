@@ -482,46 +482,144 @@ Our results indicate that recently developed countries do not differ from develo
 
 ## Travel Locations
 
-To answer this question, we are interested in seeing if the proportion of flights to a particular location is different between developed and developing countries. First, we can look at travel outside of one's own country (`source.country $\neq$ `destination.country`):
+### Developed destinations with no internal flights, not normalized
+
+To answer this question, we are interested in seeing if the proportion of flights to a particular location is different between developed and developing countries. First, we can look at travel outside of one's own country (`source.country` $\neq$ `destination.country`):
 
 ```{r}
 # Developed
-hold <- groupfdata %>% filter(destination.country != source.country) %>%
+hold <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
   filter(developed.x == 1) %>%
-  group_by(destination.country) %>%
+  group_by(Country.Code.y) %>%
   summarize(count = n()) %>%
-  arrange(desc(count)) %>%
-  head(5); hold
-
+  arrange(desc(count)) 
+head(hold,5)
 ```
 
 The counts displayed in the table above are not normalized. The most popular destinations for developed countries are the UK, Germany, Spain, Italy, and France.
 
+### Developing destinations with no internal flights, not normalized
+
 ```{r}
-# Developing
-hold2 <- groupfdata %>% filter(destination.country != source.country) %>%
+hold2 <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
   filter(developed.x == 0) %>%
-  group_by(destination.country) %>%
+  group_by(Country.Code.y) %>%
   summarize(count = n()) %>%
-  arrange(desc(count)) %>%
-  head(5); hold2
+  arrange(desc(count))
+head(hold2,5)
 ```
 
 Whereas for developing countries, these destinations are the UAE, Singapore, Japan, France, and China.
 
-If we include travel within one's own country (`source.country` can equal `destination.country`), the results are the same for the developed countries, but differ slightly for the developing ones:
+### Developed destinations with no internal flights, normalized
+
+If we normalize flights to a destination country by the population of said destination country, i.e. assume countries with higher populations should expect more flights we find different results:
 
 ```{r}
-hold4 <- groupfdata %>% filter(developed.x == 0) %>%
-  group_by(destination.country) %>%
-  summarize(count = n()) %>%
-  arrange(desc(count))
-head(hold4,5)
+groupfdata$spop <- str_replace(groupfdata$source.population,'\\.','')
+groupfdata %>% 
+  dplyr::select(country=Country.Code.x, pop=spop) %>% 
+  unique() -> pops
+  
+hold %>% left_join(pops, by=c("Country.Code.y"="country")) %>% 
+  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
+  arrange(desc(n_count)) -> developed_dests
+
+head(developed_dests,5)
 ```
 
-Now the top five destinations for developing countries are China, India, Indonesia, UAE, and Singapore.
+We find instead that for developing countries, the most popular destinations (once normalized) are Antigua and Barbuda, Iceland, St. Kitts and Nevis, Bermuda, and Austria.
 
-Therefore, it appears that there are differences in the most frequently traveled locations for developed and developing countries.
+```{r}
+developing_dests$top5<-c(rep(1,5),rep(0,143))
+ggplot(developing_dests,aes(factor(Country.Code.y),n_count,col=factor(top6))) + 
+  geom_point() +
+  scale_y_log10() + 
+  theme(axis.text.x = element_text(angle=90, vjust=0.5,hjust=1,size=5)) + 
+  labs(y="Log Normalized Count", x="Destination", fill="Top5", title="Top 5 Destinations of Developed Country Travel")
+```
+
+It's interesting to note how  the top5 countries here really stand out from the rest of the group in terms of log normalized count... the picture becomes more interesting if we plot these countries on a map:
+
+```{r message=F}
+library(ggmap)
+
+places <- geocode(c('Antigua and Barbuda', 'Iceland', 'St. Kitts and Nevis', 'Bermuda', 'Austria'))
+
+cbind(head(developing_dests,5),places) -> temp
+
+mapWorld <- borders("world", colour="gray50", fill="gray50") 
+ggplot() + 
+  mapWorld + 
+  geom_point(aes(x=places$lon, y=places$lat) ,color="red", size=2) +
+  ggtitle("Top 5 Destinations of Developed Countries") + geom_jitter() +
+  geom_text(data=temp, aes(x=lon,y=lat,label=Country.Code.y),hjust = -0.5)
+```
+
+What  we notice here is that all the  relevant countries appear to be low population countries situated between Europe and North  America (the two most  developed continents), and therefore are most likely transitting stops  for longer flights.
+
+### Developing destinations with no internal flights, normalized
+
+If we do the  same for  developing countries...
+
+```{r}
+hold2 %>% left_join(pops, by=c("Country.Code.y"="country")) %>% 
+  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
+  arrange(desc(n_count)) -> developing_dests
+
+head(developing_dests,5)
+```
+
+We find Antigua and Barbuda, Nauru, Tuvalu, Palau, and the Maldives  to be the top 5 destinations once population is adjusted for.
+
+```{r message=F}
+places <- geocode(c('Antigua and Barbuda', 'Nauru', 'Tuvalus', 'Palau', 'Maldives'))
+
+cbind(head(developing_dests,5),places) -> temp
+ggplot() + 
+  mapWorld + 
+  geom_point(aes(x=places$lon, y=places$lat) ,color="red", size=2) +
+  ggtitle("Top 5 Destinations of Developing Countries") + geom_jitter() +
+  geom_text(data=temp, aes(x=lon,y=lat,label=Country.Code.y),hjust = -0.5)
+```
+
+In this case we find the destinations to be positioned more in the Pacific, i.e. between North America and Asia.
+
+### Developed destinations with internal flights, normalized
+
+If we include travel within one's own country (`source.country` can equal `destination.country`), the results are exactly the same:
+
+```{r}
+groupfdata %>% filter(developed.x == 1) %>%
+  group_by(Country.Code.y) %>%
+  summarize(count = n()) %>% 
+  left_join(pops, by=c("Country.Code.y"="country")) %>% 
+  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
+  arrange(desc(n_count)) -> developed_dests2
+
+head(developed_dests2,5)
+```
+
+We still find Antigua and Barbuda Iceland, Saint Kitts and Nevis, Bermuda, and Austria, in the  top 5.
+
+### Developing destinations with internal flights, normalized
+
+but differ slightly for the developing ones:
+
+```{r}
+groupfdata %>% filter(developed.x == 0) %>%
+  group_by(Country.Code.y) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>% 
+  left_join(pops, by=c("Country.Code.y"="country")) %>% 
+  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
+  arrange(desc(n_count)) -> developing_dests2
+head(developing_dests2,5)
+```
+
+What we find is that the Maldives and Palau have been replaced by the  Marshall Islands and Vanuatu, archipelago nations that we hypothesize the  populations of which require  lots of  internal flights.
+
+Therefore, it appears that there are significant differences in the most frequently traveled locations for developed and developing countries,  differences that we believe can be  most helpfully thought of as between  NA-EU and NA-ASIA travel patterns.
 
 ### Parametric Two Proportion Z-test
 
@@ -581,7 +679,6 @@ prop.test(x = c(p_FR, p_FR2), n = c(total_DVD, total_DVG)) # Sig
 
 ?prop.test
 ```
-
 
 
 ```{r}
