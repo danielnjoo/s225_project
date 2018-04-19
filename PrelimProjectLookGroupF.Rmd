@@ -19,6 +19,7 @@ require(readr)
 require(Rfit)
 require(ggplot2)
 require(dunn.test)
+require(stringr)
 ```
 
 ## Data Summary

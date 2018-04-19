@@ -40,8 +40,11 @@ require(readr)
 require(mosaic)
 require(ggplot2)
 require(tidyr)
+
+groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv")
+groupfdata <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)] # Made a change in data 
 data <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
-groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv") 
+
 groupfdata %>% group_by(Country.Code.x, developed.x) %>% summarize(count=n()) -> temp 
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
