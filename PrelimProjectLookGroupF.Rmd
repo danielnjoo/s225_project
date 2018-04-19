@@ -478,7 +478,7 @@ Our results indicate that recently developed countries do not differ from develo
 
 ## Travel Locations
 
-First, we can look at travel outside of one's own country (source does not equal destination):
+To answer this question, we are interested in seeing if the proportion of flights to a particular location is different between developed and developing countries. First, we can look at travel outside of one's own country (`source.country $\neq$ `destination.country`):
 
 ```{r}
 # Developed
@@ -488,6 +488,12 @@ hold <- groupfdata %>% filter(destination.country != source.country) %>%
   summarize(count = n()) %>%
   arrange(desc(count)) %>%
   head(5); hold
+
+```
+
+The counts displayed in the table above are not normalized. The most popular destinations for developed countries are the UK, Germany, Spain, Italy, and France.
+
+```{r}
 # Developing
 hold2 <- groupfdata %>% filter(destination.country != source.country) %>%
   filter(developed.x == 0) %>%
@@ -497,12 +503,9 @@ hold2 <- groupfdata %>% filter(destination.country != source.country) %>%
   head(5); hold2
 ```
 
-
-Without normalization, we find that the top 5 overseas destinations of developed countries are the UK, Germany, Spain, Italy, and France.
-
 Whereas for developing countries, these destinations are the UAE, Singapore, Japan, France, and China.
 
-If we include travel within one's own country (souce can equal destination), the results are the same for the developed countries, but differ slightly for the developing ones:
+If we include travel within one's own country (`source.country` can equal `destination.country`), the results are the same for the developed countries, but differ slightly for the developing ones:
 
 ```{r}
 hold4 <- groupfdata %>% filter(developed.x == 0) %>%
@@ -514,5 +517,17 @@ hold4 <- groupfdata %>% filter(developed.x == 0) %>%
 
 Now the top five destinations for developing countries are China, India, Indonesia, UAE, and Singapore.
 
-In our analysis we'll conduct a z-test for proportions.
+Therefore, it appears that there are differences in the most frequently traveled locations for developed and developing countries.
+
+### Parametric
+
+
+### Non-Parametric
+
+
+
+
+## Conclusions and Limitations
+
+
 
