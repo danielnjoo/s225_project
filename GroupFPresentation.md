@@ -1,3 +1,9 @@
+<style>
+.small-code pre code {
+  font-size: 1.5em;
+}
+</style>
+
 Flights in Developed and Developing Countries
 ========================================================
 author: Daniel and Jocelyn
@@ -59,6 +65,7 @@ Log Transformation of Counts
 
 Parametric Regression: log_count ~ avg_growth.x
 ========================================================
+class: small-code
 
 
 ```
@@ -84,6 +91,7 @@ F-statistic: 9.919 on 1 and 278 DF,  p-value: 0.001814
 
 Parametric Conditions
 ========================================================
+class: small-code
 
 ![plot of chunk unnamed-chunk-8](GroupFPresentation-figure/unnamed-chunk-8-1.png)![plot of chunk unnamed-chunk-8](GroupFPresentation-figure/unnamed-chunk-8-2.png)
 
@@ -148,6 +156,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Parametric Conditions:
 ========================================================
+class: small-code
 
 
 ```

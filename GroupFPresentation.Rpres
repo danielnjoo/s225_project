@@ -1,3 +1,9 @@
+<style>
+.small-code pre code {
+  font-size: 1.5em;
+}
+</style>
+
 Flights in Developed and Developing Countries
 ========================================================
 author: Daniel and Jocelyn
@@ -135,6 +141,7 @@ normal_minus %>% ggplot(aes(avg_growth.x, log_count)) +
 
 Parametric Regression: log_count ~ avg_growth.x
 ========================================================
+class: small-code
 
 ```{r, echo = FALSE, fig.height = 3}
 p_mod <-  lm(log_count ~ avg_growth.x, data = normal_minus)
@@ -143,6 +150,7 @@ summary(p_mod)
 
 Parametric Conditions
 ========================================================
+class: small-code
 
 ```{r, echo = FALSE, fig.height = 8}
 plot(p_mod, which = 1)
@@ -204,6 +212,7 @@ anova(p_mod2)
 
 Parametric Conditions:
 ========================================================
+class: small-code
 
 ```{r, echo = FALSE}
 favstats(log_count ~ recent_development.x, data = check) # Fine
