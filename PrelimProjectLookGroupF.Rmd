@@ -28,8 +28,8 @@ require(dunn.test)
 groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv") 
 groupfdata <- groupfdata %>% dplyr::select(-X1)
 
-#data <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
-#data %>% dim()
+groupfdata <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)] # Fixed Issue.
+groupfdata %>% dim()
 ```
 
 The dataset includes 49 variables and 33,559 flights.
@@ -123,7 +123,7 @@ After normalizing the flight counts by population, China is no longer an outlier
 groupfdata %>% group_by(Country.Code.x, developed.x, source.population) %>% 
   summarize(count=n()) -> temp
 
-temp <- temp %>% mutate(count = count/source.population) %>% group_by(Country.Code.x,developed.x) %>% summarize(count = sum(count)) # Two very similar values of population for countries? 
+temp <- temp %>% mutate(count = count/source.population)
 
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
@@ -284,10 +284,7 @@ groupfdata %>%
   group_by(source.country, avg_growth.x, source.population, developed.x, X2016.x) %>%
   summarize(count=n()) -> temp
 
-normal <- temp %>% mutate(count = count/source.population,
-                          avg_growth.x2 = round(avg_growth.x,6)) %>%
-  group_by(source.country, avg_growth.x2, developed.x, X2016.x) %>%
-  summarize(count = sum(count))
+normal <- temp %>% mutate(count = count/source.population)
 
 normal %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
@@ -341,7 +338,7 @@ p_mod <-  lm(log_count ~ avg_growth.x, data = normal_minus)
 summary(p_mod)
 ```
 
-The t-value for the slope coefficient of `avg_growth.x` is $-0.152$ with an associated p-value of $0.00181$. At $\alpha = 0.01$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity condition is satisfied and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
+The t-value for the slope coefficient of `avg_growth.x` is $-0.172$ with an associated p-value of $0.00871$. At $\alpha = 0.01$, this is a significant p-value. Before drawing any further conclusions, the conditions must be met. We've already verified that Linearity condition is satisfied and it seems safe to assume that Independence also holds. We verify below that the Equal Variance and Normality conditions are also met:
 
 ```{r}
 # Conditions:
@@ -350,9 +347,9 @@ plot(p_mod, which = 2)
 
 ```
 
-For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around $0$. Looking at the QQ plot, there is some minor deviation from the reference line at the lower end, but the remainer of the observations adhere to the reference line rather faithfully. Therefore, the Normality condition is also met. 
+For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around $0$. Looking at the QQ plot, there is some minor deviation from the reference line at the lower and upper ends, but the remainder of the observations adhere to the reference line rather faithfully. Still, we may have some minor concerns for Normality. 
 
-Since the p-value is small, at $\alpha = 0.01$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from $0$. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.152$ indicates that for every 1 unit increase in the `avg_growth.x`, the noramlized `log_counts` is estimated to decrease by approximately $-0.152$. While `avg_growth.x` is a significant predicotr, the model itself has low predictive power. The model only accounts for $3.45$% of the variability in `log_counts` (Multiple $R^{2} = 0.03445$).
+Since the p-value is small, at $\alpha = 0.01$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from $0$. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.172$ indicates that for every 1 unit increase in the `avg_growth.x`, the noramlized `log_counts` is estimated to decrease by approximately $0.172$. While `avg_growth.x` is a significant predicotr, the model itself has low predictive power. The model only accounts for $4.58$% of the variability in `log_counts` (Multiple $R^{2} = 0.04588$).
 
 
 ### Non-parametric Regression
@@ -364,8 +361,7 @@ np_mod <- rfit(log_count ~ avg_growth.x, data = normal_minus)
 summary(np_mod, overall = 'drop')
 ```
 
-The t-value for the slope coefficient of `avg_growth.x` is $-.1683$ with an associated p-value of $0.00049$. At $\alpha = 0.001$, this is a significant p-value. Although we've already verified the Equal Variance condition above, we plot the residuals directly from the our non-parametric model below:
-
+The t-value for the slope coefficient of `avg_growth.x` is $-.178$ with an associated p-value of $0.00065$. At $\alpha = 0.01$, this is a significant p-value. Although we've already verified the Equal Variance condition above, we plot the residuals directly from the our non-parametric model below:
 
 ```{r}
 plot(np_mod$residuals ~ np_mod$fitted.values)
@@ -373,9 +369,9 @@ plot(np_mod$residuals ~ np_mod$fitted.values)
 
 Once again, the residuals appear to be evenly distributed and symmetric about zero. Therefore, we have no concerns regarding the conditions for non-parametric regression.
 
-Both models, parametric and non-parametric, conclude that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights per source country. The parametric model rejects the null hypothesis at $\alpha = 0.01$. The non-parametric model also rejects the null, but at a smaller $\alpha$ level ($\alpha = 0.001$). Additionally, the slope estimates are very similar. The parametric slope estimate was $-0.152$ and the non-parametric slope estimate was $-0.168$. The estimated intercepts, as well, are quite similar.
+Both models, parametric and non-parametric, conclude that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights per source country. The parametric and non-parametric models reject the null hypothesis at $\alpha = 0.01$.  Additionally, the slope estimates are very similar. The parametric slope estimate was $-0.172$ and the non-parametric slope estimate was $-0.178$. The estimated intercepts, as well, are quite similar.
 
-Despite this conclusion, both the parametric and non-parametric model have extremely low predictive power (Multiple $R^{2} = 0.03445$, Robust Multiple $R^{2} = 0.0414$). Therefore, although `avg_growth.x` is a significant predictor, this model is essentially useless in terms of predicing the normalized `log_counts`.
+Despite this conclusion, both the parametric and non-parametric model have extremely low predictive power (Multiple $R^{2} = 0.04588$, Robust Multiple $R^{2} = 0.0485$). Therefore, although `avg_growth.x` is a significant predictor, this model is essentially useless in terms of predicting the normalized `log_counts`.
 
 
 ## Has Travel Increased in Recently Developed Countries?
@@ -391,9 +387,8 @@ groupfdata %>% group_by(source.country, X2010.x, X2016.x, developed.x) %>% summa
 temp %>% mutate(developed.x2 = ifelse(X2016.x>12000,1,0)) -> temp
 temp[which(temp$developed.x2-temp$developed.x==1),]
 ```
-> Not sure why getting doubles
 
-We find that 7 of the 156 countries in the dataset were developing in 2010 and developed in 2016.  
+We find that 7 of the 156 countries in the dataset were developing in 2010 and developed in 2016. 
 
 ```{r, warning = FALSE}
 check <- normal %>% mutate(developed.x2 = ifelse(X2016.x > 12000, 1, 0)) %>% 
@@ -409,7 +404,7 @@ check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) +
 
 ```
 
-From the above scatterplot, developed countries appear to be clustered at higher normalized `log_count` values across most of the range of average Per Capita GDP growth, with some exceptions. Similarly, developing countries appear to be clustered at lower noramlized `log_count` values across most of the range of average Per Capita GDP growth. There is a region of significant overlap around $-6$ `log_count` for developed and developing. However, the fitted lines suggest that there may be a difference in the average `log_count`. Recently developed countries appear to have lower noramlized `log_count`, with the exception of the Repbulic of Nauru. Additionally, these countries are clustered at the upper half of the average Per Capita GDP growth range. The plot suggests that there may be a difference in center between at least two of the development classifications.
+From the above scatterplot, developed countries appear to be clustered at higher normalized `log_count` values across most of the range of average Per Capita GDP growth, with some exceptions. Similarly, developing countries appear to be clustered at lower noramlized `log_count` values across most of the range of average Per Capita GDP growth. There is a region of significant overlap around $-5$ `log_count` for developed and developing. However, the fitted lines suggest that there may be a difference in the average `log_count`. Recently developed countries appear to have lower noramlized `log_count`, with the exception of the Repbulic of Nauru. Additionally, these countries are clustered at the upper half of the average Per Capita GDP growth range. The plot suggests that there may be a difference in center between at least two of the development classifications.
 
 
 ### Parametric ANOVA
@@ -421,7 +416,7 @@ p_mod2 <- lm(log_count ~ recent_development.x, data = check)
 anova(p_mod2) 
 ```
 
-The F-value for the parametric ANOVA with `recent_development.x` is $52.583$, with an associated p-value of approximately $0$. Before drawing any further conclusions, the conditions must be met. It seems safe to assume that Independence holds. We verify below that the Equal Variance and Normality conditions are also met:
+The F-value for the parametric ANOVA with `recent_development.x` is $32.734$, with an associated p-value of approximately $0$. Before drawing any further conclusions, the conditions must be met. It seems safe to assume that Independence holds. We verify below that the Equal Variance and Normality conditions are also met:
 
 ```{r}
 favstats(log_count ~ recent_development.x, data = check) # Fine
@@ -434,7 +429,7 @@ check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot() +
 
 The boxplot and residual plot suggest that the spreads of developed and developing countries appear to be very similar, but the spread of recently developed countries is slightly smaller. Looking at the standard deviations, recently developed countries have the largest, $1.817$, and developed countries have the smallest, $1.394$. Since the ratio of the largest standard deviation to the smallest is less thatn $2$ (approximately $1.303$), the Equal Variance condition appears to be roughly satisfied. 
 
-Additionally, the asymmetry of the recently developed box in the boxplot suggests that we may have concerns for Normality. Looking at the QQ plot, there appears to be some divergence from the reference line near the upper end. While the rest of the QQ plot appears to adhere to the reference line, we still have some concerns regarding whether or not the Normality condition is met.
+Additionally, the asymmetry of the recently developed box in the boxplot suggests that we may have concerns for Normality. Looking at the QQ plot, there appears to be some divergence from the reference line near both ends. While the rest of the QQ plot appears to adhere to the reference line, we still have some concerns regarding whether or not the Normality condition is met.
 
 Therefore, we interpret the p-value associated with the parametric ANOVA with some caution. At all of the most commonly chosen significance levels, this is a significant p-value. We can reject the null hypothesis that there is no difference in the mean normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in means between development status groups. 
 
@@ -445,7 +440,7 @@ From the ANOVA by itself, we cannot determine which pairs have significantly dif
 with(check, pairwise.t.test(log_count, recent_development.x))
 ```
 
-The results of Fisher's LSD suggest that the mean normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $= 0.0017$), at a significance level of $0.005$. At any significant $\alpha$ level, however, we cannot reject the null hypothesis that there is no difference in means for developing and recently developed countries. 
+The results of Fisher's LSD suggest that the mean normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $= 0.01$), at a significance level of $0.05$. At any significant $\alpha$ level, however, we cannot reject the null hypothesis that there is no difference in means for developing and recently developed countries. 
 
 
 ### Non-Parametric ANOVA
@@ -456,7 +451,7 @@ The Non-parametric Kruskal-Wallis test provides an alternative to the one-way Pa
 kruskal.test(log_count~as.factor(recent_development.x), data=check)
 ```
 
-The Chi-squared test statiscit for the Kruskal-Wallis test is $86.641$ with an associated p-value of approximately $0$. Since the Kruskal-Wallis test assumes a shift model, we must first verify that such a model is appropriate before drawing any further conclusions. A shift model assumes that the only difference in distributions between the groups (of development status) is their medians. In other words, the shape and spread of each group's distribution should be the same. We verify that assuming that this model holds is appropriate:
+The Chi-squared test statiscit for the Kruskal-Wallis test is $52.653$ with an associated p-value of approximately $0$. Since the Kruskal-Wallis test assumes a shift model, we must first verify that such a model is appropriate before drawing any further conclusions. A shift model assumes that the only difference in distributions between the groups (of development status) is their medians. In other words, the shape and spread of each group's distribution should be the same. We verify that assuming that this model holds is appropriate:
 
 ```{r}
 favstats(log_count~recent_development.x, data=check)
@@ -465,7 +460,7 @@ check %>% ggplot(aes(log_count, color = recent_development.x)) + geom_density() 
        x = "Log Count of Flights", y = "Density")
 ```
 
-The distribution of developed is unimodal and roughly symmetric. The distribution of devloping is unimodal. There is a small peak near $-2.5$, which suggests that perhaps this distribution may actually be bimodal. Additionally, it appears roughly symmetric. The distribution of recently developed has one larger peak and a second peak, which corresponds to the Republic of Nauru. Although there is some deviation in terms of shape, the distributions are roughly similar. 
+> The distribution of developed is unimodal and roughly symmetric. The distribution of devloping is unimodal. There is a small peak near $-2.5$, which suggests that perhaps this distribution may actually be bimodal. Additionally, it appears roughly symmetric. The distribution of recently developed has one larger peak and a second peak, which corresponds to the Republic of Nauru. Although there is some deviation in terms of shape, the distributions are roughly similar. 
 
 Since we are looking for differences in medians, we can compare the IQRs of each distribution to compare spread. The IQS for developed, developing, and recently developed are $2.002$, $1.93$, and $1.42$, respectively. While there is some difference in spread, the differences between the IQRs is not drastic. Although not exactly the same in shape and spread, the distributions appear to be close enough to assume a shift model.
 
@@ -478,9 +473,9 @@ with(check, pairwise.wilcox.test(log_count, recent_development.x))
 dunn.test(x = check$log_count, g = check$recent_development.x)
 ```
 
-The results of the pairwise Rank Sum tests and the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $= .00054 & = .0002$), at a significance level of $0.005$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
+The results of the pairwise Rank Sum tests and the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $= .0091 & = .0029$), at a significance level of $0.01$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
 
-Since the Kruskal-Wallis test has less stringent conditions than the parametric ANOVA, it is a less powerful test. However, despite difference in power, both tests concluded that there was at least one difference in the center of the noramlized `log_counts` between countries with different development status. Additionally, the results of Fisher's LSD, Rank Sum tests, and the Dunn test, all suggested that at $\alpha = 0.005$, there is a significant difference between developed and developing countries and between developed and recently developed countries.
+Since the Kruskal-Wallis test has less stringent conditions than the parametric ANOVA, it is a less powerful test. However, despite difference in power, both tests concluded that there was at least one difference in the center of the noramlized `log_counts` between countries with different development status. Additionally, the results of Fisher's LSD, Rank Sum tests, and the Dunn test, all suggested that at $\alpha = 0.05$, there is a significant difference between developed and developing countries and between developed and recently developed countries.
 
 Our results indicate that recently developed countries do not differ from developing countries in terms of the normalized, natural log number of flights. Additionally, since recently developed countries differ from developed countries, we can conclude that travel has not increased in recently developed countries. In other words, recently developed countries are not distinguishable from developing countries in terms of the mean and median noramlized, natural log counts of flights.
 
@@ -543,7 +538,7 @@ hold3 <- groupfdata %>% filter(developed.x == 1) %>%
   summarize(count = n()) %>%
   arrange(desc(count))
 
-normal
+# normal has normalized
 
 ```
 
