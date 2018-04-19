@@ -1,6 +1,6 @@
 <style>
-.small-code pre code {
-  font-size: 1.5em;
+.small-code code {
+  font-size: 1em;
 }
 </style>
 

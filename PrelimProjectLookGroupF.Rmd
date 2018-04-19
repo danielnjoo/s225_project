@@ -276,8 +276,9 @@ groupfdata %>%
   group_by(source.country, avg_growth.x, source.population, developed.x, X2016.x) %>%
   summarize(count=n()) -> temp
 
-normal <- temp %>% mutate(count = count/source.population) %>%
-  group_by(source.country, avg_growth.x, developed.x, X2016.x) %>%
+normal <- temp %>% mutate(count = count/source.population,
+                          avg_growth.x2 = round(avg_growth.x,6)) %>%
+  group_by(source.country, avg_growth.x2, developed.x, X2016.x) %>%
   summarize(count = sum(count))
 
 normal %>% ggplot(aes(avg_growth.x, count)) + 
