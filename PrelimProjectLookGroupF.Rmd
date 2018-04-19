@@ -511,18 +511,86 @@ If we include travel within one's own country (`source.country` can equal `desti
 hold4 <- groupfdata %>% filter(developed.x == 0) %>%
   group_by(destination.country) %>%
   summarize(count = n()) %>%
-  arrange(desc(count)) %>%
-  head(5); hold4
+  arrange(desc(count))
+head(hold4,5)
 ```
 
 Now the top five destinations for developing countries are China, India, Indonesia, UAE, and Singapore.
 
 Therefore, it appears that there are differences in the most frequently traveled locations for developed and developing countries.
 
-### Parametric
+### Parametric Two Proportion Z-test
+
+```{r}
+Outbound <- groupfdata %>% group_by(developed.x) %>% summarize(total_flights = n())
+total_DVG <- readr::parse_number(Outbound[[1,2]][1])
+total_DVD <- readr::parse_number(Outbound[[2,2]][1])
+
+hold3 <- groupfdata %>% filter(developed.x == 1) %>%
+  group_by(destination.country) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
 
 
-### Non-Parametric
+```
+
+```{r}
+# For Developed (Source can Equal Destination):
+p_UK <- readr::parse_integer(hold3[[1,2]][1])
+p_Ger <- readr::parse_integer(hold3[[2,2]][1])
+p_SP <- readr::parse_integer(hold3[[3,2]][1])
+p_IT <- readr::parse_integer(hold3[[4,2]][1])
+p_FR <- readr::parse_integer(hold3[[5,2]][1])
+
+# Get Developing Country Props for these countries:
+p_UK2 <- hold4 %>% filter(destination.country == "United Kingdom")
+p_UK2 <- readr::parse_integer(p_UK2[[1,2]][1])
+
+p_Ger2 <- hold4 %>% filter(destination.country == "Germany")
+p_Ger2 <- readr::parse_integer(p_Ger2[[1,2]][1])
+
+p_SP2 <- hold4 %>% filter(destination.country == "Spain")
+p_SP2 <- readr::parse_integer(p_SP2[[1,2]][1])
+
+p_IT2 <- hold4 %>% filter(destination.country == "Italy")
+p_IT2 <- readr::parse_integer(p_IT2[[1,2]][1])
+
+p_FR2 <- hold4 %>% filter(destination.country == "France")
+p_FR2 <- readr::parse_integer(p_FR2[[1,2]][1])
+
+```
+
+```{r}
+# Two Proportion Z-Test:
+# Best function to use?
+
+prop.test(x = c(p_UK, p_UK2), n = c(total_DVD, total_DVG)) # Sig
+prop.test(x = c(p_Ger, p_Ger2), n = c(total_DVD, total_DVG)) # Sig
+prop.test(x = c(p_SP, p_SP2), n = c(total_DVD, total_DVG)) # Sig
+prop.test(x = c(p_IT, p_IT2), n = c(total_DVD, total_DVG)) # Sig
+prop.test(x = c(p_FR, p_FR2), n = c(total_DVD, total_DVG)) # Sig
+# Note on above: x-squared decreases each time.
+
+?prop.test
+```
+
+
+
+```{r}
+# For Developing (Source can Equal Destination):
+p_CH <- readr::parse_integer(hold4[[1,2]][1])/total_DVG
+p_India <- readr::parse_integer(hold4[[2,2]][1])/total_DVG
+p_Indo <- readr::parse_integer(hold4[[3,2]][1])/total_DVG
+p_UAE <- readr::parse_integer(hold4[[4,2]][1])/total_DVG
+p_Sing <- readr::parse_integer(hold4[[5,2]][1])/total_DVG
+
+# Get Developed COuntry Props for these countries
+
+```
+
+
+
+### Non-Parametric Binomial Test
 
 
 
