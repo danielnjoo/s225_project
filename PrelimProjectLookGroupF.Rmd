@@ -521,6 +521,9 @@ Therefore, it appears that there are differences in the most frequently traveled
 
 ### Parametric Two Proportion Z-test
 
+> I looked at travel that could occur within one's own country. All sig. 
+> Look at both or not?
+
 ```{r}
 Outbound <- groupfdata %>% group_by(developed.x) %>% summarize(total_flights = n())
 total_DVG <- readr::parse_number(Outbound[[1,2]][1])
@@ -585,7 +588,34 @@ p_UAE <- readr::parse_integer(hold4[[4,2]][1])/total_DVG
 p_Sing <- readr::parse_integer(hold4[[5,2]][1])/total_DVG
 
 # Get Developed COuntry Props for these countries
+p_CH2 <- hold3 %>% filter(destination.country == "China")
+p_CH2 <- readr::parse_integer(p_CH2[[1,2]][1])
 
+p_India2 <- hold3 %>% filter(destination.country == "India")
+p_India2 <- readr::parse_integer(p_India2[[1,2]][1])
+
+p_Indo2 <- hold3 %>% filter(destination.country == "Indonesia")
+p_Indo2 <- readr::parse_integer(p_Indo2[[1,2]][1])
+
+p_UAE2 <- hold3 %>% filter(destination.country == "United Arab Emirates")
+p_UAE2 <- readr::parse_integer(p_UAE2[[1,2]][1])
+
+p_Sing2 <- hold3 %>% filter(destination.country == "Singapore")
+p_Sing2 <- readr::parse_integer(p_Sing2[[1,2]][1])
+
+```
+
+```{r}
+# Two-Proportion Z Test:
+total <- c(total_DVG, total_DVD)
+
+prop.test(x = c(p_CH, p_CH2), n = total) # Sig 
+prop.test(x = c(p_India, p_India2), n = total) # Sig
+prop.test(x = c(p_Indo, p_Indo2), n = total) # Sig
+prop.test(x = c(p_UAE, p_UAE2), n = total) # Sig
+prop.test(x = c(p_Sing, p_Sing2), n = total) # Sig
+
+# Note: all X-squared values lower for these proportion tests
 ```
 
 
@@ -597,5 +627,10 @@ p_Sing <- readr::parse_integer(hold4[[5,2]][1])/total_DVG
 
 ## Conclusions and Limitations
 
+> Limitation:
+  > No year associated with flights - can't look at flights for each year (Per Capital GDP may vary by year)
+  
+> Conclusions:
 
+  
 
