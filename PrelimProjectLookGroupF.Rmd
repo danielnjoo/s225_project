@@ -534,6 +534,7 @@ hold3 <- groupfdata %>% filter(developed.x == 1) %>%
   summarize(count = n()) %>%
   arrange(desc(count))
 
+normal
 
 ```
 
