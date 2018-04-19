@@ -96,8 +96,7 @@ pop <- read.csv("Data/CountryPopulations2018.csv")
 pop <- pop %>% mutate(Country = as.character(Country))
 # 3 Country Names do not match:
 pop <- pop %>% mutate(Country = ifelse(Country == "Ivory Coast", "Cote d'Ivoire",
-                                       ifelse(Country == "Saint Kitts and Nevis", "St. Kitts and Nevis", ifelse(Country == "Saint Lucia", "St. Lucia", Country)))) %>%
-  mutate(Country = as.factor(Country))
+                                       ifelse(Country == "Saint Kitts and Nevis", "St. Kitts and Nevis", ifelse(Country == "Saint Lucia", "St. Lucia", Country))))
 
 hold <- left_join(final_data, pop, by = c("source.country" = "Country"))
 colnames(hold)[46:47] <- c("source.population", "source.rank")
@@ -105,7 +104,10 @@ hold <- left_join(hold, pop, by = c("destination.country" = "Country"))
 colnames(hold)[48:49] <- c("destination.population", "destination.rank")
 
 final_data <- hold
+
+
 ```
+
 
 There were 3 countries whose name was entered different between the population data and `final_data`. These were changed before the join.
 
