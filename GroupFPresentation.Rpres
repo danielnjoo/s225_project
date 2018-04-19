@@ -1,25 +1,31 @@
 <style>
-.small-code code {
+.reveal pre code {
   font-size: 1em;
+}
+.reveal .slides>section.present, .reveal .slides>section>section.present{
+  background-image: url('http://ichef.bbci.co.uk/images/ic/1600xn/p03vfmdq.jpg')
 }
 </style>
 
 Flights in Developed and Developing Countries
 ========================================================
+class: first
 author: Daniel and Jocelyn
 date: 4/24/18
 autosize: true
+transition: rotate
+transition-speed: fast
 
 Research Questions
 ========================================================
-
+incremental: true
 - Can we predict the number of flights using average GDP growth?
 - Is there a difference in the number of flights between developed and developing countries? Recently developed countries?
 - Is there preferential travel to certain locations for developed and developing countires?
 
 Basic Info
 ========================================================
-
+incremental: true
 - Flights are classified as developed if there Per Capita GDP was greater than $12,000
 - There are 33,559 flights in our dataset
 - 156 unique source and destination countries

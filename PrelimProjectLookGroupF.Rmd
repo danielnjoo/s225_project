@@ -100,7 +100,15 @@ groupfdata %>% group_by(Country.Code.x, developed.x) %>% summarize(count=n()) ->
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
   coord_flip() + 
-  labs(title = "Number of Flights per Source Country", x = "Country", y = "Count")
+  labs(title = "Number of Flights per Source Country", x = "Country", y = "Count", fill="Developed?") + 
+  scale_x_discrete(breaks = levels(factor(groupfdata$Country.Code.x))[F])
+```
+
+```{r echo=F}
+temp %>% arrange(desc(count)) %>% .$Country.Code.x -> topnames
+factor(groupfdata$Country.Code.x) %>% unique() -> namelist
+match(topnames[1:10], namelist) %>% sort() -> names
+# scale_x_discrete(breaks = levels(df$year)[c(T, rep(F, 9))])
 ```
 
 The developing outlier is China:
