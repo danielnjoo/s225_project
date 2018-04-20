@@ -93,7 +93,7 @@ Number of Flights vs. Average GDP Growth
 Linear Fit and Loess Smoother
 ========================================================
 
-```{r, echo = FALSE, fig.height = 8}
+```{r, echo = FALSE, fig.height = 8, fig.width = 6.5}
 data %>% group_by(source.country, avg_growth.x) %>% summarize(count=n()) -> temp
 temp %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
@@ -109,7 +109,7 @@ temp %>% ggplot(aes(avg_growth.x, count)) +
 Normalization of Flights by Population
 ========================================================
 
-```{r, echo = FALSE, fig.height = 8}
+```{r, echo = FALSE, fig.height = 8, fig.width = 6.5}
 groupfdata %>% group_by(source.country, avg_growth.x, source.population, developed.x, X2016.x) %>% 
   summarize(count=n()) -> temp
 
@@ -129,7 +129,7 @@ normal %>% ggplot(aes(avg_growth.x, count)) +
 Log Transformation of Counts
 ========================================================
 
-```{r, echo = FALSE, fig.height = 8}
+```{r, echo = FALSE, fig.height = 8, fig.width = 6.5}
 normal <- normal %>% mutate(log_count = log(count))
 
 normal %>% ggplot(aes(avg_growth.x, log_count)) + 
@@ -161,7 +161,7 @@ Parametric Conditions
 ========================================================
 class: small-code
 
-```{r, echo = FALSE, fig.height = 8}
+```{r, echo = FALSE, fig.height = 8, fig.width = 6.5}
 plot(p_mod, which = 1)
 plot(p_mod, which = 2)
 ```
@@ -171,7 +171,7 @@ Non-Parametric Regression
 
 ```{r, echo = FALSE}
 require(Rfit)
-np_mod <- rfit(log_count ~ avg_growth.x, data = normal)
+np_mod <- rfit(log_count ~ avg_growth.x, data = normal_minus)
 summary(np_mod, overall = 'drop')
 ```
 
@@ -179,8 +179,8 @@ Regression Results and Comparison
 ========================================================
 
 - Conditions met for both Parametric and Non-Parametric regression
-- Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = .00181 & .0005$)
-- However, both models suggested that `avg_growth.x` explained very little variability in `log_count` ($R^{2} = .034 & .041$)
+- Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = .00871 & .00658$)
+- However, both models suggested that `avg_growth.x` explained very little variability in `log_count` ($R^{2} = .0458 & .0485$)
 - Although `avg_growth.x` is a significant predictor, the model lacks any substantial predicting power.
 
 Has Travel Increased in Recently Developed Countries?
@@ -223,7 +223,7 @@ Parametric Conditions:
 ========================================================
 class: small-code
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.height = 4}
 favstats(log_count ~ recent_development.x, data = check) # Fine
 check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot() +
   labs("Boxplot of Normalized Log Counts by Development Status",
