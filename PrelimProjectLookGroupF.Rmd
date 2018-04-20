@@ -532,8 +532,8 @@ head(developed_dests,5)
 We find instead that for developing countries, the most popular destinations (once normalized) are Antigua and Barbuda, Iceland, St. Kitts and Nevis, Bermuda, and Austria.
 
 ```{r}
-developing_dests$top5<-c(rep(1,5),rep(0,143))
-ggplot(developing_dests,aes(factor(Country.Code.y),n_count,col=factor(top6))) + 
+developed_dests$top5<-c(rep(1,5),rep(0,144)) #Changed developing_dests to developed_dests
+ggplot(developed_dests,aes(factor(Country.Code.y),n_count,col=factor(top5))) + 
   geom_point() +
   scale_y_log10() + 
   theme(axis.text.x = element_text(angle=90, vjust=0.5,hjust=1,size=5)) + 
