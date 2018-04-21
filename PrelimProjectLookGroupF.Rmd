@@ -545,8 +545,9 @@ It's interesting to note how  the top5 countries here really stand out from the 
 ```{r message=F, warning = FALSE}
 library(ggmap)
 
-places <- geocode(c('Antigua and Barbuda', 'Iceland', 'St. Kitts and Nevis', 'Bermuda', 'Austria'))
+# places <- geocode(c('Antigua and Barbuda', 'Iceland', 'St. Kitts and Nevis', 'Bermuda', 'Austria')) # sometimes acts up b/c of API limit so:
 
+places <- data.frame(lon=c(-61.79643, -19.02084, -62.78300, -64.75050,  14.55007), lat=c(17.06082, 64.96305, 17.35782, 32.30780, 47.51623))
 cbind(head(developed_dests,5),places) -> temp
 
 mapWorld <- borders("world", colour="gray50", fill="gray50") 
@@ -574,17 +575,17 @@ head(developing_dests,5)
 We find Antigua and Barbuda, Nauru, Tuvalu, Palau, and the Maldives  to be the top 5 destinations once population is adjusted for.
 
 ```{r message=F}
-places <- geocode(c('Antigua and Barbuda', 'Nauru', 'Tuvalus', 'Palau', 'Maldives'))
+# places <- geocode(c('Antigua and Barbuda', 'Nauru', 'Tuvalus', 'Palau', 'Maldives'))
 
+places <- data.frame(lon=c(-61.79643, 166.93150, 177.64933, 134.58250,  73.22068), lat=c(17.06082, 0.522778, -7.109535,  7.514980, 3.202778))
 cbind(head(developing_dests,5),places) -> temp
+
 ggplot() + 
   mapWorld + 
   geom_point(aes(x=places$lon, y=places$lat) ,color="red", size=2) +
   ggtitle("Top 5 Destinations of Developing Countries") + geom_jitter() +
   geom_text(data=temp, aes(x=lon,y=lat,label=Country.Code.y),hjust = -0.5)
 ```
-
-> I'm getting missing rows here. Only two of the 5 plot on the map.
 
 In this case we find the destinations to be positioned more in the Pacific, i.e. between North America and Asia.
 
