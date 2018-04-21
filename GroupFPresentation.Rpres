@@ -268,7 +268,41 @@ ANOVA Results and Conclusions
   - Developed and Recently Developed (p-value $= 0.01$ & p-value = $= 0.0091$)
 - Recently developed countries are more similar to developing than developed countries
 
-Travel Locations
+Travel Locations - Outside Own Country
+========================================================
+
+- Most popular destinations for Developed:
+  - Antigua and Barbuda
+  - Iceland
+  - St. Kitts and Nevis
+  - Bermuda
+  - Austria
+- Most popular destinations for Developing:
+  - Antigua and Barbuda
+  - Nauru
+  - Tuvalu
+  - Palau
+  - Maldives
+
+Travel Locations - Within Own Country Included
+========================================================
+
+- Destinations are the same for developed countries
+- Palau and the Maldives are replaced by the Marshall Islands and Vanuatu
+
+Parametric - Two Proportion Z-test
+========================================================
+
+Parametric Conditions
+========================================================
+
+Non-Parametric - Binomial Test
+========================================================
+
+Non-Parametric Conditions
+========================================================
+
+Proportion Conclusions
 ========================================================
 
 Conclusion and Limitations

@@ -584,13 +584,13 @@ ggplot() +
   geom_text(data=temp, aes(x=lon,y=lat,label=Country.Code.y),hjust = -0.5)
 ```
 
-> I'm getting missing ros here. Only two of the 5 plot on the map.
+> I'm getting missing rows here. Only two of the 5 plot on the map.
 
 In this case we find the destinations to be positioned more in the Pacific, i.e. between North America and Asia.
 
 ### Developed destinations with internal flights, normalized
 
-If we include travel within one's own country (`source.country` can equal `destination.country`), the results are exactly the same:
+If we include travel within one's own country (`source.country` can equal `destination.country`), the results are exactly the same for developed countries:
 
 ```{r}
 groupfdata %>% filter(developed.x == 1) %>%
@@ -607,7 +607,7 @@ We still find Antigua and Barbuda Iceland, Saint Kitts and Nevis, Bermuda, and A
 
 ### Developing destinations with internal flights, normalized
 
-but differ slightly for the developing ones:
+Top 5 destinations differ slightly for the developing countries:
 
 ```{r}
 groupfdata %>% filter(developed.x == 0) %>%
@@ -623,6 +623,7 @@ head(developing_dests2,5)
 What we find is that the Maldives and Palau have been replaced by the  Marshall Islands and Vanuatu, archipelago nations that we hypothesize the  populations of which require  lots of  internal flights.
 
 Therefore, it appears that there are significant differences in the most frequently traveled locations for developed and developing countries,  differences that we believe can be  most helpfully thought of as between  NA-EU and NA-ASIA travel patterns.
+
 
 ### Parametric Two Proportion Z-test
 
