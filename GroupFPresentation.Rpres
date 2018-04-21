@@ -178,7 +178,6 @@ summary(np_mod, overall = 'drop')
 Regression Results and Comparison
 ========================================================
 
-- Conditions met for both Parametric and Non-Parametric regression
 - Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = .00871 & .00658$)
 - However, both models suggested that `avg_growth.x` explained very little variability in `log_count` ($R^{2} = .0458 & .0485$)
 - Although `avg_growth.x` is a significant predictor, the model lacks any substantial predicting power.
@@ -263,9 +262,11 @@ with(check, pairwise.wilcox.test(log_count, recent_development.x))
 ANOVA Results and Conclusions
 ========================================================
 
-- ANOVA results, p-values
-- Multiple comparison results
-- Comparison - prefer NP due to conditions?
+- Both tests found that there was a least one significant difference in means and medians of flight between different development status (p-values $< 0.0001$).
+- Fisher's LSD and Pairwise Wilcoxon Rank Sums found a significant differences between:
+  - Developed and Developing (p-values $<0.0001$)
+  - Developed and Recently Developed (p-value $= 0.01$ & p-value = $= 0.0091$)
+- Recently developed countries are more similar to developing than developed countries
 
 Travel Locations
 ========================================================
