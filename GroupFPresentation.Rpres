@@ -27,6 +27,7 @@ Basic Info
 ========================================================
 incremental: true
 - Flight data from the Flight Route Database (Kaggle)
+- Per Capita GDP from the World Bank Website - focused on 2010-2016
 - Flights are classified as developed if there Per Capita GDP was greater than $12,000
 - There are 33,559 flights in our dataset
 - 156 unique source and destination countries

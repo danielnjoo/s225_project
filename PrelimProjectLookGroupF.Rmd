@@ -127,7 +127,8 @@ temp <- temp %>% mutate(count = count/source.population)
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
   coord_flip() + 
-  labs(title = "Normalized Number of Flights per Source Country", x = "Country", y = "Count")
+  labs(title = "Normalized Number of Flights per Source Country", x = "Country", y = "Count",
+       fill = "Developed?")
 ```
 
 
