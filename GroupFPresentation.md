@@ -174,18 +174,6 @@ Parametric Conditions:
 ========================================================
 class: small-code
 
-
-```
-  recent_development.x        min        Q1    median        Q3       max
-1            Developed  -8.509555 -4.827407 -3.744171 -3.087010 -1.424241
-2           Developing -10.633726 -6.731752 -6.073666 -5.092774 -1.285613
-3   Recently Developed  -8.161533 -6.468207 -5.653310 -5.442111 -1.327252
-       mean       sd  n missing
-1 -3.886392 1.205375 75       0
-2 -5.866088 1.702840 72       0
-3 -5.566104 2.099361  7       0
-```
-
 ![plot of chunk unnamed-chunk-12](GroupFPresentation-figure/unnamed-chunk-12-1.png)
 
 Parametric Multiple Comparisons - Fisher's LSD:
@@ -248,14 +236,10 @@ ANOVA Results and Conclusions
   - Developed and Recently Developed (p-value $= 0.01$ & p-value = $= 0.0091$)
 - Recently developed countries are more similar to developing than developed countries
 
-<<<<<<< HEAD
 3. Do developing countries fly to popular developed nation destinations?
 ========================================================
 
-Travel Locations - Outside Own Country
-=======
 Normalized Travel Locations 
->>>>>>> 787d4c7fdecc24488cf686a2a1b1be415427ac1c
 ========================================================
 
 - Most popular destinations for Developed:
@@ -301,15 +285,106 @@ Non-Normalized Travel Locations:
 Parametric - Two Proportion Z-test
 ========================================================
 
+![plot of chunk unnamed-chunk-19](GroupFPresentation-figure/unnamed-chunk-19-1.png)
 
 
-
-
-
-
-
+Parametric - Two Proportion Z-test
+========================================================
+class: small-code
 
 
 ```
-Error in melt(.) : could not find function "melt"
+
+	2-sample test for equality of proportions with continuity
+	correction
+
+data:  c(p_UK, p_UK2) out of c(total_developed, total_developing)
+X-squared = 635.27, df = 1, p-value < 2.2e-16
+alternative hypothesis: two.sided
+95 percent confidence interval:
+ 0.06197319 0.06967335
+sample estimates:
+     prop 1      prop 2 
+0.073708240 0.007884972 
 ```
+
+```
+
+	2-sample test for equality of proportions with continuity
+	correction
+
+data:  c(p_FR, p_FR2) out of c(total_developed, total_developing)
+X-squared = 152.61, df = 1, p-value < 2.2e-16
+alternative hypothesis: two.sided
+95 percent confidence interval:
+ 0.02181991 0.02871662
+sample estimates:
+    prop 1     prop 2 
+0.03955398 0.01428571 
+```
+
+```
+[1] 3.561030e-140 2.942982e-117 1.628861e-106  1.344739e-75  4.670557e-35
+```
+
+Parametric Conditions
+========================================================
+
+Non-Parametric - Binomial Test
+========================================================
+class: small-code
+
+
+```
+[1] 0.07370824 0.06703543 0.05869441 0.04552439 0.03955398
+```
+
+```
+[1] 10780
+```
+
+```
+
+
+
+data:  c(successes[1], failures[1])
+number of successes = 85, number of trials = 10780, p-value <
+2.2e-16
+alternative hypothesis: true probability of success is not equal to 0.07370824
+95 percent confidence interval:
+ 0.006302952 0.009740787
+sample estimates:
+probability of success 
+           0.007884972 
+```
+
+```
+[1] 4.319111e-238
+```
+
+```
+[1] 4.319111e-238 2.764883e-195 4.703252e-179 1.088369e-124  2.021025e-53
+```
+
+Non-Parametric Conditions
+========================================================
+
+Comparison
+========================================================
+
+![plot of chunk unnamed-chunk-22](GroupFPresentation-figure/unnamed-chunk-22-1.png)
+
+
+Proportion Conclusions
+========================================================
+
+Conclusion and Limitations
+========================================================
+
+- Average Per Capita GDP Growth is a significant predictor of the normalized natural log of the number of flights, but lacks any substantial predictive power
+- Second Question Conclusion
+- Third Question and Conclusion
+
+THE END
+========================================================
+

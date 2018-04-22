@@ -236,7 +236,6 @@ Parametric Conditions:
 class: small-code
 
 ```{r, echo = FALSE, fig.height = 4}
-favstats(log_count ~ recent_development.x, data = check) # Fine
 check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot() +
   labs("Boxplot of Normalized Log Counts by Development Status",
        x = "Development Status", y = "Log Count of Flights")
@@ -281,14 +280,10 @@ ANOVA Results and Conclusions
   - Developed and Recently Developed (p-value $= 0.01$ & p-value = $= 0.0091$)
 - Recently developed countries are more similar to developing than developed countries
 
-<<<<<<< HEAD
 3. Do developing countries fly to popular developed nation destinations?
 ========================================================
 
-Travel Locations - Outside Own Country
-=======
 Normalized Travel Locations 
->>>>>>> 787d4c7fdecc24488cf686a2a1b1be415427ac1c
 ========================================================
 
 - Most popular destinations for Developed:
