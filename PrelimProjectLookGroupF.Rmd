@@ -17,6 +17,7 @@ require(mosaic)
 require(NSM3)
 require(Rfit)
 require(dunn.test)
+require(reshape)
 ```
 
 ## Data Summary
@@ -631,7 +632,7 @@ Therefore, it appears that there are significant differences in the most frequen
 
 ### Comparing Popular Developed Nation Destinations Via Proportion Tests
 
-Having compared via visualization, we know move onto comparison by proportion tests, where we'll compare the proportions of flights to  the top5 developed nation destinations to total nation status flight counts, between developing  and developed nations.
+Having compared via visualization, we now move onto comparison by proportion tests, where we'll compare the proportions of flights to  the top5 developed nation destinations to total nation status flight counts, between developing  and developed nations.
 
 Our  question of interest here,  therefore, is to  test with statistical significance whether  developing nations do  not fly to popular developed nation destinations.
 
@@ -666,7 +667,7 @@ p_FR2 <- developing[which(developing$Country.Code.y=="FRA"),2] %>% unlist() %>% 
 
 We can quickly check what they look like compared to each other
 
-```{r}
+```{r, message = FALSE}
 developedcounts <- c(p_UK,p_Ger,p_SP,p_IT,p_FR)
 developingcounts <- c(p_UK2,p_Ger2,p_SP2,p_IT2,p_FR2)
 
