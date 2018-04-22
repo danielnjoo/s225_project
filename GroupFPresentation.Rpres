@@ -2,10 +2,14 @@
 .reveal pre code {
   font-size: 1em;
 }
-.reveal .slides>section.present, .reveal .slides>section>section.present{
+.section .reveal .state-background {
   background-image: url('http://ichef.bbci.co.uk/images/ic/1600xn/p03vfmdq.jpg')
 }
 </style>
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
 
 Flights in Developed and Developing Countries
 ========================================================
@@ -19,17 +23,21 @@ transition-speed: fast
 Research Questions
 ========================================================
 incremental: true
-- Can we predict the number of flights using average GDP growth?
-- Is there a difference in the number of flights between developed and developing countries? Recently developed countries?
-- Is there preferential travel to certain locations for developed and developing countires?
+1. Can we predict the number of flights using average GDP growth?
+2. Is there a difference in the number of flights between developed and developing countries? Recently developed countries?
+3. Is there preferential travel to certain locations for developed and developing countires?
 
-Basic Info
+Data Summary
 ========================================================
 incremental: true
+- Data 
 - Flights are classified as developed if there Per Capita GDP was greater than $12,000
 - There are 33,559 flights in our dataset
 - 156 unique source and destination countries
 - `developed.x` is 1 if the source country is developed, and 0 if developing
+
+1. Predicting flights using average GDP growth
+========================================================
 
 Number of Flights per Country
 ========================================================
@@ -182,6 +190,9 @@ Regression Results and Comparison
 - However, both models suggested that `avg_growth.x` explained very little variability in `log_count` ($R^{2} = .0458 & .0485$)
 - Although `avg_growth.x` is a significant predictor, the model lacks any substantial predicting power.
 
+2. Investigating differences in travel patterns by development status
+========================================================
+
 Has Travel Increased in Recently Developed Countries?
 ========================================================
 
@@ -267,6 +278,9 @@ ANOVA Results and Conclusions
   - Developed and Developing (p-values $<0.0001$)
   - Developed and Recently Developed (p-value $= 0.01$ & p-value = $= 0.0091$)
 - Recently developed countries are more similar to developing than developed countries
+
+3. Do developing countries fly to popular developed nation destinations?
+========================================================
 
 Travel Locations - Outside Own Country
 ========================================================
