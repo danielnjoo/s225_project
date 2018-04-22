@@ -387,12 +387,22 @@ Comparison
 Proportion Conclusions
 ========================================================
 
-Conclusion and Limitations
+- The Normalized Travel Locations suggest differences in travel patterns between N. America and Europe, N. America and Asia
+- The proportion of flights to the Top 5 Non-Normalized destinations for developed countries are all significantly different from the proportion of flights for developing countries
+
+Conclusion
 ========================================================
 
-- Average Per Capita GDP Growth is a significant predictor of the normalized natural log of the number of flights, but lacks any substantial predictive power
-- Second Question Conclusion
-- Third Question and Conclusion
+- Average Per Capita GDP Growth is a significant predictor of the normalized natural log of the number of flights, but lacks any substantial predictive power.
+- Recently developed countries are significantly different from developed countries, but similar to developing countries in terms of plane travel.
+- There appears to be differences in travel patterns between developed and developing nations
+
+Limitations
+========================================================
+
+- Since there is no Year variable for the flights, we were only able to compare total flights to average Per Capita GDP growth
+- Unable to compare the median flights of recently developed countries to developing and developed countries in 2010 vs. 2016
+- Year as a possible confounding variable
 
 THE END
 ========================================================
