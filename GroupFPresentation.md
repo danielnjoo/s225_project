@@ -2,10 +2,12 @@
 .reveal pre code {
   font-size: 1em;
 }
-.reveal .slides>section.present, .reveal .slides>section>section.present{
+.section .reveal .state-background {
   background-image: url('http://ichef.bbci.co.uk/images/ic/1600xn/p03vfmdq.jpg')
 }
 </style>
+
+
 
 Flights in Developed and Developing Countries
 ========================================================
@@ -19,19 +21,23 @@ transition-speed: fast
 Research Questions
 ========================================================
 incremental: true
-- Can we predict the number of flights using average GDP growth?
-- Is there a difference in the number of flights between developed and developing countries? Recently developed countries?
-- Is there preferential travel to certain locations for developed and developing countires?
+1. Can we predict the number of flights using average GDP growth?
+2. Is there a difference in the number of flights between developed and developing countries? Recently developed countries?
+3. Is there preferential travel to certain locations for developed and developing countires?
 
-Basic Info
+Data Summary
 ========================================================
 incremental: true
+
 - Flight data from the Flight Route Database (Kaggle)
 - Per Capita GDP from the World Bank Website - focused on 2010-2016
 - Flights are classified as developed if there Per Capita GDP was greater than $12,000
 - There are 33,559 flights in our dataset
 - 156 unique source and destination countries
 - `developed.x` is 1 if the source country is developed, and 0 if developing
+
+1. Predicting flights using average GDP growth
+========================================================
 
 Number of Flights per Country
 ========================================================
@@ -128,6 +134,9 @@ Regression Results and Comparison
 - Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = .00871 & .00658$)
 - However, both models suggested that `avg_growth.x` explained very little variability in `log_count` ($R^{2} = .0458 & .0485$)
 - Although `avg_growth.x` is a significant predictor, the model lacks any substantial predicting power.
+
+2. Investigating differences in travel patterns by development status
+========================================================
 
 Has Travel Increased in Recently Developed Countries?
 ========================================================
@@ -239,7 +248,14 @@ ANOVA Results and Conclusions
   - Developed and Recently Developed (p-value $= 0.01$ & p-value = $= 0.0091$)
 - Recently developed countries are more similar to developing than developed countries
 
+<<<<<<< HEAD
+3. Do developing countries fly to popular developed nation destinations?
+========================================================
+
+Travel Locations - Outside Own Country
+=======
 Normalized Travel Locations 
+>>>>>>> 787d4c7fdecc24488cf686a2a1b1be415427ac1c
 ========================================================
 
 - Most popular destinations for Developed:
@@ -285,106 +301,15 @@ Non-Normalized Travel Locations:
 Parametric - Two Proportion Z-test
 ========================================================
 
-![plot of chunk unnamed-chunk-19](GroupFPresentation-figure/unnamed-chunk-19-1.png)
 
 
-Parametric - Two Proportion Z-test
-========================================================
-class: small-code
+
+
+
+
+
 
 
 ```
-
-	2-sample test for equality of proportions with continuity
-	correction
-
-data:  c(p_UK, p_UK2) out of c(total_developed, total_developing)
-X-squared = 635.27, df = 1, p-value < 2.2e-16
-alternative hypothesis: two.sided
-95 percent confidence interval:
- 0.06197319 0.06967335
-sample estimates:
-     prop 1      prop 2 
-0.073708240 0.007884972 
+Error in melt(.) : could not find function "melt"
 ```
-
-```
-
-	2-sample test for equality of proportions with continuity
-	correction
-
-data:  c(p_FR, p_FR2) out of c(total_developed, total_developing)
-X-squared = 152.61, df = 1, p-value < 2.2e-16
-alternative hypothesis: two.sided
-95 percent confidence interval:
- 0.02181991 0.02871662
-sample estimates:
-    prop 1     prop 2 
-0.03955398 0.01428571 
-```
-
-```
-[1] 3.561030e-140 2.942982e-117 1.628861e-106  1.344739e-75  4.670557e-35
-```
-
-Parametric Conditions
-========================================================
-
-Non-Parametric - Binomial Test
-========================================================
-class: small-code
-
-
-```
-[1] 0.07370824 0.06703543 0.05869441 0.04552439 0.03955398
-```
-
-```
-[1] 10780
-```
-
-```
-
-
-
-data:  c(successes[1], failures[1])
-number of successes = 85, number of trials = 10780, p-value <
-2.2e-16
-alternative hypothesis: true probability of success is not equal to 0.07370824
-95 percent confidence interval:
- 0.006302952 0.009740787
-sample estimates:
-probability of success 
-           0.007884972 
-```
-
-```
-[1] 4.319111e-238
-```
-
-```
-[1] 4.319111e-238 2.764883e-195 4.703252e-179 1.088369e-124  2.021025e-53
-```
-
-Non-Parametric Conditions
-========================================================
-
-Comparison
-========================================================
-
-![plot of chunk unnamed-chunk-22](GroupFPresentation-figure/unnamed-chunk-22-1.png)
-
-
-Proportion Conclusions
-========================================================
-
-Conclusion and Limitations
-========================================================
-
-- Average Per Capita GDP Growth is a significant predictor of the normalized natural log of the number of flights, but lacks any substantial predictive power
-- Second Question Conclusion
-- Third Question and Conclusion
-
-THE END
-========================================================
-

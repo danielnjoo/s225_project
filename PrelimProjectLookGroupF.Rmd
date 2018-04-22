@@ -6,10 +6,16 @@ output:
   pdf_document:
     fig_height: 3
     fig_width: 7
+    toc: true
+    toc_depth: 5
   html_document: default
 ---
 
 # Technical Appendix
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
 
 ```{r, include = FALSE}
 library(tidyverse)
@@ -17,7 +23,11 @@ require(mosaic)
 require(NSM3)
 require(Rfit)
 require(dunn.test)
+<<<<<<< HEAD
+library(reshape2)
+=======
 require(reshape)
+>>>>>>> 787d4c7fdecc24488cf686a2a1b1be415427ac1c
 ```
 
 ## Data Summary
@@ -473,7 +483,11 @@ with(check, pairwise.wilcox.test(log_count, recent_development.x))
 dunn.test(x = check$log_count, g = check$recent_development.x)
 ```
 
+<<<<<<< HEAD
+The results of the pairwise Rank Sum tests and the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-values of $= .0091$ and $ = .0029$ respectively), at a significance level of $0.01$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
+=======
 The results of the pairwise Rank Sum tests and the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $ = 0.0091$ & $ = 0.0029$), at a significance level of $0.01$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
+>>>>>>> 787d4c7fdecc24488cf686a2a1b1be415427ac1c
 
 Since the Kruskal-Wallis test has less stringent conditions than the parametric ANOVA, it is a less powerful test. However, despite difference in power, both tests concluded that there was at least one difference in the center of the noramlized `log_counts` between countries with different development status. Additionally, the results of Fisher's LSD, Rank Sum tests, and the Dunn test, all suggested that at $\alpha = 0.05$, there is a significant difference between developed and developing countries and between developed and recently developed countries.
 
@@ -692,7 +706,11 @@ data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), Developed=prop_developedc
 
 In both the  absolute count and  proportional  count cases we see  a significant difference between developed/developing nation flights  to the  top5  developed nation destinations. We then  run a parametric 2-sample proportion test.
 
+<<<<<<< HEAD
+Conditions of (1) independence and randomization, as well as (2) sample size $ np_0$ and $ n(1-p_0)$ both  greater than 10 are met.
+=======
 Conditions of (1) independence and randomization, as well as (2) sample size np_{0} and n(1−p_{0}) both  greater than 10 are met.
+>>>>>>> 787d4c7fdecc24488cf686a2a1b1be415427ac1c
 
 ```{r}
 prop.test(x = c(p_UK, p_UK2), n = c(total_developed, total_developing)) -> uk; uk
