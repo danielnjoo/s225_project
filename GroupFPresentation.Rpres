@@ -30,7 +30,8 @@ incremental: true
 Data Summary
 ========================================================
 incremental: true
-- Data 
+
+- Flight data from the Flight Route Database (Kaggle)
 - Flights are classified as developed if there Per Capita GDP was greater than $12,000
 - There are 33,559 flights in our dataset
 - 156 unique source and destination countries
@@ -279,10 +280,14 @@ ANOVA Results and Conclusions
   - Developed and Recently Developed (p-value $= 0.01$ & p-value = $= 0.0091$)
 - Recently developed countries are more similar to developing than developed countries
 
+<<<<<<< HEAD
 3. Do developing countries fly to popular developed nation destinations?
 ========================================================
 
 Travel Locations - Outside Own Country
+=======
+Normalized Travel Locations 
+>>>>>>> 787d4c7fdecc24488cf686a2a1b1be415427ac1c
 ========================================================
 
 - Most popular destinations for Developed:
@@ -297,24 +302,181 @@ Travel Locations - Outside Own Country
   - Tuvalu
   - Palau
   - Maldives
-
-Travel Locations - Within Own Country Included
+  
+Travel Locations - Developed
 ========================================================
 
-- Destinations are the same for developed countries
-- Palau and the Maldives are replaced by the Marshall Islands and Vanuatu
+```{r, echo = FALSE, fig.height = 8, fig.width = 14}
+library(ggmap)
+require(stringr)
+
+developed_nn_ext <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
+  filter(developed.x == 1) %>%
+  group_by(Country.Code.y) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) 
+
+developing_nn_ext <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
+  filter(developed.x == 0) %>%
+  group_by(Country.Code.y) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
+
+groupfdata$spop <- str_replace(groupfdata$source.population,'\\.','')
+pops <- groupfdata %>% 
+  dplyr::select(country=Country.Code.x, pop=spop) %>% 
+  unique() 
+  
+developed_dests_n_ext <- developed_nn_ext %>% left_join(pops, by=c("Country.Code.y"="country")) %>% 
+  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
+  arrange(desc(n_count))
+
+developed_dests_n_ext$top5<-c(rep(1,5),rep(0,144)) 
+
+# places <- geocode(c('Antigua and Barbuda', 'Iceland', 'St. Kitts and Nevis', 'Bermuda', 'Austria')) # sometimes acts up b/c of API limit so:
+
+places <- data.frame(lon=c(-61.79643, -19.02084, -62.78300, -64.75050,  14.55007), lat=c(17.06082, 64.96305, 17.35782, 32.30780, 47.51623))
+cbind(head(developed_dests_n_ext,5),places) -> temp
+
+mapWorld <- borders("world", colour="gray50", fill="gray50") 
+ggplot() + 
+  mapWorld + 
+  geom_point(aes(x=places$lon, y=places$lat) ,color="red", size=2) +
+  ggtitle("Top 5 Destinations of Developed Countries") + geom_jitter() +
+  geom_text(data=temp, aes(x=lon,y=lat,label=Country.Code.y),hjust = -0.5)
+```
+
+Travel Locations - Developing
+========================================================
+
+```{r, echo = FALSE, fig.width = 14, fig.height = 8}
+developing_n_ext <- developing_nn_ext %>% left_join(pops, by=c("Country.Code.y"="country")) %>% 
+  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
+  arrange(desc(n_count)) 
+
+# places <- geocode(c('Antigua and Barbuda', 'Nauru', 'Tuvalus', 'Palau', 'Maldives'))
+
+places <- data.frame(lon=c(-61.79643, 166.93150, 177.64933, 134.58250,  73.22068), lat=c(17.06082, 0.522778, -7.109535,  7.514980, 3.202778))
+cbind(head(developing_n_ext,5),places) -> temp
+
+ggplot() + 
+  mapWorld + 
+  geom_point(aes(x=places$lon, y=places$lat) ,color="red", size=2) +
+  ggtitle("Top 5 Destinations of Developing Countries") + geom_jitter() +
+  geom_text(data=temp, aes(x=lon,y=lat,label=Country.Code.y),hjust = -0.5)
+```
+
+
+Non-Normalized Travel Locations:
+========================================================
+
+- Most popular destinations for Developed:
+  - Great Britain
+  - Germany
+  - Spain
+  - Italy
+  - France
+- Most popular destinations for Developing:
+  - United Arab Emirate
+  - Singapore
+  - Japan
+  - France
+  - China
 
 Parametric - Two Proportion Z-test
 ========================================================
+
+```{r, echo = FALSE, fig.height = 8, fig.width = 14}
+require(reshape)
+
+Outbound <- groupfdata %>% group_by(developed.x) %>% summarize(total_flights = n()) %>% data.frame()
+total_developing <- subset(Outbound,developed.x==0)$total_flights
+total_developed <- subset(Outbound,developed.x==1)$total_flights
+
+developedtop5 <- developed_nn_ext %>% head(5) %>% data.frame()
+developing <- developing_nn_ext %>% data.frame()
+
+p_UK <- developedtop5[[1,2]][1]
+p_Ger <- developedtop5[[2,2]][1]
+p_SP <- developedtop5[[3,2]][1]
+p_IT <- developedtop5[[4,2]][1]
+p_FR <- developedtop5[[5,2]][1]
+
+# Get Developing Country Counts for these countries:
+p_UK2 <- developing[which(developing$Country.Code.y=="GBR"),2] %>% unlist() %>% readr::parse_integer()
+p_Ger2 <- developing[which(developing$Country.Code.y=="DEU"),2] %>% unlist() %>% readr::parse_integer()
+p_SP2 <- developing[which(developing$Country.Code.y=="ESP"),2] %>% unlist() %>% readr::parse_integer()
+p_IT2 <- developing[which(developing$Country.Code.y=="ITA"),2] %>% unlist() %>% readr::parse_integer()
+p_FR2 <- developing[which(developing$Country.Code.y=="FRA"),2] %>% unlist() %>% readr::parse_integer()
+
+developedcounts <- c(p_UK,p_Ger,p_SP,p_IT,p_FR)
+developingcounts <- c(p_UK2,p_Ger2,p_SP2,p_IT2,p_FR2)
+
+prop_developedcounts <- developedcounts/total_developed
+prop_developingcounts <- developingcounts/total_developing
+
+data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), Developed=prop_developedcounts, Developing=prop_developingcounts) %>% 
+  melt() %>% 
+  ggplot(aes(Countries,value,group=variable,fill=variable)) + 
+  geom_bar(stat='identity',position='stack') +
+  ggtitle("Stacked bar plot of proportional counts") +
+  theme(legend.position="bottom")
+```
+
+
+Parametric - Two Proportion Z-test
+========================================================
+class: small-code
+
+```{r, echo = FALSE}
+prop.test(x = c(p_UK, p_UK2), n = c(total_developed, total_developing)) -> uk; uk
+prop.test(x = c(p_Ger, p_Ger2), n = c(total_developed, total_developing)) -> ge
+prop.test(x = c(p_SP, p_SP2), n = c(total_developed, total_developing)) -> sp
+prop.test(x = c(p_IT, p_IT2), n = c(total_developed, total_developing)) -> it
+prop.test(x = c(p_FR, p_FR2), n = c(total_developed, total_developing)) -> fr; fr
+
+pvals <- c(uk$p.value,ge$p.value,sp$p.value,it$p.value,fr$p.value); pvals
+```
 
 Parametric Conditions
 ========================================================
 
 Non-Parametric - Binomial Test
 ========================================================
+class: small-code
+
+```{r, echo = FALSE}
+prop_developedcounts # p for each test
+total_developing # n for each test
+successes <- developingcounts # were testing developing proportions so we use these counts
+failures <- total_developing-successes # calculating failures
+
+binom.test(c(successes[1],failures[1]),n=total_developing[1],p=prop_developedcounts[1])->uk2;uk2
+uk2$p.value
+
+pvals2 <- rep(0,4)
+for(i in 2:5){
+  pvals2[i-1] <- (binom.test(c(successes[i],failures[i]),n=total_developing[i],p=prop_developedcounts[i]))$p.value
+}
+pvals2 <- c(uk2$p.value,pvals2); pvals2
+```
 
 Non-Parametric Conditions
 ========================================================
+
+Comparison
+========================================================
+
+```{r, echo = FALSE, fig.width = 14, fig.height = 8}
+data.frame(`z-test`=pvals,binom=pvals2,Country=c("GBR","DEU","ESP","ITA","FRA")) %>% 
+  melt() %>% 
+  ggplot(aes(Country,value,col=variable)) + 
+  geom_point() + 
+  scale_y_log10() +
+  ggtitle("Comparison of pvalues from binomial and z-tests") +
+  theme(legend.position="bottom")
+```
+
 
 Proportion Conclusions
 ========================================================
