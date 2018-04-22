@@ -330,6 +330,11 @@ sample estimates:
 Parametric Conditions
 ========================================================
 
+- Sample is random
+- Trials are independent
+- Includes at least 10 successes and 10 failures
+- Binary outcomes: success or failure
+
 Non-Parametric - Binomial Test
 ========================================================
 class: small-code
@@ -368,6 +373,10 @@ probability of success
 
 Non-Parametric Conditions
 ========================================================
+
+- Trials are independent
+- Binary outcomes: success or failure
+- Probability of success, *p*, remains constant
 
 Comparison
 ========================================================

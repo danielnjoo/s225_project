@@ -437,6 +437,11 @@ pvals <- c(uk$p.value,ge$p.value,sp$p.value,it$p.value,fr$p.value); pvals
 Parametric Conditions
 ========================================================
 
+- Sample is random
+- Trials are independent
+- Includes at least 10 successes and 10 failures
+- Binary outcomes: success or failure
+
 Non-Parametric - Binomial Test
 ========================================================
 class: small-code
@@ -459,6 +464,10 @@ pvals2 <- c(uk2$p.value,pvals2); pvals2
 
 Non-Parametric Conditions
 ========================================================
+
+- Trials are independent
+- Binary outcomes: success or failure
+- Probability of success, *p*, remains constant
 
 Comparison
 ========================================================

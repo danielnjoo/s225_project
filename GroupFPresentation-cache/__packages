@@ -1,0 +1,17 @@
+base
+knitr
+dplyr
+readr
+lattice
+ggplot2
+ggformula
+mosaicData
+Matrix
+mosaic
+tidyr
+bindrcpp
+Rfit
+ggmap
+stringr
+maps
+reshape
