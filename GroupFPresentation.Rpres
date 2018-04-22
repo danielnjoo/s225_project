@@ -2,10 +2,25 @@
 .reveal pre code {
   font-size: 1em;
 }
+
+.small-code p {
+  font-size:  14px;
+}
+
 .section .reveal .state-background {
   background-image: url('http://ichef.bbci.co.uk/images/ic/1600xn/p03vfmdq.jpg')
 }
+.reveal .slides section .mediaInline img {
+  margin-left:50px
+}
+.lists li {
+  margin: 0;
+  font-size: 20px;
+  line-height: 30px
+}
+
 </style>
+
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(cache=TRUE)
@@ -13,7 +28,6 @@ knitr::opts_chunk$set(cache=TRUE)
 
 Flights in Developed and Developing Countries
 ========================================================
-class: first
 author: Daniel and Jocelyn
 date: 4/24/18
 autosize: true
@@ -37,28 +51,29 @@ incremental: true
 - 156 unique source and destination countries
 - `developed.x` is 1 if the source country is developed, and 0 if developing
 
-1. Predicting flights using average GDP growth
-========================================================
-
 Number of Flights per Country
 ========================================================
 
 ```{r, echo = FALSE, fig.width = 14, fig.height = 8}
-require(dplyr)
-require(readr)
+require(tidyverse)
 require(mosaic)
-require(ggplot2)
-require(tidyr)
+require(emoGG)
+set.seed(4)
 
 groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv")
 groupfdata <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)] # Made a change in data 
 data <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
 
 groupfdata %>% group_by(Country.Code.x, developed.x) %>% summarize(count=n()) -> temp 
+
+temp$Country.Code.x <- factor(temp$Country.Code.x, levels=temp[sample(nrow(temp)),]$Country.Code.x)
+
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
   coord_flip() + 
-  labs(title = "Number of Flights per Source Country", x = "Country", y = "Count")
+  labs(title = "Number of Flights per Source Country", x = "Country", y = "Count",fill="Dev") +
+  theme(axis.text.y=element_blank(),axis.ticks.x=element_blank()) +
+  geom_text(data=head(arrange(temp,desc(count))),aes(Country.Code.x, developed.x,label=c("CHN","GBR","IND","DEU","ESP","FRA")),angle=45, nudge_y = 1500,fontface = "bold")
 ```
 
 
@@ -92,14 +107,23 @@ ggplot(data3, aes(x = GDP_Growth, color = as.factor(developed.x))) +
   theme(legend.position='bottom')
 ```
 
-Number of Flights vs. Average GDP Growth
+
+1. Predicting flights using average GDP growth
 ========================================================
+incremental:true
 
-- Explore the relationship between the Number of Flights and Average Per Capita GDP Growth via scatterplots and smoothing
-- Transformation and Normalization
-- Parametric and Non-Parametric Regression
+Goal: 
+- Explore the relationship between the Number of Flights and Average Per Capita GDP Growth via plots and smoothing
 
-Linear Fit and Loess Smoother
+Initial plots (count ~ GDP growth):
+- SLR with linear fit: `geom_smooth='lm'`, and with LOESS fit: `geom_smooth='loess'`
+
+Intermediate step:
+- Normalization by source country population and log transformation of count
+
+Then: Parametric and Non-Parametric Regression
+
+Linear Fit and LOESS Smoother
 ========================================================
 
 ```{r, echo = FALSE, fig.height = 8, fig.width = 6.5}
@@ -112,7 +136,7 @@ temp %>% ggplot(aes(avg_growth.x, count)) +
 temp %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
   geom_smooth(method = 'loess', se=F, color = "red") +
-  ggtitle("SLR between source country avg GDP growth and # flights")
+  ggtitle("SLR between source country avg GDP growth and # flights (LOESS)")
 ```
 
 Normalization of Flights by Population
@@ -132,7 +156,7 @@ normal %>% ggplot(aes(avg_growth.x, count)) +
 normal %>% ggplot(aes(avg_growth.x, count)) + 
   geom_point() + 
   geom_smooth(method = 'loess', se=F, col = "red") +
-  ggtitle("SLR between source country avg GDP growth and Normalized # flights")
+  ggtitle("SLR between source country avg GDP growth and Normalized # flights, LOESS")
 ```
 
 Log Transformation of Counts
@@ -193,8 +217,17 @@ Regression Results and Comparison
 
 2. Investigating differences in travel patterns by development status
 ========================================================
+incremental: true
 
-Has Travel Increased in Recently Developed Countries?
+Goal: 
+- Creating a new category of `recently_developed`, we want to investigate whether our categorical variable (3 values) of development status explains flight count
+
+Procedure:
+- Parametric and non-parametric ANOVA
+- If a significant difference is found, explore further with a multiple test comparison test such as Fisher's LSD
+
+
+Recently Developed Countries
 ========================================================
 
 - Identified 7 countries that were developing in 2010, but were developed in 2016:
@@ -211,11 +244,11 @@ Development Status
 
 ```{r, echo = FALSE, fig.width = 14, fig.height = 8}
 check <- normal %>% mutate(developed.x2 = ifelse(X2016.x > 12000, 1, 0)) %>% 
-  mutate(recent_development.x = ifelse(developed.x == 0 & developed.x2 == 0, "Developing", ifelse(developed.x == 0 & developed.x2 == 1, "Recently Developed", "Developed"))) %>% filter(!is.na(recent_development.x))
+  mutate(dev_status = ifelse(developed.x == 0 & developed.x2 == 0, "Developing", ifelse(developed.x == 0 & developed.x2 == 1, "Recently Developed", "Developed"))) %>% filter(!is.na(dev_status))
 
 check2 <- check %>% filter(avg_growth.x < 12) # Remove Nauru (an outlier)
 
-check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) + 
+check %>% ggplot(aes(avg_growth.x, log_count, color = dev_status)) + 
   geom_point() + 
   geom_smooth(method = 'lm', se=F) +
   labs(title = "Normalized Log Number of Flights vs. Average Growth",
@@ -225,8 +258,10 @@ check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) +
 Parametric ANOVA:
 ========================================================
 
+Running parametric ANOVA,  we find that 
+
 ```{r, echo = FALSE}
-p_mod2 <- lm(log_count ~ recent_development.x, data = check)
+p_mod2 <- lm(log_count ~ dev_status, data = check)
 anova(p_mod2) 
 ```
 
@@ -235,8 +270,8 @@ Parametric Conditions:
 class: small-code
 
 ```{r, echo = FALSE, fig.height = 4}
-favstats(log_count ~ recent_development.x, data = check) # Fine
-check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot() +
+favstats(log_count ~ dev_status, data = check) # Fine
+check %>% ggplot(aes(dev_status, log_count)) + geom_boxplot() +
   labs("Boxplot of Normalized Log Counts by Development Status",
        x = "Development Status", y = "Log Count of Flights")
 ```
@@ -245,21 +280,21 @@ Parametric Multiple Comparisons - Fisher's LSD:
 ========================================================
 
 ```{r, echo = FALSE}
-with(check, pairwise.t.test(log_count, recent_development.x))
+with(check, pairwise.t.test(log_count, dev_status))
 ```
 
 Non-Parametric ANOVA
 ========================================================
 
 ```{r, echo = FALSE}
-kruskal.test(log_count~as.factor(recent_development.x), data=check)
+kruskal.test(log_count~as.factor(dev_status), data=check)
 ```
 
 Non-Parametric Conditions - Shift Model:
 ========================================================
 
 ```{r, echo = FALSE, fig.height = 8, fig.width = 14}
-check %>% ggplot(aes(log_count, color = recent_development.x)) + geom_density() +
+check %>% ggplot(aes(log_count, color = dev_status)) + geom_density() +
   labs(title = "Distribution of Normalized Log Count by Development Status",
        x = "Log Count of Flights", y = "Density")
 ```
@@ -268,7 +303,7 @@ Non-Parametric Multiple Comparisons - Wilcoxon Rank Sum
 ========================================================
 
 ```{r, echo = FALSE}
-with(check, pairwise.wilcox.test(log_count, recent_development.x))
+with(check, pairwise.wilcox.test(log_count, dev_status))
 ```
 
 ANOVA Results and Conclusions
@@ -280,121 +315,87 @@ ANOVA Results and Conclusions
   - Developed and Recently Developed (p-value $= 0.01$ & p-value = $= 0.0091$)
 - Recently developed countries are more similar to developing than developed countries
 
-<<<<<<< HEAD
-3. Do developing countries fly to popular developed nation destinations?
+
+3. Do developing/developed countries fly to different destinations?
 ========================================================
+incremental:  true
 
-Travel Locations - Outside Own Country
-=======
-Normalized Travel Locations 
->>>>>>> 787d4c7fdecc24488cf686a2a1b1be415427ac1c
-========================================================
+Goal: 
+- investigate whether countries fly to different destinations, if so, is there any pattern?
 
-- Most popular destinations for Developed:
-  - Antigua and Barbuda
-  - Iceland
-  - St. Kitts and Nevis
-  - Bermuda
-  - Austria
-- Most popular destinations for Developing:
-  - Antigua and Barbuda
-  - Nauru
-  - Tuvalu
-  - Palau
-  - Maldives
-  
-Travel Locations - Developed
-========================================================
-
-```{r, echo = FALSE, fig.height = 8, fig.width = 14}
-library(ggmap)
-require(stringr)
-
-developed_nn_ext <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
-  filter(developed.x == 1) %>%
-  group_by(Country.Code.y) %>%
-  summarize(count = n()) %>%
-  arrange(desc(count)) 
-
-developing_nn_ext <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
-  filter(developed.x == 0) %>%
-  group_by(Country.Code.y) %>%
-  summarize(count = n()) %>%
-  arrange(desc(count))
-
-groupfdata$spop <- str_replace(groupfdata$source.population,'\\.','')
-pops <- groupfdata %>% 
-  dplyr::select(country=Country.Code.x, pop=spop) %>% 
-  unique() 
-  
-developed_dests_n_ext <- developed_nn_ext %>% left_join(pops, by=c("Country.Code.y"="country")) %>% 
-  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
-  arrange(desc(n_count))
-
-developed_dests_n_ext$top5<-c(rep(1,5),rep(0,144)) 
-
-# places <- geocode(c('Antigua and Barbuda', 'Iceland', 'St. Kitts and Nevis', 'Bermuda', 'Austria')) # sometimes acts up b/c of API limit so:
-
-places <- data.frame(lon=c(-61.79643, -19.02084, -62.78300, -64.75050,  14.55007), lat=c(17.06082, 64.96305, 17.35782, 32.30780, 47.51623))
-cbind(head(developed_dests_n_ext,5),places) -> temp
-
-mapWorld <- borders("world", colour="gray50", fill="gray50") 
-ggplot() + 
-  mapWorld + 
-  geom_point(aes(x=places$lon, y=places$lat) ,color="red", size=2) +
-  ggtitle("Top 5 Destinations of Developed Countries") + geom_jitter() +
-  geom_text(data=temp, aes(x=lon,y=lat,label=Country.Code.y),hjust = -0.5)
-```
-
-Travel Locations - Developing
-========================================================
-
-```{r, echo = FALSE, fig.width = 14, fig.height = 8}
-developing_n_ext <- developing_nn_ext %>% left_join(pops, by=c("Country.Code.y"="country")) %>% 
-  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
-  arrange(desc(n_count)) 
-
-# places <- geocode(c('Antigua and Barbuda', 'Nauru', 'Tuvalus', 'Palau', 'Maldives'))
-
-places <- data.frame(lon=c(-61.79643, 166.93150, 177.64933, 134.58250,  73.22068), lat=c(17.06082, 0.522778, -7.109535,  7.514980, 3.202778))
-cbind(head(developing_n_ext,5),places) -> temp
-
-ggplot() + 
-  mapWorld + 
-  geom_point(aes(x=places$lon, y=places$lat) ,color="red", size=2) +
-  ggtitle("Top 5 Destinations of Developing Countries") + geom_jitter() +
-  geom_text(data=temp, aes(x=lon,y=lat,label=Country.Code.y),hjust = -0.5)
-```
-
+Procedure:
+- find top 5 destinations of developed/developing nations, and then normalize by destination country's population, i.e. assume that higher population countries should receive more flights
+- exploratory plots, barcharts
+- check whether developing nations fly to these same destinations at the same rate, i.e. proportion, by running a parametric z-test and non-parametric binomial test
 
 Non-Normalized Travel Locations:
 ========================================================
+class: lists
 
-- Most popular destinations for Developed:
+Most popular destinations for Developed:
   - Great Britain
   - Germany
   - Spain
   - Italy
   - France
-- Most popular destinations for Developing:
+  
+Most popular destinations for Developing:
   - United Arab Emirate
   - Singapore
   - Japan
   - France
   - China
 
-Parametric - Two Proportion Z-test
+Normalized Top 5 Travel Destinations 
+========================================================
+class: lists
+
+Most popular destinations for Developed:
+<ul>
+<li>Antigua and Barbuda</li>
+<li>Iceland</li>
+<li>St. Kitts and Nevis</li>
+<li>Bermuda</li>
+<li>Austria</li>
+</ul>
+  
+Most popular destinations for Developing:
+- Antigua and Barbuda 
+- Nauru
+- Tuvalu
+- Palau
+- Maldives
+
+Travel Locations - Developed
+========================================================
+
+<img src="./Rplot01.png"/>
+
+Travel Locations - Developing
+========================================================
+
+<img src="./Rplot02.png"/>
+
+Prop of Flights to Top5 Developed Destinations
 ========================================================
 
 ```{r, echo = FALSE, fig.height = 8, fig.width = 14}
-require(reshape)
+require(reshape2)
 
 Outbound <- groupfdata %>% group_by(developed.x) %>% summarize(total_flights = n()) %>% data.frame()
 total_developing <- subset(Outbound,developed.x==0)$total_flights
 total_developed <- subset(Outbound,developed.x==1)$total_flights
 
-developedtop5 <- developed_nn_ext %>% head(5) %>% data.frame()
-developing <- developing_nn_ext %>% data.frame()
+developedtop5 <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
+  filter(developed.x == 1) %>%
+  group_by(Country.Code.y) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))  %>% head(5) %>% data.frame()
+developing <- developing_nn_ext <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
+  filter(developed.x == 0) %>%
+  group_by(Country.Code.y) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>% data.frame()
 
 p_UK <- developedtop5[[1,2]][1]
 p_Ger <- developedtop5[[2,2]][1]
@@ -424,7 +425,7 @@ data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), Developed=prop_developedc
 ```
 
 
-Parametric - Two Proportion Z-test
+Parametric - 2-Proportion Z-test (2/5 shown)
 ========================================================
 class: small-code
 
@@ -446,20 +447,26 @@ Non-Parametric - Binomial Test
 class: small-code
 
 ```{r, echo = FALSE}
-prop_developedcounts # p for each test
-total_developing # n for each test
 successes <- developingcounts # were testing developing proportions so we use these counts
 failures <- total_developing-successes # calculating failures
 
-binom.test(c(successes[1],failures[1]),n=total_developing[1],p=prop_developedcounts[1])->uk2;uk2
-uk2$p.value
+binom.test(c(successes[1],failures[1]),n=total_developing[1],p=prop_developedcounts[1])->uk2
 
 pvals2 <- rep(0,4)
 for(i in 2:5){
   pvals2[i-1] <- (binom.test(c(successes[i],failures[i]),n=total_developing[i],p=prop_developedcounts[i]))$p.value
 }
-pvals2 <- c(uk2$p.value,pvals2); pvals2
+pvals2 <- c(uk2$p.value,pvals2)
 ```
+
+Testing $H_0:p=p_0$, $H_A:p \neq p_0$ where $p_0$ is the developed proportion of flights to top5 developed destinations: `r round(prop_developedcounts,4)` and `n` is the total number of developing flights: `r total_developing`
+
+For the test shown below we find a p-value of `r options("digits"=3); uk2$p.value` and for all 5 tests we find p-values respectively of `r options("digits"=3); pvals2`
+
+```{r, echo=F}
+uk2
+```
+
 
 Non-Parametric Conditions
 ========================================================
@@ -468,13 +475,14 @@ Comparison
 ========================================================
 
 ```{r, echo = FALSE, fig.width = 14, fig.height = 8}
-data.frame(`z-test`=pvals,binom=pvals2,Country=c("GBR","DEU","ESP","ITA","FRA")) %>% 
+data.frame(`z-test`=pvals,binom=pvals2,Country=c("GBR","DEU","ESP","ITA","FRA")) %>%
   melt() %>% 
   ggplot(aes(Country,value,col=variable)) + 
-  geom_point() + 
+  geom_point(size=5) + 
   scale_y_log10() +
   ggtitle("Comparison of pvalues from binomial and z-tests") +
-  theme(legend.position="bottom")
+  theme(legend.position="bottom") +
+  add_emoji(emoji="2708")
 ```
 
 

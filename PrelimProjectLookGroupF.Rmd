@@ -705,11 +705,9 @@ data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), Developed=prop_developedc
 
 In both the  absolute count and  proportional  count cases we see  a significant difference between developed/developing nation flights  to the  top5  developed nation destinations. We then  run a parametric 2-sample proportion test.
 
-<<<<<<< HEAD
+
 Conditions of (1) independence and randomization, as well as (2) sample size $ np_0$ and $ n(1-p_0)$ both  greater than 10 are met.
-=======
-Conditions of (1) independence and randomization, as well as (2) sample size np_{0} and n(1−p_{0}) both  greater than 10 are met.
->>>>>>> 787d4c7fdecc24488cf686a2a1b1be415427ac1c
+
 
 ```{r}
 prop.test(x = c(p_UK, p_UK2), n = c(total_developed, total_developing)) -> uk; uk
