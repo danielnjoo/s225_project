@@ -472,7 +472,7 @@ with(check, pairwise.wilcox.test(log_count, recent_development.x))
 dunn.test(x = check$log_count, g = check$recent_development.x)
 ```
 
-The results of the pairwise Rank Sum tests and the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $= .0091 & = .0029$), at a significance level of $0.01$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
+The results of the pairwise Rank Sum tests and the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $ = 0.0091$ & $ = 0.0029$), at a significance level of $0.01$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
 
 Since the Kruskal-Wallis test has less stringent conditions than the parametric ANOVA, it is a less powerful test. However, despite difference in power, both tests concluded that there was at least one difference in the center of the noramlized `log_counts` between countries with different development status. Additionally, the results of Fisher's LSD, Rank Sum tests, and the Dunn test, all suggested that at $\alpha = 0.05$, there is a significant difference between developed and developing countries and between developed and recently developed countries.
 
@@ -691,7 +691,7 @@ data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), Developed=prop_developedc
 
 In both the  absolute count and  proportional  count cases we see  a significant difference between developed/developing nation flights  to the  top5  developed nation destinations. We then  run a parametric 2-sample proportion test.
 
-Conditions of (1) independence and randomization, as well as (2) sample size $ np_0$ and $ n(1−p_0 )$ both  greater than 10 are met.
+Conditions of (1) independence and randomization, as well as (2) sample size np_{0} and n(1−p_{0}) both  greater than 10 are met.
 
 ```{r}
 prop.test(x = c(p_UK, p_UK2), n = c(total_developed, total_developing)) -> uk; uk
@@ -707,7 +707,7 @@ Just showing the results of  the  first and  last proportion test, we find that 
 
 #### Non-Parametric Binomial Test
 
-We then run a  non-parametric binomial  test for testing $H_0:p=p_0$, $H_A:p\neq p_0$ where $p_0$ is the developed proportion of flights to top5 developed destinations and $p$ is the developing proportion of flights to the same places.
+We then run a  non-parametric binomial  test for testing $H_0:p=p_0$, $H_A:p \neq p_0$ where $p_0$ is the developed proportion of flights to top5 developed destinations and $p$ is the developing proportion of flights to the same places.
 
 For each location we perform a separate `binom.test()` which takes a vector of success/failure counts and the sample size. In this context, successes are flights to the relevant destination, failures are the complment of this (total-successes), and sample size are total flights.
 
@@ -725,7 +725,7 @@ binom.test(c(successes[1],failures[1]),n=total_developing[1],p=prop_developedcou
 uk2$p.value
 ```
 
-In this case we test whether developing countries fly to the UK with the same proportion as developed nations (0.0737), and find instead given the results of 85/9186 relevant flights from developing countries that $p\neq p_0$, and a 95%CI for $p$ is  (0.0074, 0.0114), and a p-value of the order of magnitude e-191, compared to e-140 when we performed the parametric test.
+In this case we test whether developing countries fly to the UK with the same proportion as developed nations (0.0737), and find instead given the results of 85/9186 relevant flights from developing countries that $p \neq p_0$, and a 95%CI for $p$ is  (0.0074, 0.0114), and a p-value of the order of magnitude e-191, compared to e-140 when we performed the parametric test.
 
 Doing this for the other countries:
 
