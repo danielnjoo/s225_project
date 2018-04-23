@@ -23,11 +23,8 @@ require(mosaic)
 require(NSM3)
 require(Rfit)
 require(dunn.test)
-<<<<<<< HEAD
 library(reshape2)
-=======
-require(reshape)
->>>>>>> 787d4c7fdecc24488cf686a2a1b1be415427ac1c
+
 ```
 
 ## Data Summary
