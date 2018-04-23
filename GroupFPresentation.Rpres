@@ -50,7 +50,6 @@ incremental: true
 - Flights are classified as developed if there Per Capita GDP was greater than $12,000
 - There are 33,559 flights in our dataset
 - 156 unique source and destination countries
-- `developed.x` is 1 if the source country is developed, and 0 if developing
 
 Number of Flights per Country
 ========================================================
@@ -212,8 +211,8 @@ summary(np_mod, overall = 'drop')
 Regression Results and Comparison
 ========================================================
 
-- Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = .00871 & .00658$)
-- However, both models suggested that `avg_growth.x` explained very little variability in `log_count` ($R^{2} = .0458 & .0485$)
+- Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = 0.00871$ & $0.00658$)
+- However, both models suggested that `avg_growth.x` explained very little variability in `log_count` ($R^{2} = 0.0458$ & $0.0485$)
 - Although `avg_growth.x` is a significant predictor, the model lacks any substantial predicting power.
 
 2. Investigating differences in travel patterns by development status
@@ -271,7 +270,7 @@ Parametric Conditions:
 ========================================================
 class: small-code
 
-```{r, echo = FALSE, fig.height = 4}
+```{r, echo = FALSE, fig.height = 8, fig.width = 14}
 
 check %>% ggplot(aes(factor(dev_status), log_count)) + geom_boxplot() +
   labs("Boxplot of Normalized Log Counts by Development Status",
@@ -314,22 +313,20 @@ ANOVA Results and Conclusions
 - Both tests found that there was a least one significant difference in means and medians of flight between different development status (p-values $< 0.0001$).
 - Fisher's LSD and Pairwise Wilcoxon Rank Sums found a significant differences between:
   - Developed and Developing (p-values $<0.0001$)
-  - Developed and Recently Developed (p-value $= 0.01$ & p-value = $= 0.0091$)
+  - Developed and Recently Developed (p-value $= 0.01$ & p-value $= 0.0091$)
 - Recently developed countries are more similar to developing than developed countries
 
-
-=======
 3. Do developing countries fly to popular developed nation destinations?
 ========================================================
 incremental:  true
 
 Goal: 
-- investigate whether countries fly to different destinations, if so, is there any pattern?
+- Investigate whether countries fly to different destinations, if so, is there any pattern?
 
 Procedure:
-- find top 5 destinations of developed/developing nations, and then normalize by destination country's population, i.e. assume that higher population countries should receive more flights
-- exploratory plots, barcharts
-- check whether developing nations fly to these same destinations at the same rate, i.e. proportion, by running a parametric z-test and non-parametric binomial test
+- Find top 5 destinations of developed/developing nations, and then normalize by destination country's population, i.e. assume that higher population countries should receive more flights
+- Exploratory plots, barcharts
+- Run Two Proportion Z-test and Non-Parametric Binomial Test
 
 Non-Normalized Travel Locations:
 ========================================================

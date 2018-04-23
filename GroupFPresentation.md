@@ -48,7 +48,6 @@ incremental: true
 - Flights are classified as developed if there Per Capita GDP was greater than $12,000
 - There are 33,559 flights in our dataset
 - 156 unique source and destination countries
-- `developed.x` is 1 if the source country is developed, and 0 if developing
 
 Number of Flights per Country
 ========================================================
@@ -151,8 +150,8 @@ Reduction in Dispersion Test: 7.49295 p-value: 0.00696
 Regression Results and Comparison
 ========================================================
 
-- Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = .00871 & .00658$)
-- However, both models suggested that `avg_growth.x` explained very little variability in `log_count` ($R^{2} = .0458 & .0485$)
+- Both found that `avg_growth.x` was a significant predictor of `log_count` ($p-value = 0.00871$ & $0.00658$)
+- However, both models suggested that `avg_growth.x` explained very little variability in `log_count` ($R^{2} = 0.0458$ & $0.0485$)
 - Although `avg_growth.x` is a significant predictor, the model lacks any substantial predicting power.
 
 2. Investigating differences in travel patterns by development status
@@ -205,27 +204,220 @@ Parametric Conditions:
 ========================================================
 class: small-code
 
+![plot of chunk unnamed-chunk-12](GroupFPresentation-figure/unnamed-chunk-12-1.png)
+
+Parametric Multiple Comparisons - Fisher's LSD:
+========================================================
+
+
+```
+
+	Pairwise comparisons using t tests with pooled SD 
+
+data:  log_count and dev_status 
+
+                   Developed Developing
+Developing         9.2e-13   -         
+Recently Developed 0.01      0.61      
+
+P value adjustment method: holm 
+```
+
+Non-Parametric ANOVA
+========================================================
+
+
+```
+
+	Kruskal-Wallis rank sum test
+
+data:  log_count by as.factor(dev_status)
+Kruskal-Wallis chi-squared = 52.653, df = 2, p-value = 3.686e-12
+```
+
+Non-Parametric Conditions - Shift Model:
+========================================================
+
+![plot of chunk unnamed-chunk-15](GroupFPresentation-figure/unnamed-chunk-15-1.png)
+
+Non-Parametric Multiple Comparisons - Wilcoxon Rank Sum
+========================================================
+
+
+```
+
+	Pairwise comparisons using Wilcoxon rank sum test 
+
+data:  log_count and dev_status 
+
+                   Developed Developing
+Developing         3.5e-12   -         
+Recently Developed 0.0091    0.7627    
+
+P value adjustment method: holm 
+```
+
+ANOVA Results and Conclusions
+========================================================
+
+- Both tests found that there was a least one significant difference in means and medians of flight between different development status (p-values $< 0.0001$).
+- Fisher's LSD and Pairwise Wilcoxon Rank Sums found a significant differences between:
+  - Developed and Developing (p-values $<0.0001$)
+  - Developed and Recently Developed (p-value $= 0.01$ & p-value $= 0.0091$)
+- Recently developed countries are more similar to developing than developed countries
+
+3. Do developing countries fly to popular developed nation destinations?
+========================================================
+incremental:  true
+
+Goal: 
+- Investigate whether countries fly to different destinations, if so, is there any pattern?
+
+Procedure:
+- Find top 5 destinations of developed/developing nations, and then normalize by destination country's population, i.e. assume that higher population countries should receive more flights
+- Exploratory plots, barcharts
+- Run Two Proportion Z-test and Non-Parametric Binomial Test
+
+Non-Normalized Travel Locations:
+========================================================
+class: lists
+
+Most popular destinations for Developed:
+  - Great Britain
+  - Germany
+  - Spain
+  - Italy
+  - France
+  
+Most popular destinations for Developing:
+  - United Arab Emirate
+  - Singapore
+  - Japan
+  - France
+  - China
+
+Normalized Top 5 Travel Destinations 
+========================================================
+class: lists
+
+Most popular destinations for Developed:
+<ul>
+<li>Antigua and Barbuda</li>
+<li>Iceland</li>
+<li>St. Kitts and Nevis</li>
+<li>Bermuda</li>
+<li>Austria</li>
+</ul>
+  
+Most popular destinations for Developing:
+- Antigua and Barbuda 
+- Nauru
+- Tuvalu
+- Palau
+- Maldives
+
+Travel Locations - Developed
+========================================================
+
+<img src="./Rplot01.png"/>
+
+Travel Locations - Developing
+========================================================
+
+<img src="./Rplot02.png"/>
+
+Prop of Flights to Top5 Developed Destinations
+========================================================
+
+![plot of chunk unnamed-chunk-17](GroupFPresentation-figure/unnamed-chunk-17-1.png)
+
+
+Parametric - 2-Proportion Z-test (2/5 shown)
+========================================================
+class: small-code
+
+
+```
+
+	2-sample test for equality of proportions with continuity
+	correction
+
+data:  c(p_UK, p_UK2) out of c(total_developed, total_developing)
+X-squared = 635.27, df = 1, p-value < 2.2e-16
+alternative hypothesis: two.sided
+95 percent confidence interval:
+ 0.06197319 0.06967335
+sample estimates:
+     prop 1      prop 2 
+0.073708240 0.007884972 
+```
+
+```
+
+	2-sample test for equality of proportions with continuity
+	correction
+
+data:  c(p_FR, p_FR2) out of c(total_developed, total_developing)
+X-squared = 152.61, df = 1, p-value < 2.2e-16
+alternative hypothesis: two.sided
+95 percent confidence interval:
+ 0.02181991 0.02871662
+sample estimates:
+    prop 1     prop 2 
+0.03955398 0.01428571 
+```
+
+```
+[1] 3.561030e-140 2.942982e-117 1.628861e-106  1.344739e-75  4.670557e-35
+```
+
+Parametric Conditions
+========================================================
+
+- Sample is random
+- Trials are independent
+- Includes at least 10 successes and 10 failures
+- Binary outcomes: success or failure
+
+Non-Parametric - Binomial Test
+========================================================
+class: small-code
 
 
 
+Testing $H_0:p=p_0$, $H_A:p \neq p_0$ where $p_0$ is the developed proportion of flights to top5 developed destinations: 0.0737, 0.067, 0.0587, 0.0455, 0.0396 and `n` is the total number of developing flights: 10780
+
+For the test shown below we find a p-value of 4.319 &times; 10<sup>-238</sup> and for all 5 tests we find p-values respectively of 4.319 &times; 10<sup>-238</sup>, 2.765 &times; 10<sup>-195</sup>, 4.703 &times; 10<sup>-179</sup>, 1.088 &times; 10<sup>-124</sup>, 2.021 &times; 10<sup>-53</sup>
+
+
+```
 
 
 
+data:  c(successes[1], failures[1])
+number of successes = 80, number of trials = 10000, p-value <2e-16
+alternative hypothesis: true probability of success is not equal to 0.0737
+95 percent confidence interval:
+ 0.00630 0.00974
+sample estimates:
+probability of success 
+               0.00788 
+```
 
 
+Non-Parametric Conditions
+========================================================
 
+- Trials are independent
+- Binary outcomes: success or failure
+- Probability of success, *p*, remains constant
 
-
-
-
-
-
-
-
+Comparison
+========================================================
 
 
 
 
 ```
-Error in FUN(X[[i]], ...) : object 'recent_development.x' not found
+Error in add_emoji(emoji = "2708") : could not find function "add_emoji"
 ```
