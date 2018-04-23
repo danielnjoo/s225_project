@@ -245,7 +245,8 @@ Development Status
 
 ```{r, echo = FALSE, fig.width = 14, fig.height = 8}
 check <- normal %>% mutate(developed.x2 = ifelse(X2016.x > 12000, 1, 0)) %>% 
-  mutate(dev_status = ifelse(developed.x == 0 & developed.x2 == 0, "Developing", ifelse(developed.x == 0 & developed.x2 == 1, "Recently Developed", "Developed"))) %>% filter(!is.na(dev_status))
+mutate(dev_status = ifelse(developed.x == 0 & developed.x2 == 0, "Developing", ifelse(developed.x == 0 & developed.x2 == 1, "Recently Developed", "Developed"))) %>% 
+  filter(!is.na(dev_status))
 
 check2 <- check %>% filter(avg_growth.x < 12) # Remove Nauru (an outlier)
 
@@ -272,7 +273,7 @@ class: small-code
 
 ```{r, echo = FALSE, fig.height = 4}
 
-check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot() +
+check %>% ggplot(aes(factor(dev_status), log_count)) + geom_boxplot() +
   labs("Boxplot of Normalized Log Counts by Development Status",
        x = "Development Status", y = "Log Count of Flights")
 ```
