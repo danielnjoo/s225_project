@@ -386,37 +386,61 @@ Outbound <- groupfdata %>% group_by(developed.x) %>% summarize(total_flights = n
 total_developing <- subset(Outbound,developed.x==0)$total_flights
 total_developed <- subset(Outbound,developed.x==1)$total_flights
 
+groupfdata$spop <- str_replace(groupfdata$source.population,'\\.','')
+pops <- groupfdata %>% 
+  dplyr::select(country=Country.Code.x, pop=spop) %>% 
+  unique() 
+
 developedtop5 <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
   filter(developed.x == 1) %>%
   group_by(Country.Code.y) %>%
   summarize(count = n()) %>%
-  arrange(desc(count))  %>% head(5) %>% data.frame()
-developing <- developing_nn_ext <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
+  left_join(pops, by=c("Country.Code.y"="country")) %>% 
+  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
+  arrange(desc(n_count)) %>% 
+  head(5) %>% 
+  data.frame()
+
+developing_nn_ext <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
   filter(developed.x == 0) %>%
   group_by(Country.Code.y) %>%
   summarize(count = n()) %>%
-  arrange(desc(count)) %>% data.frame()
+  arrange(desc(count))
 
-p_UK <- developedtop5[[1,2]][1]
-p_Ger <- developedtop5[[2,2]][1]
-p_SP <- developedtop5[[3,2]][1]
-p_IT <- developedtop5[[4,2]][1]
-p_FR <- developedtop5[[5,2]][1]
+developing_n_ext <- developing_nn_ext %>% left_join(pops, by=c("Country.Code.y"="country")) %>% 
+  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
+  arrange(desc(n_count)) 
+
+# developing <- groupfdata %>% 
+#   filter(Country.Code.x != Country.Code.y) %>%
+#   filter(developed.x == 0) %>%
+#   group_by(Country.Code.y) %>%
+#   summarize(count = n()) %>%
+#   data.frame() %>% 
+#   left_join(pops, by=c("Country.Code.y"="country")) %>% 
+#   mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
+#   arrange(desc(n_count)) 
+
+p_ATG <- developedtop5[[1,2]][1]
+p_ISL <- developedtop5[[2,2]][1]
+p_KNA <- developedtop5[[3,2]][1]
+p_BMU <- developedtop5[[4,2]][1]
+p_AUT <- developedtop5[[5,2]][1]
 
 # Get Developing Country Counts for these countries:
-p_UK2 <- developing[which(developing$Country.Code.y=="GBR"),2] %>% unlist() %>% readr::parse_integer()
-p_Ger2 <- developing[which(developing$Country.Code.y=="DEU"),2] %>% unlist() %>% readr::parse_integer()
-p_SP2 <- developing[which(developing$Country.Code.y=="ESP"),2] %>% unlist() %>% readr::parse_integer()
-p_IT2 <- developing[which(developing$Country.Code.y=="ITA"),2] %>% unlist() %>% readr::parse_integer()
-p_FR2 <- developing[which(developing$Country.Code.y=="FRA"),2] %>% unlist() %>% readr::parse_integer()
+p_ATG2 <- developing_n_ext[which(developing_n_ext$Country.Code.y=="ATG"),2] %>% unlist() %>% readr::parse_integer();  #  2
+p_ISL2 <- 0 # developing_n_ext[which(developing_n_ext$Country.Code.y=="ISL"),2] %>% unlist() %>% readr::parse_integer()
+p_KNA2 <- 0  # developing_n_ext[which(developing_n_ext$Country.Code.y=="KNA"),2] %>% unlist() %>% readr::parse_integer()
+p_BMU2 <- 0  # developing_n_ext[which(developing_n_ext$Country.Code.y=="BMU"),2] %>% unlist() %>% readr::parse_integer()
+p_AUT2 <- developing_n_ext[which(developing_n_ext$Country.Code.y=="AUT"),2] %>% unlist() %>% readr::parse_integer() #24
 
-developedcounts <- c(p_UK,p_Ger,p_SP,p_IT,p_FR)
-developingcounts <- c(p_UK2,p_Ger2,p_SP2,p_IT2,p_FR2)
+developedcounts <- c(p_ATG,p_ISL,p_KNA,p_BMU,p_AUT)
+developingcounts <- c(2,0,0,0,24)
 
 prop_developedcounts <- developedcounts/total_developed
 prop_developingcounts <- developingcounts/total_developing
 
-data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), Developed=prop_developedcounts, Developing=prop_developingcounts) %>% 
+data.frame(Countries=c("ATG","ISL","KNA","BMU","AUT"), Developed=prop_developedcounts, Developing=prop_developingcounts) %>% 
   melt() %>% 
   ggplot(aes(Countries,value,group=variable,fill=variable)) + 
   geom_bar(stat='identity',position='stack') +
@@ -425,18 +449,18 @@ data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), Developed=prop_developedc
 ```
 
 
-Parametric - 2-Proportion Z-test (2/5 shown)
+Parametric - 2-Proportion Z-test (1/5 shown)
 ========================================================
 class: small-code
 
 ```{r, echo = FALSE}
-prop.test(x = c(p_UK, p_UK2), n = c(total_developed, total_developing)) -> uk; uk
-prop.test(x = c(p_Ger, p_Ger2), n = c(total_developed, total_developing)) -> ge
-prop.test(x = c(p_SP, p_SP2), n = c(total_developed, total_developing)) -> sp
-prop.test(x = c(p_IT, p_IT2), n = c(total_developed, total_developing)) -> it
-prop.test(x = c(p_FR, p_FR2), n = c(total_developed, total_developing)) -> fr; fr
+prop.test(x = c(p_ATG, p_ATG2), n = c(total_developed, total_developing)) -> atg
+prop.test(x = c(p_ISL, p_ISL2), n = c(total_developed, total_developing)) -> isl
+prop.test(x = c(p_KNA, p_KNA2), n = c(total_developed, total_developing)) -> kna
+prop.test(x = c(p_BMU, p_BMU2), n = c(total_developed, total_developing)) -> bmu;bmu
+prop.test(x = c(p_AUT, p_AUT2), n = c(total_developed, total_developing)) -> aut
 
-pvals <- c(uk$p.value,ge$p.value,sp$p.value,it$p.value,fr$p.value); pvals
+pvals <- c(aut$p.value,isl$p.value,atg$p.value,kna$p.value,bmu$p.value); pvals
 ```
 
 Parametric Conditions
@@ -449,27 +473,25 @@ Parametric Conditions
 
 Non-Parametric - Binomial Test
 ========================================================
-class: small-code
 
 ```{r, echo = FALSE}
 successes <- developingcounts # were testing developing proportions so we use these counts
 failures <- total_developing-successes # calculating failures
 
-binom.test(c(successes[1],failures[1]),n=total_developing[1],p=prop_developedcounts[1])->uk2
+binom.test(c(successes[1],failures[1]),n=total_developing[1],p=prop_developedcounts[1])->aut2
 
 pvals2 <- rep(0,4)
 for(i in 2:5){
   pvals2[i-1] <- (binom.test(c(successes[i],failures[i]),n=total_developing[i],p=prop_developedcounts[i]))$p.value
 }
-pvals2 <- c(uk2$p.value,pvals2)
+pvals2 <- c(aut2$p.value,pvals2)
 ```
 
-Testing $H_0:p=p_0$, $H_A:p \neq p_0$ where $p_0$ is the developed proportion of flights to top5 developed destinations: `r round(prop_developedcounts,4)` and `n` is the total number of developing flights: `r total_developing`
 
-For the test shown below we find a p-value of `r options("digits"=3); uk2$p.value` and for all 5 tests we find p-values respectively of `r options("digits"=3); pvals2`
+For the test shown below we find a p-value of `r options("digits"=3); aut2$p.value` and for all 5 tests we find p-values respectively of `r options("digits"=3); pvals2`
 
 ```{r, echo=F}
-uk2
+aut2
 ```
 
 
@@ -479,21 +501,6 @@ Non-Parametric Conditions
 - Trials are independent
 - Binary outcomes: success or failure
 - Probability of success, *p*, remains constant
-
-Comparison
-========================================================
-
-```{r, echo = FALSE, fig.width = 14, fig.height = 8}
-data.frame(`z-test`=pvals,binom=pvals2,Country=c("GBR","DEU","ESP","ITA","FRA")) %>%
-  melt() %>% 
-  ggplot(aes(Country,value,col=variable)) + 
-  geom_point(size=5) + 
-  scale_y_log10() +
-  ggtitle("Comparison of pvalues from binomial and z-tests") +
-  theme(legend.position="bottom") +
-  add_emoji(emoji="2708")
-```
-
 
 Proportion Conclusions
 ========================================================

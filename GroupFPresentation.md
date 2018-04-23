@@ -332,7 +332,7 @@ Prop of Flights to Top5 Developed Destinations
 ![plot of chunk unnamed-chunk-17](GroupFPresentation-figure/unnamed-chunk-17-1.png)
 
 
-Parametric - 2-Proportion Z-test (2/5 shown)
+Parametric - 2-Proportion Z-test (1/5 shown)
 ========================================================
 class: small-code
 
@@ -342,33 +342,18 @@ class: small-code
 	2-sample test for equality of proportions with continuity
 	correction
 
-data:  c(p_UK, p_UK2) out of c(total_developed, total_developing)
-X-squared = 635.27, df = 1, p-value < 2.2e-16
+data:  c(p_BMU, p_BMU2) out of c(total_developed, total_developing)
+X-squared = 0.70646, df = 1, p-value = 0.4006
 alternative hypothesis: two.sided
 95 percent confidence interval:
- 0.06197319 0.06967335
+ -6.480195e-05  4.160026e-04
 sample estimates:
-     prop 1      prop 2 
-0.073708240 0.007884972 
+      prop 1       prop 2 
+0.0001756003 0.0000000000 
 ```
 
 ```
-
-	2-sample test for equality of proportions with continuity
-	correction
-
-data:  c(p_FR, p_FR2) out of c(total_developed, total_developing)
-X-squared = 152.61, df = 1, p-value < 2.2e-16
-alternative hypothesis: two.sided
-95 percent confidence interval:
- 0.02181991 0.02871662
-sample estimates:
-    prop 1     prop 2 
-0.03955398 0.01428571 
-```
-
-```
-[1] 3.561030e-140 2.942982e-117 1.628861e-106  1.344739e-75  4.670557e-35
+[1] 5.545961e-19 7.775549e-05 1.574906e-01 4.006222e-01 4.006222e-01
 ```
 
 Parametric Conditions
@@ -381,13 +366,11 @@ Parametric Conditions
 
 Non-Parametric - Binomial Test
 ========================================================
-class: small-code
 
 
 
-Testing $H_0:p=p_0$, $H_A:p \neq p_0$ where $p_0$ is the developed proportion of flights to top5 developed destinations: 0.0737, 0.067, 0.0587, 0.0455, 0.0396 and `n` is the total number of developing flights: 10780
 
-For the test shown below we find a p-value of 4.319 &times; 10<sup>-238</sup> and for all 5 tests we find p-values respectively of 4.319 &times; 10<sup>-238</sup>, 2.765 &times; 10<sup>-195</sup>, 4.703 &times; 10<sup>-179</sup>, 1.088 &times; 10<sup>-124</sup>, 2.021 &times; 10<sup>-53</sup>
+For the test shown below we find a p-value of 0.077 and for all 5 tests we find p-values respectively of 0.077, 7.456 &times; 10<sup>-8</sup>, 0.275, 0.275, 4.723 &times; 10<sup>-30</sup>
 
 
 ```
@@ -395,13 +378,13 @@ For the test shown below we find a p-value of 4.319 &times; 10<sup>-238</sup> an
 
 
 data:  c(successes[1], failures[1])
-number of successes = 80, number of trials = 10000, p-value <2e-16
-alternative hypothesis: true probability of success is not equal to 0.0737
+number of successes = 2, number of trials = 10000, p-value = 0.08
+alternative hypothesis: true probability of success is not equal to 0.000615
 95 percent confidence interval:
- 0.00630 0.00974
+ 2.25e-05 6.70e-04
 sample estimates:
 probability of success 
-               0.00788 
+              0.000186 
 ```
 
 
@@ -412,12 +395,26 @@ Non-Parametric Conditions
 - Binary outcomes: success or failure
 - Probability of success, *p*, remains constant
 
-Comparison
+Proportion Conclusions
 ========================================================
 
+- The Normalized Travel Locations suggest differences in travel patterns between N. America and Europe, N. America and Asia
+- The proportion of flights to the Top 5 Non-Normalized destinations for developed countries are all significantly different from the proportion of flights for developing countries
 
+Conclusion
+========================================================
 
+- Average Per Capita GDP Growth is a significant predictor of the normalized natural log of the number of flights, but lacks any substantial predictive power.
+- Recently developed countries are significantly different from developed countries, but similar to developing countries in terms of plane travel.
+- There appears to be differences in travel patterns between developed and developing nations
 
-```
-Error in add_emoji(emoji = "2708") : could not find function "add_emoji"
-```
+Limitations
+========================================================
+
+- Since there is no Year variable for the flights, we were only able to compare total flights to average Per Capita GDP growth
+- Unable to compare the median flights of recently developed countries to developing and developed countries in 2010 vs. 2016
+- Year as a possible confounding variable
+
+THE END
+========================================================
+
