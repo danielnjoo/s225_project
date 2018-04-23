@@ -137,7 +137,8 @@ temp <- temp %>% mutate(count = count/source.population)
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
   coord_flip() + 
-  labs(title = "Normalized Number of Flights per Source Country", x = "Country", y = "Count")
+  labs(title = "Normalized Number of Flights per Source Country", x = "Country", y = "Count",
+       fill = "Developed?")
 ```
 
 
@@ -482,11 +483,7 @@ with(check, pairwise.wilcox.test(log_count, recent_development.x))
 dunn.test(x = check$log_count, g = check$recent_development.x)
 ```
 
-<<<<<<< HEAD
-The results of the pairwise Rank Sum tests and the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-values of $= .0091$ and $ = .0029$ respectively), at a significance level of $0.01$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
-=======
 The results of the pairwise Rank Sum tests and the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $ = 0.0091$ & $ = 0.0029$), at a significance level of $0.01$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
->>>>>>> 787d4c7fdecc24488cf686a2a1b1be415427ac1c
 
 Since the Kruskal-Wallis test has less stringent conditions than the parametric ANOVA, it is a less powerful test. However, despite difference in power, both tests concluded that there was at least one difference in the center of the noramlized `log_counts` between countries with different development status. Additionally, the results of Fisher's LSD, Rank Sum tests, and the Dunn test, all suggested that at $\alpha = 0.05$, there is a significant difference between developed and developing countries and between developed and recently developed countries.
 

@@ -46,6 +46,7 @@ Data Summary
 incremental: true
 
 - Flight data from the Flight Route Database (Kaggle)
+- Per Capita GDP from the World Bank Website - focused on 2010-2016
 - Flights are classified as developed if there Per Capita GDP was greater than $12,000
 - There are 33,559 flights in our dataset
 - 156 unique source and destination countries
@@ -270,8 +271,8 @@ Parametric Conditions:
 class: small-code
 
 ```{r, echo = FALSE, fig.height = 4}
-favstats(log_count ~ dev_status, data = check) # Fine
-check %>% ggplot(aes(dev_status, log_count)) + geom_boxplot() +
+
+check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot() +
   labs("Boxplot of Normalized Log Counts by Development Status",
        x = "Development Status", y = "Log Count of Flights")
 ```
@@ -316,7 +317,8 @@ ANOVA Results and Conclusions
 - Recently developed countries are more similar to developing than developed countries
 
 
-3. Do developing/developed countries fly to different destinations?
+=======
+3. Do developing countries fly to popular developed nation destinations?
 ========================================================
 incremental:  true
 
@@ -442,6 +444,11 @@ pvals <- c(uk$p.value,ge$p.value,sp$p.value,it$p.value,fr$p.value); pvals
 Parametric Conditions
 ========================================================
 
+- Sample is random
+- Trials are independent
+- Includes at least 10 successes and 10 failures
+- Binary outcomes: success or failure
+
 Non-Parametric - Binomial Test
 ========================================================
 class: small-code
@@ -471,6 +478,10 @@ uk2
 Non-Parametric Conditions
 ========================================================
 
+- Trials are independent
+- Binary outcomes: success or failure
+- Probability of success, *p*, remains constant
+
 Comparison
 ========================================================
 
@@ -489,12 +500,22 @@ data.frame(`z-test`=pvals,binom=pvals2,Country=c("GBR","DEU","ESP","ITA","FRA"))
 Proportion Conclusions
 ========================================================
 
-Conclusion and Limitations
+- The Normalized Travel Locations suggest differences in travel patterns between N. America and Europe, N. America and Asia
+- The proportion of flights to the Top 5 Non-Normalized destinations for developed countries are all significantly different from the proportion of flights for developing countries
+
+Conclusion
 ========================================================
 
-- Average Per Capita GDP Growth is a significant predictor of the normalized natural log of the number of flights, but lacks any substantial predictive power
-- Second Question Conclusion
-- Third Question and Conclusion
+- Average Per Capita GDP Growth is a significant predictor of the normalized natural log of the number of flights, but lacks any substantial predictive power.
+- Recently developed countries are significantly different from developed countries, but similar to developing countries in terms of plane travel.
+- There appears to be differences in travel patterns between developed and developing nations
+
+Limitations
+========================================================
+
+- Since there is no Year variable for the flights, we were only able to compare total flights to average Per Capita GDP growth
+- Unable to compare the median flights of recently developed countries to developing and developed countries in 2010 vs. 2016
+- Year as a possible confounding variable
 
 THE END
 ========================================================
