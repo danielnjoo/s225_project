@@ -763,10 +763,13 @@ In  all 5 cases, we find that the  binomial  test gives us more evidence to reje
 
 ## Conclusions and Limitations
 
-> Limitation:
-  > No year associated with flights - can't look at flights for each year (Per Capital GDP may vary by year)
-  
-> Conclusions:
+From our analysis, we can conclude the following:
+
+- Average Per Capita GDP Growth from between 2010 and 2016 is a significant predictor of the natural log of the normalized flight counts for each country. However, the model itself has no predictive power and therefore, is not useful.
+- In terms of the natural log of normalized flight counts, recently developed countries are significantly different from developed countries, but not significantly different from developing ones.
+- PROPORTION CONCLUSION
+
+However, there are limitations to our analysis. The greatest limitation being that there was no `Year` variable for each flight. Therefore, time is a possible confounding variable that we are unable to accurately account for in our analysis.
 
   
 
