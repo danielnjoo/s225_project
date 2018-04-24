@@ -51,11 +51,11 @@ The dataset includes 49 variables and 33,559 flights.
 - airline.ID
 - source.airport
 - source.airport.id 
-- destination.apirport
+- destination.airport
 - destination.airport.id
 - codeshare ("Y" if codeshare, empty otherwise)
 - stops ("0" for direct flight)
-- equipment (3-letter codes for plane types generally used on the flight, seperated by spaces if more than one)
+- equipment (3-letter codes for plane types generally used on the flight, separated by spaces if more than one)
 - source.airport.name
 - source.country
 - destination.airport.name
@@ -165,7 +165,7 @@ ggplot(data2, aes(x = GDP, color = as.factor(developed.x))) +
   theme(legend.position='bottom')
 ```
 
-GDP is clearly differentiated by the development status of the source country. Developing countries have a narrower range of Per Capita GDP and the center of this distribution is located at the lower end of the overall Per Capita GDP range. Developed countries have a wider range of Per Capita GDP with a center located aboe the entire distribution of developing Per Capita GDP.
+GDP is clearly differentiated by the development status of the source country. Developing countries have a narrower range of Per Capita GDP and the center of this distribution is located at the lower end of the overall Per Capita GDP range. Developed countries have a wider range of Per Capita GDP with a center located above the entire distribution of developing Per Capita GDP.
 
 ```{r}
 # Distribution of GDP Growth:
@@ -192,7 +192,7 @@ ggplot(groupfdata, aes(x = avg_growth.x, color = as.factor(developed.x))) +
   theme(legend.position='bottom')
 ```
 
-The above is the distribution of the average Per Capita GDP Growth betwen 2010-2016 for developed and developing countries. Average growth for developing countries is shifted above the growth of developed countries. Additionally, the distribution is more symmetric for developed countries and left skewed for developing countries.
+The above is the distribution of the average Per Capita GDP Growth between 2010-2016 for developed and developing countries. Average growth for developing countries is shifted above the growth of developed countries. Additionally, the distribution is more symmetric for developed countries and left skewed for developing countries.
 
 
 ### Outbound Flights
@@ -205,13 +205,13 @@ temp %>% ggplot(aes(count)) +
        x = "Number of Outbound Flights", y = "Count")
 ```
 
-The distribution of the number of outband flights per source country is heavily right skewed and unimodal. China, once again, is seen as an outlier with approximately $5000$ flights.
+The distribution of the number of outbound flights per source country is heavily right skewed and unimodal. China, once again, is seen as an outlier with approximately $5000$ flights.
 
 ```{r}
 favstats(temp$count)
 ```
 
-Looking at some summary statistics for the distribution above, there is a significant difference between the mean ($215.12$) and the median ($46$). Additionally, the standard deviation is incredibly large ($531.39$), while the IQR is much smaller ($150.25$). The differences in mean and median as well as the large standard deviation demonstrate how the skewed distribution and outliers are influencing the mean. We may want to pursue transformations on the data to mitigate this effect.
+Looking at some summary statistics for the distribution above, there is a significant difference between the mean ($215.12$) and the median ($46$). Additionally, the standard deviation is incredibly large ($531.39$), while the IQR is much smaller ($150.25$). The differences in mean and median as well as the large standard deviation demonstrate how skewed the distribution is and that outliers are influencing the mean. We may want to pursue transformations on the data to mitigate this effect.
 
 Below, we identify all countries greater than 2 standard deviations away from the mean: 
 
@@ -266,7 +266,7 @@ We can very clearly see that there are more outbound flights from developed than
 
 ## Prediction of Total Number of Flights per Country by Average Growth
 
-Investigating whether GDP growth leads to an increase in the number of flights in the consecutive year is worth investigating, but not available to us given the current dataset which does not inform us of the date of any given flight. Our data does allow us to see if we can predict the total number of flights per country by that countries average Per Capita GDP growth.
+Investigating whether GDP growth leads to an increase in the number of flights in the consecutive year is worth investigating, but not available to us given the current dataset which does not inform us of the date of any given flight. Our data does, however, allow us to see if we can predict the total number of flights per country by that countries average Per Capita GDP growth.
 
 ### Smoothing
 
@@ -282,9 +282,9 @@ temp %>% ggplot(aes(avg_growth.x, count)) +
        x = "Average Per Capita GDP Growth", y = "Count")
 ```
 
-The plot above is a scatterplot of the average growth of the source country against the total count of flights for each source country. There does not appear to be any obvious trend in the data as the majority appear to be clustered together. There is one particularly extreme outlier at approximately 2900 flights. As discussed above, this outlier is China. 
+In the above, there does not appear to be any obvious trend in the data as the majority appear to be clustered together. There is one particularly extreme outlier at approximately $5000$ flights. As discussed above, this outlier is China. 
 
-The blue line represents the least squares fitted line. From this, we see that there is possibly a positive linear relationship between average growth and the number of flights. Using the `loess` smoother, another fitted line was generated (red). This new fitted line is curved with two small peaks around an average growth of 2.5 and another around 11. This is not a linear line. Additionally, the second peak is in alignment with China and one other outlier, which may suggest that the second peak is a result of the 'pull' of the outliers. To attempt to produce a more linear relationship and remove the influence of outliers, we first normalize by population.
+The blue line represents the least squares fitted line. From this, we see that there is possibly a positive linear relationship between average growth and the number of flights. Using the `loess` smoother, another fitted line was generated (red). This new fitted line is curved with two small peaks around an average growth of $2.5$ and another around $11$. This is not a linear line. Additionally, the second peak is in alignment with China and one other outlier, which may suggest that the second peak is a result of the 'pull' of the outliers. To attempt to produce a more linear relationship and remove the influence of outliers, we first normalize by population.
 
 ```{r, warning = FALSE}
 groupfdata %>% 
@@ -301,7 +301,7 @@ normal %>% ggplot(aes(avg_growth.x, count)) +
        x = "Average Per Capita GDP Growth", y = "Normalized Count")
 ```
 
-Despite normalizing, there are still outliers present. Additionally, for the most part, the observations are still clustered together in no recognizable pattern while a small handful deviate fall above the majority of the data. A transformation may therefore be appropriate. Keeping the normalized data, we can compare average growth to the natural log of the counts.
+Despite normalizing, there are still outliers present. Additionally, for the most part, the observations are still clustered together in no recognizable pattern while a small handful deviate above the majority of the data. A transformation may therefore be appropriate. Keeping the normalized data, we can compare average growth to the natural log of the counts.
 
 ```{r, warning = FALSE}
 normal <- normal %>% mutate(log_count = log(count))
@@ -316,7 +316,7 @@ normal %>% ggplot(aes(avg_growth.x, log_count)) +
 
 While the relationship between average growth and the natural log of counts does not appear to be a strong one, it is more linear. The linear regression line (blue) fit through the above scatterplot suggests a weak to moderate, negative association between average growth and the natural log of counts.
 
-The Loess smoother still suggests a more curved relationship between the two variables. There is only one data point above an average growth of 10 that appears to be influencing the smoother. We remove this point below:
+The Loess smoother still suggests a more curved relationship between the two variables. There is only one data point above an average growth of $10$ that appears to be influencing the smoother. We remove this point below:
 
 ```{r, warning = FALSE}
 normal_minus <- normal %>% filter(avg_growth.x < 12)
@@ -331,7 +331,7 @@ normal_minus %>% ggplot(aes(avg_growth.x, log_count)) +
 
 ```
 
-The outlier was the Republic of Naura, a small Pacific island country northeast of Australia. Without Nauru, the Loess smoother fits an almost linear line ($Span = 0.75$). For positive `avg_growth.x` values, the smoother is practically linear and deviates only slightly from the least squares fitted line. For negative `avg_growth.x` values, the loess smoothers shows a curve towarnd, away from the least squares fitted line. Despite this, the true estimate of the relationship between the normalized `log_counts` of flights and `avg_growth.x` appears to be linear enough to satisfy the Linearity condition required to proceed with regression.
+The outlier was the Republic of Nauru, a small Pacific island country northeast of Australia. Without Nauru, the Loess smoother fits an almost linear line ($Span = 0.75$). For positive `avg_growth.x` values, the smoother is practically linear and deviates only slightly from the least squares fitted line. For negative `avg_growth.x` values, the loess smoothers shows a curve downward, away from the least squares fitted line. Despite this, the true estimate of the relationship between the normalized `log_counts` of flights and `avg_growth.x` appears to be linear enough to satisfy the Linearity condition required to proceed with regression.
 
 For this analysis, parametric and non-parametric regression procedures will be carried out on average GDP growth and the normalized, natural log of the number of flights per source country, with the outlier, Nauru, removed.
 
@@ -356,7 +356,7 @@ plot(p_mod, which = 2)
 
 For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around $0$. Looking at the QQ plot, there is some minor deviation from the reference line at the lower and upper ends, but the remainder of the observations adhere to the reference line rather faithfully. Still, we may have some minor concerns for Normality. 
 
-Since the p-value is small, at $\alpha = 0.01$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from $0$. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.172$ indicates that for every 1 unit increase in the `avg_growth.x`, the noramlized `log_counts` is estimated to decrease by approximately $0.172$. While `avg_growth.x` is a significant predicotr, the model itself has low predictive power. The model only accounts for $4.58$% of the variability in `log_counts` (Multiple $R^{2} = 0.04588$).
+Since the p-value is small, at $\alpha = 0.01$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from $0$. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.172$ indicates that for every 1 unit increase in the `avg_growth.x`, the normalized `log_counts` is estimated to decrease by approximately $0.172$. While `avg_growth.x` is a significant predictor, the model itself has low predictive power. The model only accounts for $4.58$% of the variability in `log_counts` (Multiple $R^{2} = 0.04588$).
 
 
 ### Non-parametric Regression
@@ -368,7 +368,7 @@ np_mod <- rfit(log_count ~ avg_growth.x, data = normal_minus)
 summary(np_mod, overall = 'drop')
 ```
 
-The t-value for the slope coefficient of `avg_growth.x` is $-.178$ with an associated p-value of $0.00065$. At $\alpha = 0.01$, this is a significant p-value. Although we've already verified the Equal Variance condition above, we plot the residuals directly from the our non-parametric model below:
+The t-value for the slope coefficient of `avg_growth.x` is $-0.178$ with an associated p-value of $0.00065$. At $\alpha = 0.01$, this is a significant p-value. Although we've already verified the Equal Variance condition above, we plot the residuals directly from the our non-parametric model below:
 
 ```{r}
 plot(np_mod$residuals ~ np_mod$fitted.values)
@@ -411,7 +411,7 @@ check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) +
 
 ```
 
-From the above scatterplot, developed countries appear to be clustered at higher normalized `log_count` values across most of the range of average Per Capita GDP growth, with some exceptions. Similarly, developing countries appear to be clustered at lower noramlized `log_count` values across most of the range of average Per Capita GDP growth. There is a region of significant overlap around $-5$ `log_count` for developed and developing. However, the fitted lines suggest that there may be a difference in the average `log_count`. Recently developed countries appear to have lower noramlized `log_count`, with the exception of the Repbulic of Nauru. Additionally, these countries are clustered at the upper half of the average Per Capita GDP growth range. The plot suggests that there may be a difference in center between at least two of the development classifications.
+From the above scatterplot, developed countries appear to be clustered at higher normalized `log_count` values across most of the range of average Per Capita GDP growth, with some exceptions. Similarly, developing countries appear to be clustered at lower normalized `log_count` values across most of the range of average Per Capita GDP growth. There is a region of significant overlap around $-5$ `log_count` for developed and developing. However, the fitted lines suggest that there may be a difference in the average `log_count`. Recently developed countries appear to have lower normalized `log_count`, with the exception of the Republic of Nauru. Additionally, these countries are clustered at the upper half of the average Per Capita GDP growth range. The plot suggests that there may be a difference in center between at least two of the development classifications.
 
 
 ### Parametric ANOVA
@@ -434,13 +434,13 @@ check %>% ggplot(aes(recent_development.x, log_count)) + geom_boxplot() +
        x = "Development Status", y = "Log Count of Flights")
 ```
 
-The boxplot and residual plot suggest that the spreads of developed and developing countries appear to be very similar, but the spread of recently developed countries is slightly smaller. Looking at the standard deviations, recently developed countries have the largest, $1.817$, and developed countries have the smallest, $1.394$. Since the ratio of the largest standard deviation to the smallest is less thatn $2$ (approximately $1.303$), the Equal Variance condition appears to be roughly satisfied. 
+The boxplot and residual plot suggest that the spreads of developed and developing countries appear to be very similar, but the spread of recently developed countries is slightly smaller. Looking at the standard deviations, recently developed countries have the largest, $1.817$, and developed countries have the smallest, $1.394$. Since the ratio of the largest standard deviation to the smallest is less than $2$ (approximately $1.303$), the Equal Variance condition appears to be roughly satisfied. 
 
 Additionally, the asymmetry of the recently developed box in the boxplot suggests that we may have concerns for Normality. Looking at the QQ plot, there appears to be some divergence from the reference line near both ends. While the rest of the QQ plot appears to adhere to the reference line, we still have some concerns regarding whether or not the Normality condition is met.
 
 Therefore, we interpret the p-value associated with the parametric ANOVA with some caution. At all of the most commonly chosen significance levels, this is a significant p-value. We can reject the null hypothesis that there is no difference in the mean normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in means between development status groups. 
 
-From the ANOVA by itself, we cannot determine which pairs have significantly different means. Below, we conduct FIsher's LSD to determine which pairs are significantly different:
+From the ANOVA by itself, we cannot determine which pairs have significantly different means. Below, we conduct Fisher's LSD to determine which pairs are significantly different:
 
 ```{r}
 # Fisher's LSD:
@@ -458,7 +458,7 @@ The Non-parametric Kruskal-Wallis test provides an alternative to the one-way Pa
 kruskal.test(log_count~as.factor(recent_development.x), data=check)
 ```
 
-The Chi-squared test statiscit for the Kruskal-Wallis test is $52.653$ with an associated p-value of approximately $0$. Since the Kruskal-Wallis test assumes a shift model, we must first verify that such a model is appropriate before drawing any further conclusions. A shift model assumes that the only difference in distributions between the groups (of development status) is their medians. In other words, the shape and spread of each group's distribution should be the same. We verify that assuming that this model holds is appropriate:
+The Chi-squared test statistic for the Kruskal-Wallis test is $52.653$ with an associated p-value of approximately $0$. Since the Kruskal-Wallis test assumes a shift model, we must first verify that such a model is appropriate before drawing any further conclusions. A shift model assumes that the only difference in distributions between the groups (of development status) is their medians. In other words, the shape and spread of each group's distribution should be the same. We verify that assuming that this model holds is appropriate:
 
 ```{r}
 favstats(log_count~recent_development.x, data=check)
@@ -482,9 +482,9 @@ dunn.test(x = check$log_count, g = check$recent_development.x)
 
 The results of the pairwise Rank Sum tests and the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $ = 0.0091$ & $ = 0.0029$), at a significance level of $0.01$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
 
-Since the Kruskal-Wallis test has less stringent conditions than the parametric ANOVA, it is a less powerful test. However, despite difference in power, both tests concluded that there was at least one difference in the center of the noramlized `log_counts` between countries with different development status. Additionally, the results of Fisher's LSD, Rank Sum tests, and the Dunn test, all suggested that at $\alpha = 0.05$, there is a significant difference between developed and developing countries and between developed and recently developed countries.
+Since the Kruskal-Wallis test has less stringent conditions than the parametric ANOVA, it is a less powerful test. However, despite the difference in power, both tests concluded that there was at least one difference in the center of the normalized `log_counts` between countries with different development status. Additionally, the results of Fisher's LSD, Rank Sum tests, and the Dunn test, all suggested that at $\alpha = 0.05$, there is a significant difference between developed and developing countries and between developed and recently developed countries.
 
-Our results indicate that recently developed countries do not differ from developing countries in terms of the normalized, natural log number of flights. Additionally, since recently developed countries differ from developed countries, we can conclude that travel has not increased in recently developed countries. In other words, recently developed countries are not distinguishable from developing countries in terms of the mean and median noramlized, natural log counts of flights.
+Our results indicate that recently developed countries do not differ from developing countries in terms of the normalized, natural log number of flights. Additionally, since recently developed countries differ from developed countries, we can conclude that travel has not increased in recently developed countries. In other words, recently developed countries are not distinguishable from developing countries in terms of the mean and median normalized, natural log counts of flights.
 
 
 ## Travel Locations
@@ -541,7 +541,7 @@ head(developed_nn_ext,5)
 
 We find instead that for developed countries, the most popular destinations (once normalized for destination population) are Antigua and Barbuda, Iceland, St. Kitts and Nevis, Bermuda, and Austria.
 
-None  of these countries  appeared earlier in our non-normalized top5 developed country destinations, and it's interesting to note that the top4 of these five destinations  are countries with small  populations (<35,000) and thus had proportionally more flights than other countries.
+None  of these countries  appeared earlier in our non-normalized `top5` developed country destinations, and it's interesting to note that the `top4` of these five destinations  are countries with small  populations ($<35,000$) and thus had proportionally more flights than other countries.
 
 ```{r}
 developed_dests_n_ext$top5<-c(rep(1,5),rep(0,144)) 
@@ -570,7 +570,7 @@ ggplot() +
   geom_text(data=temp, aes(x=lon,y=lat,label=Country.Code.y),hjust = -0.5)
 ```
 
-What  we notice here is that all the  relevant countries appear to be low population countries situated between Europe and North  America (the two most  developed continents), and therefore are most likely transitting stops  for longer flights.
+What we notice here is that all the relevant countries appear to be low population countries situated between Europe and North  America (the two most developed continents), and therefore are most likely transiting stops for longer flights.
 
 #### Developing destinations with no internal flights, normalized
 
@@ -584,7 +584,7 @@ developing_n_ext <- developing_nn_ext %>% left_join(pops, by=c("Country.Code.y"=
 head(developing_n_ext,5)
 ```
 
-We find Antigua and Barbuda, Nauru, Tuvalu, Palau, and the Maldives  to be the top 5 destinations once population is adjusted for.
+We find Antigua and Barbuda, Nauru, Tuvalu, Palau, and the Maldives to be the top 5 destinations once population is adjusted for.
 
 ```{r message=F}
 # places <- geocode(c('Antigua and Barbuda', 'Nauru', 'Tuvalus', 'Palau', 'Maldives'))
@@ -616,7 +616,7 @@ developed_n_all <- groupfdata %>% filter(developed.x == 1) %>%
 head(developed_n_all,5)
 ```
 
-We still find Antigua and Barbuda Iceland, Saint Kitts and Nevis, Bermuda, and Austria, in the  top 5.
+We still find Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria, in the  top 5.
 
 #### Developing destinations with internal flights, normalized
 
@@ -640,9 +640,9 @@ Therefore, it appears that there are significant differences in the most frequen
 
 ### Comparing Popular Developed Nation Destinations Via Proportion Tests
 
-Having compared via visualization, we now move onto comparison by proportion tests, where we'll compare the proportions of flights to  the top5 developed nation destinations to total nation status flight counts, between developing  and developed nations.
+Having compared via visualization, we now move onto comparison by proportion tests, where we'll compare the proportions of flights to the `top5` developed nation destinations to total nation status flight counts, between developing  and developed nations.
 
-Our  question of interest here,  therefore, is to  test with statistical significance whether  developing nations do  not fly to popular developed nation destinations.
+Our question of interest here, therefore, is to test with statistical significance whether  developing nations fly to popular developed nation destinations as frequently as developed nations.
 
 #### Parametric Two Proportion Z-test 
 
@@ -719,7 +719,7 @@ Just showing the results of  the  first and  last proportion test, we find that 
 
 We then run a  non-parametric binomial  test for testing $H_0:p=p_0$, $H_A:p \neq p_0$ where $p_0$ is the developed proportion of flights to top5 developed destinations and $p$ is the developing proportion of flights to the same places.
 
-For each location we perform a separate `binom.test()` which takes a vector of success/failure counts and the sample size. In this context, successes are flights to the relevant destination, failures are the complment of this (total-successes), and sample size are total flights.
+For each location we perform a separate `binom.test()` which takes a vector of success/failure counts and the sample size. In this context, successes are flights to the relevant destination, failures are the complement of this (total-successes), and sample size are total flights.
 
 ```{r}
 prop_developedcounts # p for each test
@@ -747,7 +747,7 @@ for(i in 2:5){
 pvals2 <- c(uk2$p.value,pvals2); pvals2
 ```
 
-We thus find all our p-values for the nonparametric binomial test, and if we compare them to our p-values from the parametric test:
+We thus find all our p-values for the non-parametric binomial test, and if we compare them to our p-values from the parametric test:
 
 ```{r}
 data.frame(`z-test`=pvals,binom=pvals2,Country=c("GBR","DEU","ESP","ITA","FRA")) %>% 
