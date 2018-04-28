@@ -23,12 +23,14 @@ knitr::opts_chunk$set(echo = TRUE)
 # library(reshape2)
 # set.seed(4)
 # groupfdata <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
+library(png)
+library(grid)
 
 ```
 
 
 ## Abstract
-Travel, particularly via plane, is dependent upon the capital available to an individual. Using the `Flight Route` dataset from Kaggle [1], we seek to investigate whether or  not there  is  a relationship between a country's relative wealth (using GDP per capita (PPP)) and the number of flights originating and arriving in a given country. We also explore how  classification of a country as developed,  developing, or recently developed affects this relationship. We use Parametric and Non-parametric regression methods  and find that that average GDP growth and a country’s development status are significant predictors $p<0.01$ of the number of flights out of a data set of over 30,000, but are not very explanatory $R^2<0.05$. [Travel for recently developed]. [Flight location preference]. 
+Travel, particularly via plane, is dependent upon the capital available to an individual. Using the `Flight Route` dataset from Kaggle [1], we seek to investigate whether or  not there  is  a relationship between a country's change in wealth (using average GDP per capita (PPP) growth from the period 2010-2016) and the number of flights originating in a given country. We also explore how  classification of a country as developed,  developing, or recently developed affects this relationship. We use parametric and non-parametric regression methods  and find that that average GDP growth are significant predictors $p=0.00871$ and $0.006578$ respectively of the log number of originating  flights ($n>30000$), but it is not very explanatory $R^2<0.05$ in either case. We also we run both  parametric and non-parametric ANOVA techniques to test for the significance of development status and find similarly significant p-values in  both cases  $1.551e-12$ $3.686e-12$ respectively. We finally run parametric and non-parametric proportion  testing whether developing  countries fly to the  most popular developed destinations _____. We conclude that both average 2010-2016 per capita GDP (PPP) growth and development status are correlated with the  number  of flights originating in a country, and  that developing nations do not fly the same destinations as developed nations. 
 
 ## Introduction
 
@@ -46,7 +48,7 @@ In this project, we hope to answer the following questions:
 Given that airplane tickets are rarely cheap and often unaffordable for many people, it appears safe to assume that developed countries should have a greater demand for airplane travel than developing countries. By answering our questions we may be able to understand how different travel is for people in developing and developed nations. It may also provide the groundwork for additional questions related to travel.
 
 
-## Initial Look at the Data
+## Initial Look
 
 An initial look at the dataset shows that we get different results for source countries with the most flights if  we don't adjust for their  population:
 
@@ -87,16 +89,50 @@ After normalization  we  find a different set of countries:
 
 If  we look at the distribution of 2016 GDP  figures based on our definition of development status,  we find what we might expect:
 
-```{r fig.width=6, fig.height=4,echo=FALSE}
-library(png)
-library(grid)
+```{r fig.width=4, fig.height=4,echo=FALSE}
 grid.raster(readPNG("report_fig1.png"))
 ```
 
-If we now look at how development status affects 
+If we now look at how development status affects the (log) number of flights what we find is:
+
+```{r fig.width=4, fig.height=4,echo=FALSE}
+grid.raster(readPNG("report_fig2.png"))
+```
+
+## Approach
+
+Creating  `avg_growth`, the average  GDP growth of  a  source country, we fit a  parametric, simple linear regression model on the normalized `log_counts` as the response variable and `avg_growth.x` as the predictor variable. The summary output for the parametric model is below:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+ & Estimate & Std. Error & t value & Pr($>$$|$t$|$) \\ 
+  \hline
+(Intercept) & -4.2952 & 0.2823 & -15.21 & 5.4910e-32 \\ 
+  avg\_growth & -0.1723 & 0.0648 & -2.66 & 8.7123e-03 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+We then ran a non-parametric regression on the same formula:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+ & Estimate & Std. Error & t value & Pr($>$$|$t$|$) \\ 
+  \hline
+(Intercept) & -4.1934 & 0.3124 & -13.4246 & 2.5218e-27 \\ 
+  avg\_growth & -0.1782 & 0.06467 & -2.757 & 6.578e-03 \\ 
+   \hline
+\end{tabular}
+\end{table}
 
 ## References
 
 [1] Kaggle dataset, originally from openflights.org, available at: https://www.kaggle.com/open-flights/flight-route-database
+
 [2] World  Bank GDP per capita, (PPP)  figures  in dollars: https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD 
+
 [3] World Bank definition of high-income economies defines it as $12,236 for the 2018 fiscal year: https://datahelpdesk.worldbank.org/knowledgebase/articles/906519#High_income
