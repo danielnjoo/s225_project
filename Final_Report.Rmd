@@ -30,7 +30,7 @@ library(grid)
 
 
 ## Abstract
-Travel, particularly via plane, is dependent upon the capital available to an individual. Using the `Flight Route` dataset from Kaggle [1], we seek to investigate whether or  not there  is  a relationship between a country's change in wealth (using average GDP per capita (PPP) growth from the period 2010-2016) and the number of flights originating in a given country. We also explore how  classification of a country as developed,  developing, or recently developed affects this relationship. We use parametric and non-parametric regression methods  and find that that average GDP growth are significant predictors $p=0.00871$ and $0.006578$ respectively of the log number of originating  flights ($n>30000$), but it is not very explanatory $R^2<0.05$ in either case. We also run both  parametric ANOVA and  the Kruskal-Wallis  rank-sum to test for the significance of development status and find similarly significant p-values in  both cases  $1.551e-12$ $3.686e-12$ respectively. We finally run parametric and non-parametric proportion  testing whether developing  countries fly to the  most popular developed destinations _____. We conclude that both average 2010-2016 per capita GDP (PPP) growth and development status are correlated with the  number  of flights originating in a country, and  that developing nations do not fly the same destinations as developed nations. 
+Travel, particularly via plane, is dependent upon the capital available to an individual. Using the `Flight Route` dataset from Kaggle [1], we seek to investigate whether or  not there  is  a relationship between a country's change in wealth (using average GDP per capita (PPP) growth from the period 2010-2016) and the number of flights originating in a given country. We also explore how  classification of a country as developed,  developing, or recently developed affects this relationship. We use parametric and non-parametric regression methods  and find that that average GDP growth is a significant predictor ($p=0.00871$ and $0.006578$ respectively) of the log number of originating  flights ($n>30000$), but it is not very explanatory $R^2<0.05$ in either case. We also run both  parametric ANOVA and  the Kruskal-Wallis  rank-sum to test for the significance of development status and find similarly significant p-values in  both cases  $1.551e-12$ and $3.686e-12$ respectively. Finally, we run parametric and non-parametric proportion tests to investigate whether developing  countries fly to the  most popular developed destinations _____. We conclude that both average 2010-2016 per capita GDP (PPP) growth and development status are correlated with the  number  of flights originating in a country, and  that developing nations do not fly the same destinations as developed nations. 
 
 ## Introduction
 
@@ -41,9 +41,9 @@ Our dataset originally consisted of 59,036  flight routes. After wrangling, whic
 A GDP per capita (PPP) of greater than $12,000 is often considered the unofficial benchmark of a developed nation. [3] As 2010 was the year for which we had the  most GDP data, we classified our countries as developing if their GDP per capita (PPP) was greater than \$10490.48 (inflation-adjusted from today) in 2010. Countries with GDP figures less than this cutoff were classified  as  developing  countries, and countries that  were developing in 2010 but developed in  2016 — the last year for  which we have GDP figures — were classified as recently developed.
 
 In this project, we hope to answer the following questions:  
-1. Does GDP growth correlate with increases in flights flown from a country?  
-2. Have countries that have developed in recent years started to travel more?  
-3. Is there preferential travel to certain locations from developing and developed countries?  
+1. Does GDP growth positively correlated with flights flown from a country?  
+2. Have countries that have developed in recent years started to travel more, i.e. is development status a significant explanatory variable?  
+3. Do developing countries fly to the same destinations as developed
 
 Given that airplane tickets are rarely cheap and often unaffordable for many people, it appears safe to assume that developed countries should have a greater demand for airplane travel than developing countries. By answering our questions we may be able to understand how different travel is for people in developing and developed nations. It may also provide the groundwork for additional questions related to travel.
 
@@ -68,8 +68,6 @@ An initial look at the dataset shows that we get different results for source co
 \end{tabular}
 \end{table}
 
-After normalization  we  find a different set of countries:
-
 \begin{table}[ht]
 \centering
 \begin{tabular}{rlrrr}
@@ -86,18 +84,26 @@ After normalization  we  find a different set of countries:
 \end{tabular}
 \end{table}
 
+To adjust for this discrepancy, we choose to use normalized counts in our analysis.
 
-If  we look at the distribution of 2016 GDP  figures based on our definition of development status,  we find what we might expect:
+Using the entire dataset, if we look the  fit of linear  model of  the  normalized log count of  flights originating in a country regressed on average  GDP growth, we promising  results that motivate further  exploration:
 
 ```{r fig.width=4, fig.height=3,echo=FALSE}
 grid.raster(readPNG("report_fig1.png"))
 ```
 
-If we now look at how development status affects the (log) number of flights what we find is:
+If  we also look at how our categorical  variable, `development_status` affects the normalized (log) number of flights what we find is encouraging. The different slopes are encouraging  and suggest further exploration is worthwhile, although it is worth noting that the sample sizes are unequal, i.e. $n(\text{recently developed})=7$:
 
 ```{r fig.width=4, fig.height=4,echo=FALSE}
 grid.raster(readPNG("report_fig2.png"))
 ```
+
+Finally, simple graphical  comparisons of the top 5 destinations of developed and developing nations are shown below. It's interesting to note how popular developed nation (blue)  destinations are clustered  in the  Carribean, i.e. between  North America and Europe, while popular developing nation (red) destinations are clustered in the Pacific, i.e. between Asia and North America.
+
+```{r fig.width=6, fig.height=5,echo=FALSE}
+grid.raster(readPNG("report_fig4.png"))
+```
+
 
 ## Results
 ### Regression: Predicting Flights With GDP Growth
@@ -202,6 +208,8 @@ Our results indicate that recently developed countries do not differ from develo
 
 
 ### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
+
+## Conclusion
 
 
 
