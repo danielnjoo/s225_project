@@ -105,7 +105,8 @@ temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) +
   coord_flip() + 
   labs(title = "Number of Flights per Source Country", x = "Country", y = "Count",fill="Dev") +
   theme(axis.text.y=element_blank(),axis.ticks.x=element_blank()) +
-  geom_text(data=head(arrange(temp,desc(count))),aes(Country.Code.x, developed.x,label=c("CHN","GBR","IND","DEU","ESP","FRA")),angle=45, nudge_y = 1500,fontface = "bold")
+  geom_text(data=head(arrange(temp,desc(count))), aes(Country.Code.x, developed.x,                                             label=c("CHN","GBR","IND","DEU","ESP","FRA")),
+                             angle=45, nudge_y = 1500,fontface = "bold")
 ```
 
 The developing outlier is China:
@@ -140,7 +141,9 @@ head(arrange(temp,desc(n_count)))
 
 ```{r}
 # Distribution of GDP:
-data2 <- dplyr::select(groupfdata, '2010'=X2010.x, '2011'=X2011.x, '2012'=X2012.x, '2013'=X2013.x, '2014'=X2014.x, '2015'=X2015.x, '2016'=X2016.x, Country.Code.x, developed.x)
+data2 <- dplyr::select(groupfdata, '2010'=X2010.x, '2011'=X2011.x, '2012'=X2012.x, 
+                       '2013'=X2013.x, '2014'=X2014.x, '2015'=X2015.x, '2016'=X2016.x, 
+                       Country.Code.x, developed.x)
 data2 <- gather(data2, key = "year", value = "GDP", -Country.Code.x, -developed.x)
 ```
 
@@ -166,7 +169,10 @@ GDP is clearly differentiated by the development status of the source country. D
 
 ```{r}
 # Distribution of GDP Growth:
-data3 <- dplyr::select(groupfdata, growth10_11=growth10_11.x, growth11_12=growth11_12.x, growth12_13=growth12_13.x, growth13_14=growth13_14.x, growth14_15=growth14_15.x, growth15_16=growth15_16.x, Country.Code.x, developed.x)
+data3 <- dplyr::select(groupfdata, growth10_11=growth10_11.x, growth11_12=growth11_12.x,
+                       growth12_13=growth12_13.x, growth13_14=growth13_14.x,
+                       growth14_15=growth14_15.x, growth15_16=growth15_16.x, 
+                       Country.Code.x, developed.x)
 data3 <- gather(data3, key = "year", value = "GDP_Growth", -Country.Code.x, -developed.x)
 ```
 
@@ -396,7 +402,10 @@ We find that 7 of the 156 countries in the dataset were developing in 2010 and d
 
 ```{r, warning = FALSE}
 check <- normal %>% mutate(developed.x2 = ifelse(X2016.x > 12000, 1, 0)) %>% 
-  mutate(recent_development.x = ifelse(developed.x == 0 & developed.x2 == 0, "Developing", ifelse(developed.x == 0 & developed.x2 == 1, "Recently Developed", "Developed"))) %>% filter(!is.na(recent_development.x))
+  mutate(recent_development.x = ifelse(developed.x == 0 & developed.x2 == 0, "Developing",
+                                       ifelse(developed.x == 0 & developed.x2 == 1, 
+                                              "Recently Developed", "Developed"))) %>%
+  filter(!is.na(recent_development.x))
 
 check2 <- check %>% filter(avg_growth.x < 12) # Remove Nauru (an outlier)
 
@@ -546,7 +555,8 @@ ggplot(developed_dests_n_ext,aes(factor(Country.Code.y),n_count,col=factor(top5)
   geom_point() +
   scale_y_log10() + 
   theme(axis.text.x = element_text(angle=90, vjust=0.5,hjust=1,size=5)) + 
-  labs(y="Log Normalized Count", x="Destination", fill="Top5", title="Top 5 Destinations of Developed Country Travel")
+  labs(y="Log Normalized Count", x="Destination", fill="Top5", 
+       title="Top 5 Destinations of Developed Country Travel")
 ```
 
 It's interesting to note how  the top5 countries here really stand out from the rest of the group in terms of log normalized count... the picture becomes more interesting if we plot these countries on a map:
@@ -556,7 +566,8 @@ library(ggmap)
 
 # places <- geocode(c('Antigua and Barbuda', 'Iceland', 'St. Kitts and Nevis', 'Bermuda', 'Austria')) # sometimes acts up b/c of API limit so:
 
-places <- data.frame(lon=c(-61.79643, -19.02084, -62.78300, -64.75050,  14.55007), lat=c(17.06082, 64.96305, 17.35782, 32.30780, 47.51623))
+places <- data.frame(lon=c(-61.79643, -19.02084, -62.78300, -64.75050,  14.55007),
+                     lat=c(17.06082, 64.96305, 17.35782, 32.30780, 47.51623))
 cbind(head(developed_dests_n_ext,5),places) -> temp
 
 mapWorld <- borders("world", colour="gray50", fill="gray50") 
@@ -586,7 +597,8 @@ We find Antigua and Barbuda, Nauru, Tuvalu, Palau, and the Maldives to be the to
 ```{r message=F}
 # places <- geocode(c('Antigua and Barbuda', 'Nauru', 'Tuvalus', 'Palau', 'Maldives'))
 
-places <- data.frame(lon=c(-61.79643, 166.93150, 177.64933, 134.58250,  73.22068), lat=c(17.06082, 0.522778, -7.109535,  7.514980, 3.202778))
+places <- data.frame(lon=c(-61.79643, 166.93150, 177.64933, 134.58250,  73.22068), 
+                     lat=c(17.06082, 0.522778, -7.109535,  7.514980, 3.202778))
 cbind(head(developing_n_ext,5),places) -> temp
 
 ggplot() + 
@@ -676,7 +688,8 @@ We can quickly check what they look like compared to each other
 developedcounts <- c(p_UK,p_Ger,p_SP,p_IT,p_FR)
 developingcounts <- c(p_UK2,p_Ger2,p_SP2,p_IT2,p_FR2)
 
-data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), Developed=developedcounts, Developing=developingcounts) %>% 
+data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), 
+           Developed=developedcounts, Developing=developingcounts) %>% 
   melt() %>% 
   ggplot(aes(Countries,value,group=variable,fill=variable)) + 
   geom_bar(stat='identity',position='stack') +
@@ -686,7 +699,8 @@ data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), Developed=developedcounts
 prop_developedcounts <- developedcounts/total_developed
 prop_developingcounts <- developingcounts/total_developing
 
-data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), Developed=prop_developedcounts, Developing=prop_developingcounts) %>% 
+data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"),
+           Developed=prop_developedcounts, Developing=prop_developingcounts) %>% 
   melt() %>% 
   ggplot(aes(Countries,value,group=variable,fill=variable)) + 
   geom_bar(stat='identity',position='stack') +
