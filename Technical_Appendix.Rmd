@@ -1,7 +1,6 @@
 ---
 title: "Travel in Developed and Developing Countries"
 author: "Jocelyn, Daniel"
-date: "3/1/2018"
 output:
   pdf_document:
     fig_height: 3
@@ -13,10 +12,6 @@ output:
 
 # Technical Appendix
 
-```{r global_options, include=FALSE}
-knitr::opts_chunk$set(cache=TRUE)
-```
-
 ```{r, include = FALSE}
 library(tidyverse)
 require(mosaic)
@@ -24,57 +19,57 @@ require(NSM3)
 require(Rfit)
 require(dunn.test)
 library(reshape2)
-
+set.seed(4)
 ```
 
 ## Data Summary
 
 ### Data Read-In:
 ```{r, message = FALSE, warning = FALSE}
-groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv") 
-groupfdata <- groupfdata %>% dplyr::select(-X1)
-
-groupfdata <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)] # Fixed Issue.
-groupfdata %>% dim()
+# groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv") 
+# groupfdata <- groupfdata %>% dplyr::select(-X1) #ignore first row
+groupfdata <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
+# write.csv(groupfdata, "data.csv")
+dim(groupfdata)
 ```
 
-The dataset includes 49 variables and 33,559 flights.
+The dataset includes 49 variables (columns) and 33,559 flights (rows).
 
 ### Variables:
 ```{r}
-# summary(groupfdata)
+# summary(groupfdata) # run to see summary
 ```
 
-**Categorical Variables:**
+#### Categorical Variables:
 
-- airline
-- airline.ID
-- source.airport
-- source.airport.id 
-- destination.airport
-- destination.airport.id
-- codeshare ("Y" if codeshare, empty otherwise)
-- stops ("0" for direct flight)
-- equipment (3-letter codes for plane types generally used on the flight, separated by spaces if more than one)
-- source.airport.name
-- source.country
-- destination.airport.name
-- destination.country
-- Country.Code.x 
-- developed.x (0 = developing; 1 = developed)
-- Country.Code.y
-- developed.y (0 = developing; 1 = developed)
+- **airline**
+- **airline.ID**
+- **source.airport**: 3-letter IATA airport ID value
+- **source.airport.id**: numeric ID value
+- **destination.airport**
+- **destination.airport.id**
+- **codeshare**: "Y" if codeshare, empty otherwise
+- **stops**: "0" for a direct flight, otherwise value reflects number of  stops
+- **equipment**: 3-letter codes for plane types generally used on the flight, separated by spaces if more than one
+- **source.airport.name**
+- **source.country**
+- **destination.airport.name**
+- **destination.country**
+- **Country.Code.x**: unique 3-letter code that  identifies the source country
+- **developed.x**: development status relating  to the source country  where 0 = developing; 1 = developed
+- **Country.Code.y**
+- **developed.y**
 
-**Quantitative Variables:**
+#### Quantitative Variables:
 
-- X2010.x:X2016.x (GDP each year from 2010 - 2016)
-- growth10_11.x:growth15_16.x (GDP growth between two years from 2010 - 2016)
-- avg_growth.x
-- X2010.y:X2016.y (GDP each year from 2010 - 2016)
-- growth10_11.y:growth15_16.y (GDP growth between two years from 2010 - 2016)
-- avg_growth.y
+- **X2010.x:X2016.x**: source country's per capita GDP (PPP) each year from 2010 - 2016
+- **growth10_11.x:growth15_16.x**: source country's  growth in the previous variable
+- **avg_growth.x**: source country's average growth in entire period
+- **X2010.y:X2016.y**
+- **growth10_11.y:growth15_16.y**
+- **avg_growth.y**
 
-**Please note** that a variable name with a '.x' corresponds to the source country of the flight and a variable name with a '.y' corresponds to the destination country of the flight. Additionally, `developed` is a categorical variable that indicates whether a country is developing or developed using the GDP cutoff of 10,490 dollars. This value is inflation adjusted from 12,000 today's dollars.
+Note that a variable name with a '.x' corresponds to the source country of the flight and a variable name with a '.y' corresponds to the destination country of the flight. Additionally, `developed` is a categorical variable that indicates whether a country is developing or developed using the per capita GDP (PPP) cutoff of 10,490 dollars. This value is inflation adjusted from \$12,000 in 2016, a commonly used cutoff to demarcate developed and developing nations.
 
 ## Preliminary Univariate Analysis
 
@@ -85,7 +80,7 @@ groupfdata$source.country %>% unique() %>% length()
 groupfdata$destination.country %>% unique() %>% length()
 ```
 
-156 unique source and destination countries.
+There are 156 unique source and destination countries.
 
 ```{r}
 length(which(groupfdata$developed.x==1))/nrow(groupfdata)
@@ -99,22 +94,18 @@ length(which(groupfdata$developed.y==1))/nrow(groupfdata)
 
 And 68% of the inbound countries are developed.
 
-Numbers of flights for each source country over entire dataset:
+Numbers of flights for each source country over entire dataset with 6 countries with  the most flights labelled by country code:
 
 ```{r, fig.height=6, fig.width=7}
 groupfdata %>% group_by(Country.Code.x, developed.x) %>% summarize(count=n()) -> temp 
+temp$Country.Code.x <- factor(temp$Country.Code.x, levels=temp[sample(nrow(temp)),]$Country.Code.x)
+
 temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
   coord_flip() + 
-  labs(title = "Number of Flights per Source Country", x = "Country", y = "Count", fill="Developed?") + 
-  scale_x_discrete(breaks = levels(factor(groupfdata$Country.Code.x))[F])
-```
-
-```{r echo=F}
-temp %>% arrange(desc(count)) %>% .$Country.Code.x -> topnames
-factor(groupfdata$Country.Code.x) %>% unique() -> namelist
-match(topnames[1:10], namelist) %>% sort() -> names
-# scale_x_discrete(breaks = levels(df$year)[c(T, rep(F, 9))])
+  labs(title = "Number of Flights per Source Country", x = "Country", y = "Count",fill="Dev") +
+  theme(axis.text.y=element_blank(),axis.ticks.x=element_blank()) +
+  geom_text(data=head(arrange(temp,desc(count))),aes(Country.Code.x, developed.x,label=c("CHN","GBR","IND","DEU","ESP","FRA")),angle=45, nudge_y = 1500,fontface = "bold")
 ```
 
 The developing outlier is China:
@@ -129,15 +120,21 @@ After normalizing the flight counts by population, China is no longer an outlier
 groupfdata %>% group_by(Country.Code.x, developed.x, source.population) %>% 
   summarize(count=n()) -> temp
 
-temp <- temp %>% mutate(count = count/source.population)
+temp <- temp %>% mutate(n_count = count/source.population)
+# temp$Country.Code.x <- factor(temp$Country.Code.x, levels=temp[sample(nrow(temp)),]$Country.Code.x)
 
-temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) + 
+temp %>% ggplot(aes(Country.Code.x,n_count, fill=as.factor(developed.x))) + 
   geom_bar(stat='identity') + 
   coord_flip() + 
-  labs(title = "Normalized Number of Flights per Source Country", x = "Country", y = "Count",
-       fill = "Developed?")
+  labs(title = "Number of Flights per Source Country", x = "Country", y = "Count",fill="Dev") +
+  theme(axis.text.y=element_blank(),axis.ticks.x=element_blank())
 ```
 
+The new top 6 countries by normalized flight counts  are shown below and stand in stark comparison to the  previous results :
+
+```{r}
+head(arrange(temp,desc(n_count)))
+```
 
 ### Source Country Per Capita GDP
 

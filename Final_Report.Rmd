@@ -1,0 +1,102 @@
+---
+title:  "Capital and Flights (Group F)"
+subtitle: "A Final Report Prepared For S225"
+author: "Jocelyn, Daniel"
+date: "4/28/2018"
+header-includes:
+    - \usepackage{setspace}\doublespacing
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo = FALSE, message=F,warning=F}
+# library(tidyverse)
+# require(mosaic)
+# require(NSM3)
+# require(Rfit)
+# require(dunn.test)
+# library(reshape2)
+# set.seed(4)
+# groupfdata <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
+
+```
+
+
+## Abstract
+Travel, particularly via plane, is dependent upon the capital available to an individual. Using the `Flight Route` dataset from Kaggle [1], we seek to investigate whether or  not there  is  a relationship between a country's relative wealth (using GDP per capita (PPP)) and the number of flights originating and arriving in a given country. We also explore how  classification of a country as developed,  developing, or recently developed affects this relationship. We use Parametric and Non-parametric regression methods  and find that that average GDP growth and a country’s development status are significant predictors $p<0.01$ of the number of flights out of a data set of over 30,000, but are not very explanatory $R^2<0.05$. [Travel for recently developed]. [Flight location preference]. 
+
+## Introduction
+
+The focus of this project will be on exploring differences in travel, via plane, between countries stratified by  development status. One measure to distinguish between developed and developing nations is gross domestic product (GDP) on a per capita basis, i.e. adjusted by the country's  population. Additionally, GDP per capita is often adjusted  for the different living costs between countries by applying a purchasing  power parity adjustment (PPP). In this  project we use GDP per capita (PPP) figures made available  from the  World Bank. [2]
+
+Our dataset originally consisted of 59,036  flight routes. After wrangling, which involved data cleaning, resolving airport and country codes with country names, and adding GDP and population data, we ended up  with a dataset  of 33,559 fully-matched  flights.
+
+A GDP per capita (PPP) of greater than $12,000 is often considered the unofficial benchmark of a developed nation. [3] As 2010 was the year for which we had the  most GDP data, we classified our countries as developing if their GDP per capita (PPP) was greater than \$10490.48 (inflation-adjusted from today) in 2010. Countries with GDP figures less than this cutoff were classified  as  developing  countries, and countries that  were developing in 2010 but developed in  2016 — the last year for  which we have GDP figures — were classified as recently developed.
+
+In this project, we hope to answer the following questions:  
+- Does GDP growth correlate with increases in flights flown (both in and out of a country)?  
+- Have countries that have developed in recent years started to travel more?  
+- Is there preferential travel to certain locations from developing and developed countries?  
+
+Given that airplane tickets are rarely cheap and often unaffordable for many people, it appears safe to assume that developed countries should have a greater demand for airplane travel than developing countries. By answering our questions we may be able to understand how different travel is for people in developing and developed nations. It may also provide the groundwork for additional questions related to travel.
+
+
+## Initial Look at the Data
+
+An initial look at the dataset shows that we get different results for source countries with the most flights if  we don't adjust for their  population:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlrr}
+  \hline
+ & Source Country & Development Status & Number of Flights \\ 
+  \hline
+1 & China &   0 & 4961 \\ 
+  2 & Germany &   1 & 2166 \\ 
+  3 & India &   0 & 1834 \\ 
+  4 & Germany &   1 & 1830 \\ 
+  5 & Spain &   1 & 1701 \\ 
+  6 & France &   1 & 1511 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+After normalization  we  find a different set of countries:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlrrr}
+  \hline
+ & Source Country & Development Status & Population & Normalized Count \\ 
+  \hline
+1 & Vanuatu &   0 & 28212 & 0.28 \\ 
+  2 & Nauru &   0 & 1131 & 0.27 \\ 
+  3 & Malta &   1 & 43209 & 0.24 \\ 
+  4 & Palau &   1 & 2196 & 0.18 \\ 
+  5 & Antigua and Barbuda &   1 & 10305 & 0.16 \\ 
+  6 & Seychelles &   1 & 9523 & 0.12 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+
+If  we look at the distribution of 2016 GDP  figures based on our definition of development status,  we find what we might expect:
+
+```{r fig.width=6, fig.height=4,echo=FALSE}
+library(png)
+library(grid)
+grid.raster(readPNG("report_fig1.png"))
+```
+
+If we now look at how development status affects 
+
+## References
+
+[1] Kaggle dataset, originally from openflights.org, available at: https://www.kaggle.com/open-flights/flight-route-database
+[2] World  Bank GDP per capita, (PPP)  figures  in dollars: https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD 
+[3] World Bank definition of high-income economies defines it as $12,236 for the 2018 fiscal year: https://datahelpdesk.worldbank.org/knowledgebase/articles/906519#High_income
