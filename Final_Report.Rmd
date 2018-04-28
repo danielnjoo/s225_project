@@ -30,7 +30,7 @@ library(grid)
 
 
 ## Abstract
-Travel, particularly via plane, is dependent upon the capital available to an individual. Using the `Flight Route` dataset from Kaggle [1], we seek to investigate whether or  not there  is  a relationship between a country's change in wealth (using average GDP per capita (PPP) growth from the period 2010-2016) and the number of flights originating in a given country. We also explore how  classification of a country as developed,  developing, or recently developed affects this relationship. We use parametric and non-parametric regression methods  and find that that average GDP growth are significant predictors $p=0.00871$ and $0.006578$ respectively of the log number of originating  flights ($n>30000$), but it is not very explanatory $R^2<0.05$ in either case. We also we run both  parametric and non-parametric ANOVA techniques to test for the significance of development status and find similarly significant p-values in  both cases  $1.551e-12$ $3.686e-12$ respectively. We finally run parametric and non-parametric proportion  testing whether developing  countries fly to the  most popular developed destinations _____. We conclude that both average 2010-2016 per capita GDP (PPP) growth and development status are correlated with the  number  of flights originating in a country, and  that developing nations do not fly the same destinations as developed nations. 
+Travel, particularly via plane, is dependent upon the capital available to an individual. Using the `Flight Route` dataset from Kaggle [1], we seek to investigate whether or  not there  is  a relationship between a country's change in wealth (using average GDP per capita (PPP) growth from the period 2010-2016) and the number of flights originating in a given country. We also explore how  classification of a country as developed,  developing, or recently developed affects this relationship. We use parametric and non-parametric regression methods  and find that that average GDP growth are significant predictors $p=0.00871$ and $0.006578$ respectively of the log number of originating  flights ($n>30000$), but it is not very explanatory $R^2<0.05$ in either case. We also run both  parametric ANOVA and  the Kruskal-Wallis  rank-sum to test for the significance of development status and find similarly significant p-values in  both cases  $1.551e-12$ $3.686e-12$ respectively. We finally run parametric and non-parametric proportion  testing whether developing  countries fly to the  most popular developed destinations _____. We conclude that both average 2010-2016 per capita GDP (PPP) growth and development status are correlated with the  number  of flights originating in a country, and  that developing nations do not fly the same destinations as developed nations. 
 
 ## Introduction
 
@@ -41,9 +41,9 @@ Our dataset originally consisted of 59,036  flight routes. After wrangling, whic
 A GDP per capita (PPP) of greater than $12,000 is often considered the unofficial benchmark of a developed nation. [3] As 2010 was the year for which we had the  most GDP data, we classified our countries as developing if their GDP per capita (PPP) was greater than \$10490.48 (inflation-adjusted from today) in 2010. Countries with GDP figures less than this cutoff were classified  as  developing  countries, and countries that  were developing in 2010 but developed in  2016 — the last year for  which we have GDP figures — were classified as recently developed.
 
 In this project, we hope to answer the following questions:  
-- Does GDP growth correlate with increases in flights flown (both in and out of a country)?  
-- Have countries that have developed in recent years started to travel more?  
-- Is there preferential travel to certain locations from developing and developed countries?  
+1. Does GDP growth correlate with increases in flights flown from a country?  
+2. Have countries that have developed in recent years started to travel more?  
+3. Is there preferential travel to certain locations from developing and developed countries?  
 
 Given that airplane tickets are rarely cheap and often unaffordable for many people, it appears safe to assume that developed countries should have a greater demand for airplane travel than developing countries. By answering our questions we may be able to understand how different travel is for people in developing and developed nations. It may also provide the groundwork for additional questions related to travel.
 
@@ -89,7 +89,7 @@ After normalization  we  find a different set of countries:
 
 If  we look at the distribution of 2016 GDP  figures based on our definition of development status,  we find what we might expect:
 
-```{r fig.width=4, fig.height=4,echo=FALSE}
+```{r fig.width=4, fig.height=3,echo=FALSE}
 grid.raster(readPNG("report_fig1.png"))
 ```
 
@@ -99,9 +99,10 @@ If we now look at how development status affects the (log) number of flights wha
 grid.raster(readPNG("report_fig2.png"))
 ```
 
-## Approach
+## Results
+### Regression: Predicting Flights With GDP Growth
 
-Creating  `avg_growth`, the average  GDP growth of  a  source country, we fit a  parametric, simple linear regression model on the normalized `log_counts` as the response variable and `avg_growth.x` as the predictor variable. The summary output for the parametric model is below:
+Creating  `avg_growth`, the average  GDP growth of  a  source country, we fit a  parametric, simple linear regression model on the normalized `log_counts` as the response variable and `avg_growth.x` as the predictor variable. The summary output for the parametric model is below,  the  multiple r-squared for  this model is 0.04588 while the adjusted r-squared is 0.03939:
 
 \begin{table}[ht]
 \centering
@@ -115,7 +116,7 @@ Creating  `avg_growth`, the average  GDP growth of  a  source country, we fit a 
 \end{tabular}
 \end{table}
 
-We then ran a non-parametric regression on the same formula:
+We then ran a non-parametric regression on the same formula, using `summary(mod,overall='drop')` we find that the  multiple r-squared is $0.0485$:
 
 \begin{table}[ht]
 \centering
@@ -128,6 +129,81 @@ We then ran a non-parametric regression on the same formula:
    \hline
 \end{tabular}
 \end{table}
+
+In both of these cases we find that  `avg_growth`  is a significant predictor ($p<0.01$), but that the model does not explain much variation in `log_count`. That is to say that GDP growth between 2010-2016 does not sufficiently explain why some countries have more originating flights than others. We therefore move onto explore development status as a predictor. As it is a categorical variable, we use ANOVA procedures.
+
+### ANOVA: Investigating the  Significance of Development Status
+
+Before running ANOVA, we check boxplots:
+
+```{r fig.width=4, fig.height=4,echo=FALSE}
+grid.raster(readPNG("report_fig3.png"))
+```
+
+The boxplot and residual plot (not shown here) suggest that the spreads of developed and developing countries appear to be very similar, but the spread of recently developed countries is slightly smaller. Comparing standard deviations, recently developed countries have the largest, $1.817$, and developed countries have the smallest, $1.394$. Since the ratio of the largest standard deviation to the smallest is less than $2$ (approximately $1.303$), the Equal Variance condition appears to be roughly satisfied. The QQ plot shows some divergence from the reference line near both ends, as a result any p-values derived  from parametric ANOVA should be interpreted with caution.
+
+Running parametric ANOVA gives us the following results:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrr}
+  \hline
+ & Df & Sum Sq & Mean Sq & F value & Pr($>$F) \\ 
+  \hline
+recent\_development.x & 2 & 147.34 & 73.67 & 32.73 & 1.551e-12 \\ 
+  Residuals & 151 & 339.84 & 2.25 &  &  \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+At all of the most commonly chosen significance levels, this is a significant p-value. We can reject the null hypothesis that there is no difference in the mean normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in means between development status groups. 
+
+From the ANOVA by itself, we cannot determine which pairs have significantly different means. So we conducted Fisher's LSD to determine which pairs are significantly different:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & Developed & Developing \\ 
+  \hline
+Developing & 0.00 &  \\ 
+  Recently Developed & 0.01 & 0.61 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+These results suggest that the mean normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $= 0.01$), at a significance level of $0.05$. At any significant $\alpha$ level, however, we cannot reject the null hypothesis that there is no difference in means for developing and recently developed countries. 
+
+We next conduct a Krusall-Wallis rank sum test, which  provides an alternative to the one-way Parametric ANOVA. Similar to the ANOVA, it tests for differences in center. Unlike the ANOVA, however, which tests for differences in means, Kruskal-Wallis tests for difference in medians. The test gives us a Chi-squared test statistic of $52.653$ with two degrees of freedom, and therefore a resulting p-value of $3.686e-12$.
+
+Since the Kruskal-Wallis test assumes a shift model, we consder the `log_count` density plot stratified by development status shown earlier. The distribution of developed appears to be potentially bimodal, but roughly symmetric. The two peaks are close together and of similar height. The distribution of developing is also bimodal, but the second peak is significant smaller than the first. Additionally, it appears roughly symmetric. Finally, the distribution of recently developed is also bimodal - if we ignore that third hump at the far right, which corresponds to the Republic of Nauru (identified as an outlier in analysis). The second peak is smaller and located on the left side of the distribution. Although there is some deviation in terms of shape, the distributions appear similar enough  to assume that the shift model assumption of the KW-test is met.
+
+Therefore, we return to our p-value. At all of the most commonly chosen significance levels, this is a significant p-value. We can reject the null hypothesis that there is no difference in the median normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in medians between development status groups. 
+
+Although we've concluded that a difference is present, we cannot determine which pairs have significantly different medians Below, we conduct a Dunn test to determine which pairs are significantly different:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrl}
+  \hline
+ & chi2 & Z & P & P.adjusted & comparisons \\ 
+  \hline
+1 & 52.65 & 7.13 & 0.00 & 0.00 & Developed - Developing \\ 
+  2 & 52.65 & 2.76 & 0.00 & 0.00 & Developed - Recently Developed \\ 
+  3 & 52.65 & -0.22 & 0.41 & 0.41 & Developing - Recently Developed \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+The results of the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $ = 0.0091$ & $ = 0.0029$), at a significance level of $0.01$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
+
+Our results indicate that recently developed countries do not differ from developing countries in terms of the normalized, natural log number of flights. Additionally, since recently developed countries differ from developed countries, we can conclude that travel has not increased in recently developed countries. In other words, recently developed countries are not distinguishable from developing countries in terms of the mean and median normalized, natural log counts of flights.
+
+
+
+### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
+
+
 
 ## References
 
