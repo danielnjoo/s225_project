@@ -109,12 +109,6 @@ temp %>% ggplot(aes(Country.Code.x,count, fill=as.factor(developed.x))) +
                              angle=45, nudge_y = 1500,fontface = "bold")
 ```
 
-The developing outlier is China:
-
-```{r}
-temp %>% arrange(count) %>% tail(1)
-```
-
 After normalizing the flight counts by population, China is no longer an outlier:
 
 ```{r, fig.height = 6, fig.width = 7}
@@ -244,7 +238,7 @@ favstats(temp$count)
 
 Again, we see a large standard deviation and big difference between the mean and the median.
 
-Below, we identify all countries greater than 2 standard deviations away from the mean, which are the same countries as above: 
+Below, we identify all countries greater than 2 standard deviations away from the mean, which are the same countries as in  the  outbound  case: 
 
 ```{r}
 # Identify Extreme Points:
@@ -287,7 +281,7 @@ temp %>% ggplot(aes(avg_growth.x, count)) +
 
 In the above, there does not appear to be any obvious trend in the data as the majority appear to be clustered together. There is one particularly extreme outlier at approximately $5000$ flights. As discussed above, this outlier is China. 
 
-The blue line represents the least squares fitted line. From this, we see that there is possibly a positive linear relationship between average growth and the number of flights. Using the `loess` smoother, another fitted line was generated (red). This new fitted line is curved with two small peaks around an average growth of $2.5$ and another around $11$. This is not a linear line. Additionally, the second peak is in alignment with China and one other outlier, which may suggest that the second peak is a result of the 'pull' of the outliers. To attempt to produce a more linear relationship and remove the influence of outliers, we first normalize by population.
+The blue line represents the least squares fitted line. From this, we see that there is possibly a positive linear relationship between average growth and the number of flights. Using the `loess` smoother, another fitted line was generated (red). This new fitted line is curved with two small peaks around an average growth of $2.5$ and another around $11$. This is not a linear line. Additionally, the second peak is in alignment with China and one other outlier, which may suggest that the second peak is a result of the 'pull' of the outliers (leverage and influence). To attempt to produce a more linear relationship and remove the influence of outliers, we first normalize by population.
 
 ```{r, warning = FALSE}
 groupfdata %>% 
@@ -359,7 +353,7 @@ plot(p_mod, which = 2)
 
 For the most part, the Equal Variance condition appears to be met. The residuals appear to be randomly clustered, evenly spread, and centered around $0$. Looking at the QQ plot, there is some minor deviation from the reference line at the lower and upper ends, but the remainder of the observations adhere to the reference line rather faithfully. Still, we may have some minor concerns for Normality. 
 
-Since the p-value is small, at $\alpha = 0.01$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from $0$. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.172$ indicates that for every 1 unit increase in the `avg_growth.x`, the normalized `log_counts` is estimated to decrease by approximately $0.172$. While `avg_growth.x` is a significant predictor, the model itself has low predictive power. The model only accounts for $4.58$% of the variability in `log_counts` (Multiple $R^{2} = 0.04588$).
+Since the p-value is small, at $\alpha = 0.01$, we reject the null hypothesis and conclude that the slope coefficient for `avg_growth.x` is significantly different from $0$. In other words, the model suggests that `avg_growth.x` is a significant predictor of the normalized `log_counts` of flights. The coefficient of $-0.172$ indicates that for every 1 unit increase in the `avg_growth.x`, the normalized `log_counts` is estimated to decrease by approximately $0.172$, corresponding to  a 1.187678 decrease in normalized count. While `avg_growth.x` is a significant predictor, the model itself has low predictive power. The model only accounts for $4.58$% of the variability in `log_counts` (Multiple $R^{2} = 0.04588$).
 
 
 ### Non-parametric Regression
@@ -390,7 +384,7 @@ Although there is no `year` associated with each flight, we can still determine 
 
 ### Recently Developed Countries
 
-We define a recently developed country as one that was developing in 2010 (Per Capita GDP in 2010 $< 10490.48$), but developed in 2012 (Per Capita GDP in 2012 $> 12,000$).
+We define a recently developed country as one that was developing in 2010 (Per Capita GDP in 2010 $< 10490.48$), but developed in 2016 (Per Capita GDP in 2016 $> 12,000$).
 
 ```{r}
 groupfdata %>% group_by(source.country, X2010.x, X2016.x, developed.x) %>% summarize() -> temp
@@ -429,7 +423,7 @@ p_mod2 <- lm(log_count ~ recent_development.x, data = check)
 anova(p_mod2) 
 ```
 
-The F-value for the parametric ANOVA with `recent_development.x` is $32.734$, with an associated p-value of approximately $0$. Before drawing any further conclusions, the conditions must be met. It seems safe to assume that Independence holds. We verify below that the Equal Variance and Normality conditions are also met:
+The F-value for the parametric ANOVA with `recent_development.x` is $32.734$, with an associated p-value of approximately $1.551e-12$. Before drawing any further conclusions, the conditions must be met. It again appears safe to assume that Independence holds. We verify below that the Equal Variance and Normality conditions are also met:
 
 ```{r}
 favstats(log_count ~ recent_development.x, data = check) # Fine
@@ -453,18 +447,18 @@ From the ANOVA by itself, we cannot determine which pairs have significantly dif
 with(check, pairwise.t.test(log_count, recent_development.x))
 ```
 
-The results of Fisher's LSD suggest that the mean normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $= 0.01$), at a significance level of $0.05$. At any significant $\alpha$ level, however, we cannot reject the null hypothesis that there is no difference in means for developing and recently developed countries. 
+The results of Fisher's LSD suggest that the mean normalized `log_counts` are significantly different between developed and developing countries (p-value=$9.2e-13$) as well as between developed and recently developed countries (p-value $= 0.01$), at a significance level of $0.05$. At any significant $\alpha$ level, however, we cannot reject the null hypothesis that there is no difference in means for developing and recently developed countries. 
 
 
 ### Non-Parametric ANOVA
 
-The Non-parametric Kruskal-Wallis test provides an alternative to the one-way Parametric ANOVA. Similar to the ANOVA, it tests for differences in center. Unlike the ANOVA, which tests for differences in means, Kruskal-Wallis tests for difference in medians. The test is run below:
+The Non-parametric Kruskal-Wallis test provides an alternative to the one-way Parametric ANOVA. Similar to the ANOVA, it tests for differences in center. Unlike the ANOVA, however, which tests for differences in means, Kruskal-Wallis tests for difference in medians. The test is run below:
 
 ```{r}
 kruskal.test(log_count~as.factor(recent_development.x), data=check)
 ```
 
-The Chi-squared test statistic for the Kruskal-Wallis test is $52.653$ with an associated p-value of approximately $0$. Since the Kruskal-Wallis test assumes a shift model, we must first verify that such a model is appropriate before drawing any further conclusions. A shift model assumes that the only difference in distributions between the groups (of development status) is their medians. In other words, the shape and spread of each group's distribution should be the same. We verify that assuming that this model holds is appropriate:
+The Chi-squared test statistic for the Kruskal-Wallis test is $52.653$ with an associated p-value of approximately $3.686e-12$. Since the Kruskal-Wallis test assumes a shift model, we must first verify that such a model is appropriate before drawing any further conclusions. A shift model assumes that the only difference in distributions between the groups (of development status) is their medians. In other words, the shape and spread of each group's distribution should be the same. We verify that assuming that this model holds is appropriate:
 
 ```{r}
 favstats(log_count~recent_development.x, data=check)
@@ -477,7 +471,7 @@ The distribution of developed appears to be potentially bimodal, but roughly sym
 
 Since we are looking for differences in medians, we can compare the IQRs of each distribution to compare spread. The IQRS for developed, developing, and recently developed are $1.733$, $1.615$, and $1.026$, respectively. While there is some difference in spread, the differences between the IQRs is not drastic. Although not exactly the same in shape and spread, the distributions appear to be close enough to assume a shift model.
 
-Therefore, we return to our p-value. At all of the most commonly chosen significance levels, this is a significant p-value. We can reject the null hypothesis that there is no difference in the median normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in medians between development status groups. 
+Therefore, we return to our p-value. This is a significant p-value at a 0.01 significance level. We can reject the null hypothesis that there is no difference in the median normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in medians between development status groups. 
 
 Although we've concluded that a difference is present, we cannot determine which pairs have significantly different medians Below, we conduct pairwise Kruskal-Wallis Rank Sum tests and the Dunn test to determine which pairs are significantly different:
 
@@ -490,7 +484,7 @@ The results of the pairwise Rank Sum tests and the Dunn test suggest that the me
 
 Since the Kruskal-Wallis test has less stringent conditions than the parametric ANOVA, it is a less powerful test. However, despite the difference in power, both tests concluded that there was at least one difference in the center of the normalized `log_counts` between countries with different development status. Additionally, the results of Fisher's LSD, Rank Sum tests, and the Dunn test, all suggested that at $\alpha = 0.05$, there is a significant difference between developed and developing countries and between developed and recently developed countries.
 
-Our results indicate that recently developed countries do not differ from developing countries in terms of the normalized, natural log number of flights. Additionally, since recently developed countries differ from developed countries, we can conclude that travel has not increased in recently developed countries. In other words, recently developed countries are not distinguishable from developing countries in terms of the mean and median normalized, natural log counts of flights.
+Our results indicate that recently developed countries do not differ from developing countries in terms of the normalized, natural log number of flights. Additionally, since recently developed countries differ from developed countries, we can conclude that travel has not increased in recently developed countries. In other words, recently developed countries are not distinguishable from developing countries in terms of the mean and median of normalized, natural log counts of flights.
 
 
 ## Travel Locations
@@ -542,12 +536,15 @@ developed_dests_n_ext <- developed_nn_ext %>% left_join(pops, by=c("Country.Code
   mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
   arrange(desc(n_count))
 
-head(developed_nn_ext,5)
+head(developed_n_ext,5)
 ```
 
 We find instead that for developed countries, the most popular destinations (once normalized for destination population) are Antigua and Barbuda, Iceland, St. Kitts and Nevis, Bermuda, and Austria.
 
 None  of these countries  appeared earlier in our non-normalized `top5` developed country destinations, and it's interesting to note that the `top4` of these five destinations  are countries with small  populations ($<35,000$) and thus had proportionally more flights than other countries.
+
+It's interesting to note how  the top5 countries here really stand out from the rest of the group in terms of log normalized count, as shown below:
+
 
 ```{r}
 developed_dests_n_ext$top5<-c(rep(1,5),rep(0,144)) 
@@ -559,7 +556,7 @@ ggplot(developed_dests_n_ext,aes(factor(Country.Code.y),n_count,col=factor(top5)
        title="Top 5 Destinations of Developed Country Travel")
 ```
 
-It's interesting to note how  the top5 countries here really stand out from the rest of the group in terms of log normalized count... the picture becomes more interesting if we plot these countries on a map:
+The picture becomes more interesting if we plot these countries on a map:
 
 ```{r message=F, warning = FALSE}
 library(ggmap)
@@ -629,7 +626,7 @@ We still find Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and 
 
 #### Developing destinations with internal flights, normalized
 
-Top 5 destinations differ slightly for the developing countries:
+However, the top 5 destinations differ slightly for the developing countries when internal flights are considered:
 
 ```{r}
 developing_n_all <- groupfdata %>% filter(developed.x == 0) %>%
@@ -644,93 +641,102 @@ head(developing_n_all,5)
 
 What we find is that the Maldives and Palau have been replaced by the  Marshall Islands and Vanuatu, archipelago nations that we hypothesize the  populations of which require  lots of  internal flights.
 
-Therefore, it appears that there are significant differences in the most frequently traveled locations for developed and developing countries,  differences that we believe can be  most helpfully thought of as between  NA-EU and NA-ASIA travel patterns.
+Therefore, it appears that there might be differences in the most frequently traveled locations for developed and developing countries,  differences that we believe can be  most helpfully thought of as between  NA-EU and NA-ASIA travel patterns.  
 
 
 ### Comparing Popular Developed Nation Destinations Via Proportion Tests
 
-Having compared via visualization, we now move onto comparison by proportion tests, where we'll compare the proportions of flights to the `top5` developed nation destinations to total nation status flight counts, between developing  and developed nations.
+Having compared via visualization, we now move onto comparison by proportion tests, where we'll compare the proportions of flights to the `top5` developed nation destinations to total nation status flight counts, between developing and developed nations.
 
 Our question of interest here, therefore, is to test with statistical significance whether  developing nations fly to popular developed nation destinations as frequently as developed nations.
 
+We use non-normalized flight counts without internal flights here, and test $H_0:p=p_0$, $H_A:p \neq p_0$, where $p_0$ is the developed proportion of flights to top5 developed destinations and $p$ is the developing proportion of flights to the same places, using both a parametric 2-proportion z-test and non-parametric binomial test.
+
 #### Parametric Two Proportion Z-test 
 
-We use non-normalized flight counts without internal flights here.
-
-```{r}
+```{r echo=F, fig.height=3,fig.width=4, message=F,warning=F}
 Outbound <- groupfdata %>% group_by(developed.x) %>% summarize(total_flights = n()) %>% data.frame()
 total_developing <- subset(Outbound,developed.x==0)$total_flights
 total_developed <- subset(Outbound,developed.x==1)$total_flights
 
-developedtop5 <- developed_nn_ext %>% head(5) %>% data.frame()
-developing <- developing_nn_ext %>% data.frame()
-```
+groupfdata$spop <- str_replace(groupfdata$source.population,'\\.','')
+pops <- groupfdata %>% 
+  dplyr::select(country=Country.Code.x, pop=spop) %>% 
+  unique() 
 
-```{r}
-# For Developed 
-p_UK <- developedtop5[[1,2]][1]
-p_Ger <- developedtop5[[2,2]][1]
-p_SP <- developedtop5[[3,2]][1]
-p_IT <- developedtop5[[4,2]][1]
-p_FR <- developedtop5[[5,2]][1]
+developedtop5 <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
+  filter(developed.x == 1) %>%
+  group_by(Country.Code.y) %>%
+  summarize(count = n()) %>%
+  left_join(pops, by=c("Country.Code.y"="country")) %>% 
+  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
+  arrange(desc(n_count)) %>% 
+  head(5) %>% 
+  data.frame()
+
+developing_nn_ext <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
+  filter(developed.x == 0) %>%
+  group_by(Country.Code.y) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
+
+developing_n_ext <- developing_nn_ext %>% left_join(pops, by=c("Country.Code.y"="country")) %>% 
+  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
+  arrange(desc(n_count)) 
+
+p_ATG <- developedtop5[[1,2]][1]
+p_ISL <- developedtop5[[2,2]][1]
+p_KNA <- developedtop5[[3,2]][1]
+p_BMU <- developedtop5[[4,2]][1]
+p_AUT <- developedtop5[[5,2]][1]
 
 # Get Developing Country Counts for these countries:
-p_UK2 <- developing[which(developing$Country.Code.y=="GBR"),2] %>% unlist() %>% readr::parse_integer()
-p_Ger2 <- developing[which(developing$Country.Code.y=="DEU"),2] %>% unlist() %>% readr::parse_integer()
-p_SP2 <- developing[which(developing$Country.Code.y=="ESP"),2] %>% unlist() %>% readr::parse_integer()
-p_IT2 <- developing[which(developing$Country.Code.y=="ITA"),2] %>% unlist() %>% readr::parse_integer()
-p_FR2 <- developing[which(developing$Country.Code.y=="FRA"),2] %>% unlist() %>% readr::parse_integer()
-```
+p_ATG2 <- developing_n_ext[which(developing_n_ext$Country.Code.y=="ATG"),2] %>% unlist() %>% readr::parse_integer();  #  2
+p_ISL2 <- 0 # developing_n_ext[which(developing_n_ext$Country.Code.y=="ISL"),2] %>% unlist() %>% readr::parse_integer()
+p_KNA2 <- 0  # developing_n_ext[which(developing_n_ext$Country.Code.y=="KNA"),2] %>% unlist() %>% readr::parse_integer()
+p_BMU2 <- 0  # developing_n_ext[which(developing_n_ext$Country.Code.y=="BMU"),2] %>% unlist() %>% readr::parse_integer()
+p_AUT2 <- developing_n_ext[which(developing_n_ext$Country.Code.y=="AUT"),2] %>% unlist() %>% readr::parse_integer() #24
 
-We can quickly check what they look like compared to each other
-
-```{r, message = FALSE}
-developedcounts <- c(p_UK,p_Ger,p_SP,p_IT,p_FR)
-developingcounts <- c(p_UK2,p_Ger2,p_SP2,p_IT2,p_FR2)
-
-data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"), 
-           Developed=developedcounts, Developing=developingcounts) %>% 
-  melt() %>% 
-  ggplot(aes(Countries,value,group=variable,fill=variable)) + 
-  geom_bar(stat='identity',position='stack') +
-  ggtitle("Stacked bar plot of absolute counts") +
-  theme(legend.position="bottom")
+developedcounts <- c(p_ATG,p_AUT,p_BMU,p_ISL,p_KNA)
+developingcounts <- c(2,24,0,0,0)
 
 prop_developedcounts <- developedcounts/total_developed
 prop_developingcounts <- developingcounts/total_developing
 
-data.frame(Countries=c("GBR","DEU","ESP","ITA","FRA"),
-           Developed=prop_developedcounts, Developing=prop_developingcounts) %>% 
-  melt() %>% 
-  ggplot(aes(Countries,value,group=variable,fill=variable)) + 
-  geom_bar(stat='identity',position='stack') +
-  ggtitle("Stacked bar plot of proportional counts") +
-  theme(legend.position="bottom")
+data.frame(Country=c("ATG","AUT","BMU","ISL","KNA"), developedcounts=developedcounts, developingcounts=developingcounts)
 ```
 
-In both the  absolute count and  proportional  count cases we see  a significant difference between developed/developing nation flights  to the  top5  developed nation destinations. We then  run a parametric 2-sample proportion test.
-
-
-Conditions of (1) independence and randomization, as well as (2) sample size $ np_0$ and $ n(1-p_0)$ both  greater than 10 are met.
-
+We can quickly check what these results look like compared to each other using both absolute counts and proportions:
 
 ```{r}
-prop.test(x = c(p_UK, p_UK2), n = c(total_developed, total_developing)) -> uk; uk
-prop.test(x = c(p_Ger, p_Ger2), n = c(total_developed, total_developing)) -> ge
-prop.test(x = c(p_SP, p_SP2), n = c(total_developed, total_developing)) -> sp
-prop.test(x = c(p_IT, p_IT2), n = c(total_developed, total_developing)) -> it
-prop.test(x = c(p_FR, p_FR2), n = c(total_developed, total_developing)) -> fr; fr
+data.frame(Countries=c("ATG","AUT","BMU","ISL","KNA"), Developed=developedcounts, Developing=developingcounts) %>%
+  melt() %>% rename(Type=variable) %>% 
+  ggplot(aes(Countries,value,group=Type,fill=Type)) +
+  geom_bar(stat='identity',position='stack') +
+  labs(title="Stacked bar plot of absolute counts",y="Count") 
 
-pvals <- c(uk$p.value,ge$p.value,sp$p.value,it$p.value,fr$p.value); pvals
+data.frame(Countries=c("ATG","AUT","BMU","ISL","KNA"), Developed=prop_developedcounts, Developing=prop_developingcounts) %>%
+  melt() %>% rename(Type=variable) %>% 
+  ggplot(aes(Countries,value,group=Type,fill=Type)) +
+  geom_bar(stat='identity',position='stack') +
+  labs(title="Stacked bar plot of proportional counts",y="Proportion") 
 ```
 
-Just showing the results of  the  first and  last proportion test, we find that  all tests  were especially significant, with  the largest p-value of  order e-35. 
+In both the  absolute count and  proportional  count cases we see  a significant difference between developed/developing nation flights  to the  top5  developed nation destinations,  especially in the  cases of  Bermuda, Iceland, and St.  Kitts  and Nevis because there were 0 flights from developing countries.
+
+We then  run a parametric 2-sample proportion test whose conditions are (1) independence and randomization we might question because of the time element involved with our data, and (2) sample size $ np_0$ and $ n(1-p_0)$ both  greater than 10 which is met  only in the case of Austria, as number of successes and failures are not greater than 10 in  any of the other countries. As a result, we only conduct the 2-sample proportion test for Austria.
+
+```{r}
+prop.test(x = c(p_AUT, p_AUT2), n = c(total_developed, total_developing)) -> aut; aut
+aut$p.value
+```
+
+
+In the case of Austria, we find  a p-value of  5.5460e-19, which is highly significant, therefore suggesting that developing countries did not fly to Austria  at the  same rate as developed countries.
 
 #### Non-Parametric Binomial Test
 
-We then run a  non-parametric binomial  test for testing $H_0:p=p_0$, $H_A:p \neq p_0$ where $p_0$ is the developed proportion of flights to top5 developed destinations and $p$ is the developing proportion of flights to the same places.
-
-For each location we perform a separate `binom.test()` which takes a vector of success/failure counts and the sample size. In this context, successes are flights to the relevant destination, failures are the complement of this (total-successes), and sample size are total flights.
+Next we perform a binomial test. In this context, successes are flights to the relevant destination, failures are the complement of this (total flights - successes), and the sample size of each  test is total flights.
 
 ```{r}
 prop_developedcounts # p for each test
@@ -742,35 +748,41 @@ failures <- total_developing-successes # calculating failures
 We run this for the UK:
 
 ```{r}
-binom.test(c(successes[1],failures[1]),n=total_developing[1],p=prop_developedcounts[1])->uk2;uk2
-uk2$p.value
+binom.test(c(successes[1],failures[1]),n=total_developing[1],p=prop_developedcounts[1])->atg2;atg2
+atg2$p.value
 ```
 
-In this case we test whether developing countries fly to the UK with the same proportion as developed nations (0.0737), and find instead given the results of 85/9186 relevant flights from developing countries that $p \neq p_0$, and a 95%CI for $p$ is  (0.0074, 0.0114), and a p-value of the order of magnitude e-191, compared to e-140 when we performed the parametric test.
+In this case we test whether developing countries fly to Antigua and Barbuda  (ATG) with the same proportion as developed nations (0.0006146012), and find instead that given the results of 2 flights  to  Antigua and Barbuda   from developing countries out of a total  of 10780 from developing countries that $p =p_0$, and a 95%CI for $p$ is  (2.246918e-05 6.700313e-04), and a p-value of  0.07733. At a 5%  significance level, we therefore find that  developing countries fly to Antigua and Barbuda at the  same normalized proportion as developed nations.
 
 Doing this for the other countries:
 
 ```{r}
+pvals <- c(0,5.5460e-19,0,0,0)
+for(i in (1:5)[-2]){
+  pvals[i] <- (binom.test(c(successes[i],failures[i]),n=total_developing[i],p=prop_developedcounts[i]))$p.value
+}
+
 pvals2 <- rep(0,4)
 for(i in 2:5){
   pvals2[i-1] <- (binom.test(c(successes[i],failures[i]),n=total_developing[i],p=prop_developedcounts[i]))$p.value
 }
-pvals2 <- c(uk2$p.value,pvals2); pvals2
+pvals2 <- c(atg2$p.value,pvals2); pvals2
 ```
 
-We thus find all our p-values for the non-parametric binomial test, and if we compare them to our p-values from the parametric test:
+We find that only the binomial test for Austria is significant at a 5% significance level. If we compare these p-values to our p-values from the parametric test:
 
 ```{r}
-data.frame(`z-test`=pvals,binom=pvals2,Country=c("GBR","DEU","ESP","ITA","FRA")) %>% 
+data.frame(`z-test`=pvals,binom=pvals2,Country=c("ATG","AUT","BMU","ISL","KNA")) %>% 
   melt() %>% 
   ggplot(aes(Country,value,col=variable)) + 
   geom_point() + 
   scale_y_log10() +
   ggtitle("Comparison of pvalues from binomial and z-tests") +
-  theme(legend.position="bottom")
+  theme(legend.position="bottom") +
+  geom_hline(yintercept = 0.05)
 ```
 
-In  all 5 cases, we find that the  binomial  test gives us more evidence to reject the null. Of course,  however, all of  the tests  found significant evidence that developing nations  do not fly to the  top 5 developed nation destinations at the  same rate.
+We find that  in all 5 cases, the  binomial  test gives us as much or more evidence to reject the null. Comparing our results  to the line drawn at 0.05, representing a 5% significance level, we find that only the tests, both the z-test and binomial test, for Austria and Iceland find sufficient evidence to reject the null that  developing  nations fly  to the those desinations at the same rates as developed  countries.  However, the  parametric results are only meaningful  in the  case  of  Austria, which fulfilled the  conditions of the  parametric test.
 
 ## Conclusions and Limitations
 
@@ -778,7 +790,7 @@ From our analysis, we can conclude the following:
 
 - Average Per Capita GDP Growth from between 2010 and 2016 is a significant predictor of the natural log of the normalized flight counts for each country. However, the model itself has no predictive power and therefore, is not useful.
 - In terms of the natural log of normalized flight counts, recently developed countries are significantly different from developed countries, but not significantly different from developing ones.
-- PROPORTION CONCLUSION
+- From our proportion  tests, we find that our  data does not allow to conclusively say that developing countries  do  not  fly to  the most popular  developed destinations at the same rate as developed countries. We do. however, find evidence that they do not fly to  Austria at the same  rate as developed  countries.
 
 However, there are limitations to our analysis. The greatest limitation being that there was no `Year` variable for each flight. Therefore, time is a possible confounding variable that we are unable to accurately account for in our analysis.
 
