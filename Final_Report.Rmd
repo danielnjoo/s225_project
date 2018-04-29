@@ -152,6 +152,7 @@ We have already addressed the Linearity condition, but there are some minor conc
 
 For the non-parametric model, Normality is no longer a condition. Therefore, we have less concerns regarding whether or not all conditions are truly met. For this model, the estimated slope coefficient for `avg_growth.x` was $-0.178$ with an associated t-vale of $-2.756$ and a p-value of $0.00657$. Additionally, the multiple $R^{2}$ value for the model was $0.0485$.
 
+
 ### ANOVA: Investigating the  Significance of Development Status
 
 
@@ -194,7 +195,8 @@ We then ran a non-parametric regression on the same formula, using `summary(mod,
 > Above should be in Analysis section
 
 
-In both of these cases we find that  `avg_growth`  is a significant predictor ($p<0.01$), but that the model does not explain much variation in `log_count`. That is to say that GDP growth between 2010-2016 does not sufficiently explain why some countries have more originating flights than others. We therefore move onto explore development status as a predictor. As it is a categorical variable, we use ANOVA procedures.
+For both the parametric and non-parametric model, we find that `avg_growth.x` is a significant predictor ($p<0.01$) of `log_counts`. According to the models, for ever single unit increase in the average Per Capita GDP growth, the `log_counts` is expected to decrease by approximately $0.17$, on average. However, the models only explains about $4.5$% of the variability in `log_count`. That is to say that GDP growth between 2010-2016 does not sufficiently explain why some countries have more originating flights than others. Therefore, although `avg_growth.x` is a significant predictor of `log_counts`, the model is not useful as a predictive model.
+
 
 ### ANOVA: Investigating the  Significance of Development Status
 
