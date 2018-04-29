@@ -29,22 +29,55 @@ library(grid)
 
 
 ## Abstract
-Travel, particularly via plane, is dependent upon the capital available to an individual. Using the `Flight Route` dataset from Kaggle [1], we seek to investigate whether or  not there  is  a relationship between a country's change in wealth (using average GDP per capita (PPP) growth from the period 2010-2016) and the number of flights originating in a given country. We also explore how  classification of a country as developed,  developing, or recently developed affects this relationship. We use parametric and non-parametric regression methods  and find that that average GDP growth is a significant predictor ($p=0.00871$ and $0.006578$ respectively) of the log number of originating  flights ($n>30000$), but it is not very explanatory $R^2<0.05$ in either case. We also run both  parametric ANOVA and  the Kruskal-Wallis  rank-sum to test for the significance of development status and find similarly significant p-values in  both cases  $1.551e-12$ and $3.686e-12$ respectively. Finally, we run parametric and non-parametric proportion tests to investigate whether developing  countries fly to the  most popular developed destinations: Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria. Proportion test results suggest that developing countries don't fly to Austria and Iceland at the same levels, whereas binomial test results suggest that developing nations don't fly to Barbuda, Bermuda, and St. Kitts and Nevis at the same levels.  We conclude that both average 2010-2016 per capita GDP (PPP) growth and development status are correlated with the  number  of flights originating in a country, and  that developing nations generally  do not fly the same destinations as developed nations. 
+Travel, particularly via plane, is dependent upon the capital available to an individual. We seek to investigate whether or not there is a relationship between a country's change in wealth and development status classification with the number of flights originating in a given country. Simple parametric and non-parametric regression indicate that average Per Capita GDP Growth is a significant predictor of the normalized, natural log of the number of originating flights, but the model itself fails to adequately explain the variation in flights. Results associated with the ANOVA and Kurskal Wallis Test provide strong evidence for a difference in the mean and median natural log of flights, respectively, between countries of different developmental status. Further analysis using two-sample proportion tests and binomial tests indicates that travel preferences may exist between developing and developed countries. 
+
+> Using the `Flight Route` dataset from Kaggle [1], we seek to investigate whether or  not there  is  a relationship between a country's change in wealth (using average GDP per capita (PPP) growth from the period 2010-2016) and the number of flights originating in a given country. We also explore how  classification of a country as developed,  developing, or recently developed affects this relationship. We use parametric and non-parametric regression methods  and find that that average GDP growth is a significant predictor ($p=0.00871$ and $0.006578$ respectively) of the log number of originating  flights ($n>30000$), but it is not very explanatory $R^2<0.05$ in either case. We also run both  parametric ANOVA and  the Kruskal-Wallis  rank-sum to test for the significance of development status and find similarly significant p-values in  both cases  $1.551e-12$ and $3.686e-12$ respectively. Finally, we run parametric and non-parametric proportion tests to investigate whether developing  countries fly to the  most popular developed destinations: Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria. Proportion test results suggest that developing countries don't fly to Austria and Iceland at the same levels, whereas binomial test results suggest that developing nations don't fly to Barbuda, Bermuda, and St. Kitts and Nevis at the same levels.  We conclude that both average 2010-2016 per capita GDP (PPP) growth and development status are correlated with the  number  of flights originating in a country, and  that developing nations generally  do not fly the same destinations as developed nations. 
 
 ## Introduction
 
-The focus of this project will be on exploring differences in travel, via plane, between countries stratified by  development status. One measure to distinguish between developed and developing nations is gross domestic product (GDP) on a per capita basis, i.e. adjusted by the country's  population. Additionally, GDP per capita is often adjusted  for the different living costs between countries by applying a purchasing  power parity adjustment (PPP). In this  project we use GDP per capita (PPP) figures made available  from the  World Bank. [2]
-
-Our dataset originally consisted of 59,036  flight routes. After wrangling, which involved data cleaning, resolving airport and country codes with country names, and adding GDP and population data, we ended up  with a dataset  of 33,559 fully-matched  flights.
+The focus of this project will be on exploring differences in travel, via plane, between countries stratified by  development status. One measure to distinguish between developed and developing nations is gross domestic product (GDP) on a per capita basis, i.e. adjusted by the country's  population. Additionally, GDP per capita is often adjusted  for the different living costs between countries by applying a purchasing power parity adjustment (PPP). In this  project we use GDP per capita (PPP) figures made available  from the  World Bank. [2]
 
 A GDP per capita (PPP) of greater than $12,000 is often considered the unofficial benchmark of a developed nation. [3] As 2010 was the year for which we had the  most GDP data, we classified our countries as developing if their GDP per capita (PPP) was greater than \$10490.48 (inflation-adjusted from today) in 2010. Countries with GDP figures less than this cutoff were classified  as  developing  countries, and countries that  were developing in 2010 but developed in  2016 — the last year for  which we have GDP figures — were classified as recently developed.
 
-In this project, we hope to answer the following questions:  
-1. Does GDP growth positively correlated with flights flown from a country?  
-2. Have countries that have developed in recent years started to travel more, i.e. is development status a significant explanatory variable?  
-3. Do developing countries fly to the same destinations as developed
+In this project, we hope to answer the following questions in order o better understand any underlying travel trends between developed and developing countries:  
+
+1. Can we predict the number of flights using average GDP growth? 
+2. Is there a difference in the number of flights between developed and developing countries? Recently developed countries? 
+3. Do developing countries fly to the same destinations as developed countries do?
+
+In our analysis, we utilized simple linear regression to model the relationship between the number of flights per country and the associated average Per Capita GDP growth. After transforming the data to alleviate concerns with the conditions, we found that there was a significant relationship between the transformed variable of flights and average Per Capita GDP growth. However, we question the model's viability as a useful predictive model.
+
+Two statistical procedures for measuring the differences in center were used to determine if there was a significant difference in flights between countires of different developmental status. Both procedures indicated that there is a signficant difference between the means and medians of flights. Additionally, results of our two sample proportion tests and binomial tests suggest differences some significant differences in travel locations.
 
 Given that airplane tickets are rarely cheap and often unaffordable for many people, it appears safe to assume that developed countries should have a greater demand for airplane travel than developing countries. By answering our questions we may be able to understand how different travel is for people in developing and developed nations. It may also provide the groundwork for additional questions related to travel.
+
+## Data
+
+The final, working dataset for this project is composed of three separate datasets, merged based on the flight source and destination country. The first set includes data on 59,036 flights since 2012. This data was obtained from the Flight Route Database [1]. For each flight, information on the origin, destination, and various characteristics of the flight are included. 
+
+The second set includes data on the Per Capita GDP (ppp) for each country from 1960 to 2016. This dataset was obtained from ‘The World Bank’ website [2]. For our purposes, the dataset was filtered for GDP entries from 2010 to 2016. 
+
+The third, and final, set includes data on the current  (2018) estimated population of each country. This simple data set, obtained from ‘The World Population Review’ website, simply contains the country name, its population, and its population rank. Per Capita GDP data was combined with the flight data by matching the country code. Population data was then matched via the source country name and the destination country name to create two population measures per flight.
+
+Our final, combined dataset, includes 33,559 flights with the following variables of interest:
+
+- **Destination Airport** - listed as an IATA code.
+- **Destination Country** - the name of the country to which the plane flew.
+- **Destination Country Code** - the code of the country to which the plane flew.
+- **Stops** - Whether or not the flight was direct or indirect.
+- **Source Airport** - also listed as an IATA code.
+- **Source Country** - the name of the country from where the plane flew.
+- **Source Country Code** - the code of the country from which the plane flew.
+- **Developed.X** - whether or not the source country is developed or developing.
+- **Developed.Y** - whether or not the destination country is developed or developing.
+- **Year.X** - Per Capita GDP of the source country each year from 2010 to 2016 measured in USD.
+- **Year.Y** - Per Capita GDP of the destination country each year from 2010 to 2016 measured in USD.
+- **GrowthYear_NextYear.X** - Per Capita GDP growth of source country between two years measured in USD.
+- **GrowthYear_NextYear.Y** - Per Capita GDP growth of destination country between two years measured in USD.
+- **Average Growth.X** - the average Per Capita GDP growth of the source country between 2010 and 2016 measured in USD.
+- **Average Growth.Y** - the average Per Capita GDP growth of the destination country between 2010 and 2016 measured in USD.
+- **Population.X** - the estimated population of the source country in 2018.
+- **Population.Y** - the estimated population of the destination country in 2018.
 
 
 ## Initial Look
@@ -102,6 +135,10 @@ Finally, simple graphical  comparisons of the top 5 destinations (normalized) of
 ```{r fig.width=6, fig.height=5,echo=FALSE}
 grid.raster(readPNG("report_fig4.png"))
 ```
+
+## Analysis
+### Regression: Predicting FLights With GDP Growth
+
 
 
 ## Results
