@@ -94,11 +94,43 @@ For the non-parametric model, Normality is no longer a condition. Therefore, we 
 
 ### ANOVA: Investigating the  Significance of Development Status
 
+> May only need one of the plots for this section? Both kind of show the same type of thing?
+
+Before running ANOVA, we check boxplots:
+
+```{r fig.width=4, fig.height=4,echo=FALSE}
+grid.raster(readPNG("report_fig3.png"))
+```
+
+The boxplot and residual plot (not shown here) suggest that the spreads of developed and developing countries appear to be very similar, but the spread of recently developed countries is slightly smaller. Comparing standard deviations, recently developed countries have the largest, $1.817$, and developed countries have the smallest, $1.394$. Since the ratio of the largest standard deviation to the smallest is less than $2$ (approximately $1.303$), the Equal Variance condition appears to be roughly satisfied. The QQ plot shows some divergence from the reference line near both ends, as a result any p-values derived  from parametric ANOVA should be interpreted with caution.
+
+
+> Report test stat, p-values. 
+
+From the ANOVA by itself, we cannot determine which pairs have significantly different means. So we conducted Fisher's LSD to determine which pairs are significantly different.
+> Report p-values
+
+We next conduct a Krusall-Wallis rank sum test, which  provides an alternative to the one-way Parametric ANOVA. Similar to the ANOVA, it tests for differences in center. Unlike the ANOVA, however, which tests for differences in means, Kruskal-Wallis tests for difference in medians. The test gives us a Chi-squared test statistic of $52.653$ with two degrees of freedom, and therefore a resulting p-value of $3.686e-12$.
+
+Since the Kruskal-Wallis test assumes a shift model, we consder the `log_count` density plot stratified by development status shown earlier. The distribution of developed appears to be potentially bimodal, but roughly symmetric. The two peaks are close together and of similar height. The distribution of developing is also bimodal, but the second peak is significant smaller than the first. Additionally, it appears roughly symmetric. Finally, the distribution of recently developed is also bimodal - if we ignore that third hump at the far right, which corresponds to the Republic of Nauru (identified as an outlier in analysis). The second peak is smaller and located on the left side of the distribution. Although there is some deviation in terms of shape, the distributions appear similar enough  to assume that the shift model assumption of the KW-test is met.
+
 ```{r, fig.width=8, fig.height=3,echo=FALSE}
 grid.raster(readPNG("report_fig2.png"))
 ```
 
+Although we've concluded that a difference is present, we cannot determine which pairs have significantly different medians Below, we conduct a Dunn test to determine which pairs are significantly different.
+
+> Dunn test p-values.
+
+
 ### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
+
+```{r, fig.height = 4, fig.width = 8}
+grid.raster(readPNG("report_fig4.png"))
+```
+
+After normalization, we  find that the top 5 destinations of developed nations  are: Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria. For developing nations, the  top 5 destinations are: Palau, the  Maldives, Nauru, Marshall Islands and Vanuatu. We use  proportion tests to compare the proportions of flights to the `top5` developed nation destinations to total nation status flight counts, between developing and developed nations. 
+
 
 
 
@@ -111,48 +143,26 @@ For both the parametric and non-parametric model, we find that `avg_growth.x` is
 
 ### ANOVA: Investigating the  Significance of Development Status
 
-Before running ANOVA, we check boxplots:
-
-```{r fig.width=4, fig.height=4,echo=FALSE}
-grid.raster(readPNG("report_fig3.png"))
-```
-
-The boxplot and residual plot (not shown here) suggest that the spreads of developed and developing countries appear to be very similar, but the spread of recently developed countries is slightly smaller. Comparing standard deviations, recently developed countries have the largest, $1.817$, and developed countries have the smallest, $1.394$. Since the ratio of the largest standard deviation to the smallest is less than $2$ (approximately $1.303$), the Equal Variance condition appears to be roughly satisfied. The QQ plot shows some divergence from the reference line near both ends, as a result any p-values derived  from parametric ANOVA should be interpreted with caution.
-
-Running parametric ANOVA gives us the following results:
-
 
 At all of the most commonly chosen significance levels, this is a significant p-value. We can reject the null hypothesis that there is no difference in the mean normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in means between development status groups. 
 
-From the ANOVA by itself, we cannot determine which pairs have significantly different means. So we conducted Fisher's LSD to determine which pairs are significantly different:
-
-
+> Fisher's LSD:
 
 These results suggest that the mean normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $= 0.01$), at a significance level of $0.05$. At any significant $\alpha$ level, however, we cannot reject the null hypothesis that there is no difference in means for developing and recently developed countries. 
 
-We next conduct a Krusall-Wallis rank sum test, which  provides an alternative to the one-way Parametric ANOVA. Similar to the ANOVA, it tests for differences in center. Unlike the ANOVA, however, which tests for differences in means, Kruskal-Wallis tests for difference in medians. The test gives us a Chi-squared test statistic of $52.653$ with two degrees of freedom, and therefore a resulting p-value of $3.686e-12$.
-
-Since the Kruskal-Wallis test assumes a shift model, we consder the `log_count` density plot stratified by development status shown earlier. The distribution of developed appears to be potentially bimodal, but roughly symmetric. The two peaks are close together and of similar height. The distribution of developing is also bimodal, but the second peak is significant smaller than the first. Additionally, it appears roughly symmetric. Finally, the distribution of recently developed is also bimodal - if we ignore that third hump at the far right, which corresponds to the Republic of Nauru (identified as an outlier in analysis). The second peak is smaller and located on the left side of the distribution. Although there is some deviation in terms of shape, the distributions appear similar enough  to assume that the shift model assumption of the KW-test is met.
+> KW Conclusions
 
 Therefore, we return to our p-value. At all of the most commonly chosen significance levels, this is a significant p-value. We can reject the null hypothesis that there is no difference in the median normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in medians between development status groups. 
 
-Although we've concluded that a difference is present, we cannot determine which pairs have significantly different medians Below, we conduct a Dunn test to determine which pairs are significantly different:
-
+> Dunn conclusions
 
 The results of the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $ = 0.0091$ & $ = 0.0029$), at a significance level of $0.01$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
 
 Our results indicate that recently developed countries do not differ from developing countries in terms of the normalized, natural log number of flights. Additionally, since recently developed countries differ from developed countries, we can conclude that travel has not increased in recently developed countries. In other words, recently developed countries are not distinguishable from developing countries in terms of the mean and median normalized, natural log counts of flights.
 
 
-
 ### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
 
-```{r, fig.height = 4, fig.width = 8}
-grid.raster(readPNG("report_fig4.png"))
-```
-
-
-After normalization, we  find that the top 5 destinations of developed nations  are: Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria. For developing nations, the  top 5 destinations are: Palau, the  Maldives, Nauru, Marshall Islands and Vanuatu. We use  proportion tests to compare the proportions of flights to the `top5` developed nation destinations to total nation status flight counts, between developing and developed nations. 
 
 So our $p$ is the proporton of developed nation flights are to Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria, while developing nation flight proportions to the same  destinations are $p_0$. Thus, our hypotheses are: $H_0:p_0=p$, and $H_A:p_0\neq p$. 
 
