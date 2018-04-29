@@ -31,7 +31,6 @@ library(grid)
 ## Abstract
 Travel, particularly via plane, is dependent upon the capital available to an individual. We seek to investigate whether or not there is a relationship between a country's change in wealth and development status classification with the number of flights originating in a given country. Simple parametric and non-parametric regression indicate that average Per Capita GDP Growth is a significant predictor of the normalized, natural log of the number of originating flights, but the model itself fails to adequately explain the variation in flights. Results associated with the ANOVA and Kurskal Wallis Test provide strong evidence for a difference in the mean and median natural log of flights, respectively, between countries of different developmental status. Further analysis using two-sample proportion tests and binomial tests indicates that travel preferences may exist between developing and developed countries. 
 
-> Using the `Flight Route` dataset from Kaggle [1], we seek to investigate whether or  not there  is  a relationship between a country's change in wealth (using average GDP per capita (PPP) growth from the period 2010-2016) and the number of flights originating in a given country. We also explore how  classification of a country as developed,  developing, or recently developed affects this relationship. We use parametric and non-parametric regression methods  and find that that average GDP growth is a significant predictor ($p=0.00871$ and $0.006578$ respectively) of the log number of originating  flights ($n>30000$), but it is not very explanatory $R^2<0.05$ in either case. We also run both  parametric ANOVA and  the Kruskal-Wallis  rank-sum to test for the significance of development status and find similarly significant p-values in  both cases  $1.551e-12$ and $3.686e-12$ respectively. Finally, we run parametric and non-parametric proportion tests to investigate whether developing  countries fly to the  most popular developed destinations: Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria. Proportion test results suggest that developing countries don't fly to Austria and Iceland at the same levels, whereas binomial test results suggest that developing nations don't fly to Barbuda, Bermuda, and St. Kitts and Nevis at the same levels.  We conclude that both average 2010-2016 per capita GDP (PPP) growth and development status are correlated with the  number  of flights originating in a country, and  that developing nations generally  do not fly the same destinations as developed nations. 
 
 ## Introduction
 
@@ -163,37 +162,6 @@ For the non-parametric model, Normality is no longer a condition. Therefore, we 
 ## Results - this is more like adiscussion section
 
 ### Regression: Predicting Flights With GDP Growth
-
-> Below should be in the analysis section
-Creating  `avg_growth`, the average  GDP growth of  a  source country, we fit a  parametric, simple linear regression model on the normalized `log_counts` as the response variable and `avg_growth.x` as the predictor variable. The summary output for the parametric model is below,  the  multiple r-squared for  this model is 0.04588 while the adjusted r-squared is 0.03939:
-
-\begin{table}[ht]
-\centering
-\begin{tabular}{rrrrr}
-  \hline
- & Estimate & Std. Error & t value & Pr($>$$|$t$|$) \\ 
-  \hline
-(Intercept) & -4.2952 & 0.2823 & -15.21 & 5.4910e-32 \\ 
-  avg\_growth & -0.1723 & 0.0648 & -2.66 & 8.7123e-03 \\ 
-   \hline
-\end{tabular}
-\end{table}
-
-We then ran a non-parametric regression on the same formula, using `summary(mod,overall='drop')` we find that the  multiple r-squared is $0.0485$:
-
-\begin{table}[ht]
-\centering
-\begin{tabular}{rrrrr}
-  \hline
- & Estimate & Std. Error & t value & Pr($>$$|$t$|$) \\ 
-  \hline
-(Intercept) & -4.1934 & 0.3124 & -13.4246 & 2.5218e-27 \\ 
-  avg\_growth & -0.1782 & 0.06467 & -2.757 & 6.578e-03 \\ 
-   \hline
-\end{tabular}
-\end{table}
-> Above should be in Analysis section
-
 
 For both the parametric and non-parametric model, we find that `avg_growth.x` is a significant predictor ($p<0.01$) of `log_counts`. According to the models, for ever single unit increase in the average Per Capita GDP growth, the `log_counts` is expected to decrease by approximately $0.17$, on average. However, the models only explains about $4.5$% of the variability in `log_count`. That is to say that GDP growth between 2010-2016 does not sufficiently explain why some countries have more originating flights than others. Therefore, although `avg_growth.x` is a significant predictor of `log_counts`, the model is not useful as a predictive model.
 
