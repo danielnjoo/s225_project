@@ -137,13 +137,33 @@ grid.raster(readPNG("report_fig4.png"))
 ```
 
 ## Analysis
+
 ### Regression: Predicting FLights With GDP Growth
 
+To address whether Per Capita GDP growth can be used to predict the number of flights from a particular country, a simple linear regression model was fit using parametric and nonparametric regression procedures. One condition for fitting such a model is Linearity between the variables of interest: average Per Capita GDP growth and counts. To investigate this relationship, scatterplots were generated with the linear regression fit and with the Loess smoother. The smoother fit a curved line, with a peak corresponding to a couple of large outliers. 
+
+In an attempt to get a more linear relationship, the counts were then normalized by the population of the source country. We would expect countries with a larger population to have more flights than countries with a smaller population. Therefore, normalization should hopefully remove some unaccounted for variability. Normalization only resulted in minimal changes in the scatterplot and also results in a sharper curve in the loess smoother, particularly due to the pull of an extreme outlier: the Republic Nauru. 
+
+We then considered possible transformations of the count variable. Plotting the natural log of counts against the average Per Capita growth suggested a weak to moderate, negative association between the two variables. The Loess smoother had a substantial upward curve, but when Nauru, the country previously identified as an outlier, was removed, this curve was removed. Unlike the previous plots, there appears to be less indication of any non-linear trends in the data, especially at higher values of average growth. Given that a condition of regression is Linearity, we chose to proceed with the normalized, natural log flight counts.
+
+A parametric linear regression model was then fit on `log_counts` as the response variable and `avg_growth.x` as the explanatory variable. The estimated slope coefficient for `avg_growth.x` was $-0.172$ with an associated t-value of $-2.659$ and a p-value of $0.00871$. Additionally, the multiple $R^{2}$ value for the model was $0.04588$. 
+
+We have already addressed the Linearity condition, but there are some minor concerns for the remaining conditions, particularly the Normality condition. We observed some noticeable deviations from the reference line in the QQ plot, primarily at the upper end. Since we have concerns for Normality, we chose to fit a non-parametric simple linear regression model on the same variables.
+
+For the non-parametric model, Normality is no longer a condition. Therefore, we have less concerns regarding whether or not all conditions are truly met. For this model, the estimated slope coefficient for `avg_growth.x` was $-0.178$ with an associated t-vale of $-2.756$ and a p-value of $0.00657$. Additionally, the multiple $R^{2}$ value for the model was $0.0485$.
+
+### ANOVA: Investigating the  Significance of Development Status
 
 
-## Results
+### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
+
+
+
+## Results - this is more like adiscussion section
+
 ### Regression: Predicting Flights With GDP Growth
 
+> Below should be in the analysis section
 Creating  `avg_growth`, the average  GDP growth of  a  source country, we fit a  parametric, simple linear regression model on the normalized `log_counts` as the response variable and `avg_growth.x` as the predictor variable. The summary output for the parametric model is below,  the  multiple r-squared for  this model is 0.04588 while the adjusted r-squared is 0.03939:
 
 \begin{table}[ht]
@@ -171,6 +191,8 @@ We then ran a non-parametric regression on the same formula, using `summary(mod,
    \hline
 \end{tabular}
 \end{table}
+> Above should be in Analysis section
+
 
 In both of these cases we find that  `avg_growth`  is a significant predictor ($p<0.01$), but that the model does not explain much variation in `log_count`. That is to say that GDP growth between 2010-2016 does not sufficiently explain why some countries have more originating flights than others. We therefore move onto explore development status as a predictor. As it is a categorical variable, we use ANOVA procedures.
 
