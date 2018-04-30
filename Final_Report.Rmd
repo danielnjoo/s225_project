@@ -83,7 +83,7 @@ In an attempt to get a more linear relationship, the counts were then normalized
 
 We then considered possible transformations of the count variable. Plotting the natural log of counts against the average Per Capita growth suggested a weak to moderate, negative association between the two variables. The LOESS smoother had a substantial upward curve towards the right, but when Nauru, the country previously identified as an outlier, was removed, this curve was removed. Unlike the previous plots, there appears to be less indication of any non-linear trends in the data, especially at higher values of average growth. Given that a condition of regression is Linearity, we chose to proceed with the normalized, natural log flight counts.
 
-```{r, fig.width = 8, fig.height=3, echo=FALSE, fig.align=center}
+```{r, fig.width = 8, fig.height=3, echo=FALSE, fig.align='center'}
 grid.raster(readPNG("report_fig1.png"))
 ```
 
@@ -106,7 +106,7 @@ Since we had some minor concerns for the Normality condition, we next conducted 
 
 Since the Kruskal-Wallis test assumes a shift model, we consder the `log_count` density plot stratified by development status shown below The distribution of developed appears to be potentially bimodal, but roughly symmetric. The two peaks are close together and of similar height. The distribution of developing is also bimodal, but the second peak is significant smaller than the first. Additionally, it appears roughly symmetric. Finally, the distribution of recently developed is also bimodal - if we ignore that third hump at the far right, which corresponds to the Republic of Nauru (identified as an outlier in analysis). The second peak is smaller and located on the left side of the distribution. Although there is some deviation in terms of shape, the distributions appear similar enough  to assume that the shift model assumption of the KW-test is met.
 
-```{r, fig.width=8, fig.height=3,echo=FALSE, fig.align=center}
+```{r, fig.width=8, fig.height=3,echo=FALSE, fig.align='center'}
 grid.raster(readPNG("report_fig2.png"))
 ```
 
@@ -117,17 +117,19 @@ From the Kruskal Wallis test alone, we cannot determine which pairs have signifi
 
 After normalization, we  find that the top 5 destinations of developed nations  are: Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria. For developing nations, the  top 5 destinations are: Palau, the  Maldives, Nauru, Marshall Islands and Vanuatu. An  initial visualization of where these destinations are located in comparison to each other shows an interesting result: popular developed destinations (shown in blue) are situated predominantly between North America and Europe, while popular developing destinations (shown in red) are situated predominantly between Asia and North America.
 
-```{r, fig.height = 3, fig.width = 8,echo=F, fig.align=center}
+```{r, fig.height = 3, fig.width = 8,echo=F, fig.align='center'}
 grid.raster(readPNG("report_fig4.png"))
 ```
 
 We then used  proportion and binomial tests to investigate our question statistically. In our tests, we compared the proportions of flights to the `top5` developed nation destinations to total nation status flight counts, between developing and developed nations. So our $p$ is the proporton of developed nation flights are to Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria, while developing nation flight proportions to the same  destinations are $p_0$. Our hypotheses are thus: $H_0:p_0=p$, and $H_A:p_0\neq p$. 
 
-The question of interest here, is to test with statistical significance whether  developing nations fly to popular developed nation destinations as frequently as developed nations. A  stacked  bar plot (see Technical Appendix) shows some initial issues, namely that for three of the destinations being considered, Bermuda, Iceland, and St. Kitts and Nevis (KNA) there were no flights originating in  developing  nations whatsoever, this means that the sample size condition for the  proprtion test that $np_0>10$ and $n(1-p_0)>10$ were not met. Additionally, it is not met for Antigua and Barbuda for  which there were only two developing flights. 
+The question of interest here, is to test with statistical significance whether  developing nations fly to popular developed nation destinations as frequently as developed nations. We have some concerns regarding the conditions for the two-sample z-test for proportions. For one, flights to certain locations may not be independent from one another. Additionally, the distribution of flights does not appear to be normal (see Technical Appendix) and thus, we also have some concern for the normality condition.
 
-Therefore, we report only the p-value for the proportion test for Austria which  was $5.55e-19$ and thus significant at a $0.01$ significance level, allowing us to conclude that developing countries did not fly to Austria at the same rate  as developed countries.
+Thus, we report p-values with caution. The p-value for the proportion test for Austria, which was $5.55e-19$, is significant at a $0.01$ significance level. We can then conclude that developing countries did not fly to Austria at the same rate  as developed countries. P-values were quite large for the other 4 countries of interest.
 
-Because these conditions weren't met for the parametric proportion test, a non-parametric binomial test may prove more useful here. When we conducted this on all five popular developed destinations we found the following p-values: $7.73e-02$, $4.72e-30$, $2.747e-01$, $7.46e-08$, and $2.75e-01$, which correspond to Antigua and Barbuda, Austria, Bermuda, Iceland, and Saint Kitts and Nevis respectively. We therefore only found sufficient evidence from the binomial test to reject the null at a $0.01$ significance level for Austria and Iceland. 
+Because we had concerns for the conditions for the parametric proportion test, a non-parametric binomial test may prove more useful here. When we conducted this on all five popular developed destinations we found the following p-values: $7.73e-02$, $4.72e-30$, $2.747e-01$, $7.46e-08$, and $2.75e-01$, which correspond to Antigua and Barbuda, Austria, Bermuda, Iceland, and Saint Kitts and Nevis respectively. A  stacked  bar plot (see Technical Appendix) shows some issues: namely that for three of the destinations being considered, Bermuda, Iceland, and St. Kitts and Nevis (KNA) there were no flights originating in  developing  nations whatsoever, this means that the sample size condition for the binomial test ($np_0>10$ and $n(1-p_0)>10$) was not met. Additionally, it is not met for Antigua and Barbuda for  which there were only two developing flights. 
+
+We therefore only found sufficient evidence from the binomial test to reject the null at a $0.01$ significance level for Austria and Iceland. 
 
 ## Results
 
@@ -144,9 +146,9 @@ The results of Fisher's LSD, the individual Rank Sum tests, and the Dunn test al
 
 ### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
 
-Using a significance  level of $\alpha=0.01$, from the two-sample proportion test, we found significant results only for  Austria, $p=5.55e-19$. This is likely because conditions parametric proportion test conditions of at least 10 successes and 10 failures are not met for the other three countries. It is also questionable  whether we can consider our trials independent. If we ignore  these questionable  conditions, however, we'd conclude that developing  countries fly  to Austria at different rates as developed countries.
+Using a significance  level of $\alpha=0.01$, from the two-sample proportion test, we found significant results only for  Austria, $p=5.55e-19$. It is, however, questionable  whether we can consider our trials independent. If we ignore  these questionable  conditions, however, we'd conclude that developing  countries fly  to Austria at different rates as developed countries.
 
-In contrast, the binomial test found significant travel differences for Iceland ($p=7.46e-08$) and an even lower p-value for  Austria ($p=4.72e-30$).  Therefore, from these results, we'd conclude  that developing  countries fly  to Austria and Iceland at different rates as developed countries.
+In contrast, the binomial test found significant travel differences for Iceland ($p=7.46e-08$) and an even lower p-value for  Austria ($p=4.72e-30$).  Differences may not have been found for the other 3 comparisons because the condition of at least 10 successes and 10 failures is not met. Therefore, from these results, we can only conclude  that developing  countries fly to Austria and Iceland at different rates than developed countries.
 
 ## Conclusion
 
