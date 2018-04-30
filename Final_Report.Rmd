@@ -96,13 +96,13 @@ For the non-parametric model, Normality is no longer a condition. Therefore, we 
 
 > May only need one of the plots for this section? Both kind of show the same type of thing?
 
-Before running ANOVA, we check boxplots:
+A parametric ANOVA was conducted in order to investigate whether or not there are significant differences in the mean number of normalized, natural log counts of lfights between countries of different development status. Conditions for the One-Way ANOVA include the Equal Variance condition and the Normality condition.
 
 ```{r fig.width=4, fig.height=4,echo=FALSE}
 grid.raster(readPNG("report_fig3.png"))
 ```
 
-The boxplot and residual plot (not shown here) suggest that the spreads of developed and developing countries appear to be very similar, but the spread of recently developed countries is slightly smaller. Comparing standard deviations, recently developed countries have the largest, $1.817$, and developed countries have the smallest, $1.394$. Since the ratio of the largest standard deviation to the smallest is less than $2$ (approximately $1.303$), the Equal Variance condition appears to be roughly satisfied. The QQ plot shows some divergence from the reference line near both ends, as a result any p-values derived  from parametric ANOVA should be interpreted with caution.
+The boxplot and residual plot (see Technical Appendix) suggest that the spreads of developed and developing countries appear to be very similar, but the spread of recently developed countries is slightly smaller. Comparing standard deviations, recently developed countries have the largest, $1.817$, and developed countries have the smallest, $1.394$. Since the ratio of the largest standard deviation to the smallest is less than $2$ (approximately $1.303$), the Equal Variance condition appears to be roughly satisfied. The QQ plot shows some divergence from the reference line near both ends, as a result any p-values derived  from parametric ANOVA should be interpreted with caution.
 
 
 > Report test stat, p-values. 
