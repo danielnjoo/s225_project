@@ -113,16 +113,24 @@ From the Kruskal Wallis test alone, we cannot determine which pairs have signifi
 
 ### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
 
-```{r, fig.height = 4, fig.width = 8}
+```{r, fig.height = 3, fig.width = 8}
 grid.raster(readPNG("report_fig4.png"))
 ```
 
 After normalization, we  find that the top 5 destinations of developed nations  are: Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria. For developing nations, the  top 5 destinations are: Palau, the  Maldives, Nauru, Marshall Islands and Vanuatu. We use  proportion tests to compare the proportions of flights to the `top5` developed nation destinations to total nation status flight counts, between developing and developed nations. 
 
+So our $p$ is the proporton of developed nation flights are to Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria, while developing nation flight proportions to the same  destinations are $p_0$. Thus, our hypotheses are: $H_0:p_0=p$, and $H_A:p_0\neq p$. 
+
+Our question of interest here, therefore, is to test with statistical significance whether  developing nations fly to popular developed nation destinations as frequently as developed nations. A  stacked  bar plot shows some initial issues, namely that for three of the destinations being considered, Bermuda, Iceland, and St. Kitts and Nevis (KNA) there were no flights originating in  developing  nations whatsoever.
+
+> Conditions
+
+Because these conditions weren't met for the parametric proportion test, a non-parametric binomial test may prove more useful here. When we conduct  this we  find the following p-values:
+
+> Results - report p-values for Z-test and Binomial
 
 
-
-## Results - this is more like adiscussion section
+## Results
 
 ### Regression: Predicting Flights With GDP Growth
 
@@ -140,102 +148,17 @@ Our results indicate that recently developed countries do not differ from develo
 
 ### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
 
-
-So our $p$ is the proporton of developed nation flights are to Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria, while developing nation flight proportions to the same  destinations are $p_0$. Thus, our hypotheses are: $H_0:p_0=p$, and $H_A:p_0\neq p$. 
-
-Our question of interest here, therefore, is to test with statistical significance whether  developing nations fly to popular developed nation destinations as frequently as developed nations. A  stacked  bar plot shows some initial issues, namely that for three of the destinations being considered, Bermuda, Iceland, and St. Kitts and Nevis (KNA) there were no flights originating in  developing  nations whatsoever.
-
-```{r echo=F, fig.height=3,fig.width=4, message=F,warning=F}
-Outbound <- groupfdata %>% group_by(developed.x) %>% summarize(total_flights = n()) %>% data.frame()
-total_developing <- subset(Outbound,developed.x==0)$total_flights
-total_developed <- subset(Outbound,developed.x==1)$total_flights
-
-groupfdata$spop <- str_replace(groupfdata$source.population,'\\.','')
-pops <- groupfdata %>% 
-  dplyr::select(country=Country.Code.x, pop=spop) %>% 
-  unique() 
-
-developedtop5 <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
-  filter(developed.x == 1) %>%
-  group_by(Country.Code.y) %>%
-  summarize(count = n()) %>%
-  left_join(pops, by=c("Country.Code.y"="country")) %>% 
-  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
-  arrange(desc(n_count)) %>% 
-  head(5) %>% 
-  data.frame()
-
-developing_nn_ext <- groupfdata %>% filter(Country.Code.x != Country.Code.y) %>%
-  filter(developed.x == 0) %>%
-  group_by(Country.Code.y) %>%
-  summarize(count = n()) %>%
-  arrange(desc(count))
-
-developing_n_ext <- developing_nn_ext %>% left_join(pops, by=c("Country.Code.y"="country")) %>% 
-  mutate(n_count = as.integer(count)/as.integer(pop)) %>% 
-  arrange(desc(n_count)) 
-
-p_ATG <- developedtop5[[1,2]][1]
-p_ISL <- developedtop5[[2,2]][1]
-p_KNA <- developedtop5[[3,2]][1]
-p_BMU <- developedtop5[[4,2]][1]
-p_AUT <- developedtop5[[5,2]][1]
-
-# Get Developing Country Counts for these countries:
-p_ATG2 <- developing_n_ext[which(developing_n_ext$Country.Code.y=="ATG"),2] %>% unlist() %>% readr::parse_integer();  #  2
-p_ISL2 <- 0 # developing_n_ext[which(developing_n_ext$Country.Code.y=="ISL"),2] %>% unlist() %>% readr::parse_integer()
-p_KNA2 <- 0  # developing_n_ext[which(developing_n_ext$Country.Code.y=="KNA"),2] %>% unlist() %>% readr::parse_integer()
-p_BMU2 <- 0  # developing_n_ext[which(developing_n_ext$Country.Code.y=="BMU"),2] %>% unlist() %>% readr::parse_integer()
-p_AUT2 <- developing_n_ext[which(developing_n_ext$Country.Code.y=="AUT"),2] %>% unlist() %>% readr::parse_integer() #24
-
-developedcounts <- c(p_ATG,p_AUT,p_BMU,p_ISL,p_KNA)
-developingcounts <- c(2,24,0,0,0)
-
-prop_developedcounts <- developedcounts/total_developed
-prop_developingcounts <- developingcounts/total_developing
-
-# data.frame(Countries=c("ATG","AUT","BMU","ISL","KNA"), Developed=prop_developedcounts, Developing=prop_developingcounts) %>%
-#   melt() %>% rename(Type=variable) %>%
-#   ggplot(aes(Countries,value,group=Type,fill=Type)) +
-#   geom_bar(stat='identity',position='stack') +
-#   labs(title="Stacked bar plot of proportional counts",y="Proportion")
-```
-
-The resulting  p-values of the   proportion  tests are as  follows:
-
-```{r include=F}
-prop.test(x = c(p_ATG, p_ATG2), n = c(total_developed, total_developing)) -> atg
-prop.test(x = c(p_ISL, p_ISL2), n = c(total_developed, total_developing)) -> isl
-prop.test(x = c(p_KNA, p_KNA2), n = c(total_developed, total_developing)) -> kna
-prop.test(x = c(p_BMU, p_BMU2), n = c(total_developed, total_developing)) -> bmu;bmu
-prop.test(x = c(p_AUT, p_AUT2), n = c(total_developed, total_developing)) -> aut
-
-pvals <- c(atg$p.value,aut$p.value,bmu$p.value,isl$p.value,kna$p.value); pvals
-data.frame(pvals=pvals,country=c("ATG","AUT","BMU","ISL","KNA")) #%>% xtable()
-```
-
-
-
 We find significant results for Austria (AUT) and Iceland (ISL), p-values of  $5.545961e-19$ and $7.775549e-05$, respectively. However, the  other tests are insignificant  at a 0.05 significance level. This is likely because conditions parametric proportion test conditions of at least 10 successes and 10 failures are not met for the other three countries. It is also questionable  whether we can consider are  trials independent. If we ignore  these questionable  conditions, we'd conclude that developing  countries fly  to Austria and  Iceland at different levels as developed countries.
-
-```{r  include=F}
-successes <- developingcounts # were testing developing proportions so we use these counts
-failures <- total_developing-successes # calculating failures
-
-# order: p_ATG,p_ISL,p_KNA,p_BMU,p_AUT
-
-pvals2 <- rep(0,5)
-for(i in 1:5){
-  pvals2[i-1] <- (binom.test(c(successes[i],failures[i]),n=total_developing[i],p=prop_developedcounts[i]))$p.value
-}
-```
-
-Because these conditions weren't met for the parametric proportion test, a non-parametric binomial test may prove more useful here. When we conduct  this we  find the following p-values:
-
 
 Our  binomial test results differ from our proportion test results in that  they find that the Austria test is now insignificant (p=$0.2747$).  It also finds Iceland insignificant, but  not the other 3 countries. So  we might conclude that developing countries fly to Barbuda, Bermuda, and St. Kitts and Nevis in differentproportions as developed nations.
 
+
 ## Conclusion
+
+> Regression
+> ANOVA
+> Proportion
+> Limitations
 
 ## References
 
