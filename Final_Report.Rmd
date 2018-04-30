@@ -29,34 +29,36 @@ library(grid)
 
 
 ## Abstract
-Travel, particularly via plane, is dependent upon the capital available to an individual. We seek to investigate whether or not there is a relationship between a country's change in wealth and development status classification with the number of flights originating in a given country. Simple parametric and non-parametric regression indicate that average Per Capita GDP Growth is a significant predictor of the normalized, natural log of the number of originating flights, but the model itself fails to adequately explain the variation in flights. Results associated with the ANOVA and Kurskal Wallis Test provide strong evidence for a difference in the mean and median natural log of flights, respectively, between countries of different developmental status. Further analysis using two-sample proportion tests and binomial tests indicates that travel preferences may exist between developing and developed countries. 
+Travel, particularly via plane, is dependent upon the capital available to an individual. We seek to investigate whether or not there is a relationship between a country's change in wealth and development status classification with the number of flights originating in a given country. Simple parametric and non-parametric regression indicate that average Per Capita GDP Growth is a significant predictor of the normalized, natural log of the number of originating flights, but the model itself fails to adequately explain the variation in flights. Results associated with the ANOVA and Kurskal Wallis Test provide strong evidence for a difference in the mean and median natural log of flights, respectively, between countries of different developmental status. Further analysis using two-sample proportion tests and binomial tests indicates that  differing travel preferences may exist between developing and developed countries. 
 
 
 ## Introduction
 
-The focus of this project will be on exploring differences in travel, via plane, between countries stratified by  development status. One measure to distinguish between developed and developing nations is gross domestic product (GDP) on a per capita basis, i.e. adjusted by the country's  population. Additionally, GDP per capita is often adjusted  for the different living costs between countries by applying a purchasing power parity adjustment (PPP). In this  project we use GDP per capita (PPP) figures made available  from the  World Bank. [2]
+The focus of this project will be on exploring differences in travel, via plane, between countries stratified by  development status. One measure to distinguish between developed and developing nations is gross domestic product (GDP) on a per capita basis, i.e. adjusted by the country's  population. Additionally, GDP per capita is often adjusted  for the different living costs between countries by applying a purchasing power parity adjustment (PPP). In this  project we use GDP per capita (PPP) figures made available  from the  World Bank. [1]
 
-A GDP per capita (PPP) of greater than $12,000 is often considered the unofficial benchmark of a developed nation. [3] As 2010 was the year for which we had the  most GDP data, we classified our countries as developing if their GDP per capita (PPP) was greater than \$10490.48 (inflation-adjusted from today) in 2010. Countries with GDP figures less than this cutoff were classified  as  developing  countries, and countries that  were developing in 2010 but developed in  2016 — the last year for  which we have GDP figures — were classified as recently developed.
+A GDP per capita (PPP) of greater than $12,000 is often considered the unofficial benchmark of a developed nation. [2] As 2010 was the year for which we had the  most GDP data, we classified our countries as developing if their GDP per capita (PPP) was greater than \$10490.48 (inflation-adjusted from today) in 2010. Countries with GDP figures less than this cutoff were classified  as  developing  countries, and countries that  were developing in 2010 but developed in  2016 — the last year for  which we have GDP figures — were classified as recently developed.
 
-In this project, we hope to answer the following questions in order o better understand any underlying travel trends between developed and developing countries:  
+In this project, we hope to answer the following questions in order to better understand any underlying travel trends between developed and developing countries:  
 
 1. Can we predict the number of flights using average GDP growth? 
 2. Is there a difference in the number of flights between developed and developing countries? Recently developed countries? 
 3. Do developing countries fly to the same destinations as developed countries do?
 
-In our analysis, we utilized simple linear regression to model the relationship between the number of flights per country and the associated average Per Capita GDP growth. After transforming the data to alleviate concerns with the conditions, we found that there was a significant relationship between the transformed variable of flights and average Per Capita GDP growth. However, we question the model's viability as a useful predictive model.
+In our analysis, we utilized simple linear regression to model the relationship between the number of flights per country and the associated average Per Capita GDP growth. After transforming the data to alleviate concerns with the conditions, we found that there was a significant relationship between the transformed variable of flights and average Per Capita GDP growth. However, the low adjusted $R^2$ ($<0.05$) of the model leads us to question the model's usefulness as a predictive model.
 
-Two statistical procedures for measuring the differences in center were used to determine if there was a significant difference in flights between countires of different developmental status. Both procedures indicated that there is a signficant difference between the means and medians of flights. Additionally, results of our two sample proportion tests and binomial tests suggest differences some significant differences in travel locations.
+Two statistical procedures, parametric ANOVA and Kruskal-Wallis rank sum, for measuring the differences in center were used to determine if there was a significant difference in flights between countires of different developmental status. Both procedures indicated that there is a signficant difference between the means and medians of the natural log of flights normalized by the  source country's population. Further, multiple comparison tests (Fishers' LSD and Dunn) give us sufficient evidence to conclude that a significant difference in centers exists between develped and developing countries and developed and recently developed countries,  but not between developing and recently developed countries.
+
+Finally, results of the two sample proportion tests and binomial tests that we ran suggest differences some significant differences in travel locations.  Specifically, we find that where our tests were viable, i.e. conditions were met, that developing  countries did not fly to the most popular developed country destinations at the same rate.
 
 Given that airplane tickets are rarely cheap and often unaffordable for many people, it appears safe to assume that developed countries should have a greater demand for airplane travel than developing countries. By answering our questions we may be able to understand how different travel is for people in developing and developed nations. It may also provide the groundwork for additional questions related to travel.
 
 ## Data
 
-The final, working dataset for this project is composed of three separate datasets, merged based on the flight source and destination country. The first set includes data on 59,036 flights since 2012. This data was obtained from the Flight Route Database [1]. For each flight, information on the origin, destination, and various characteristics of the flight are included. 
+The final, working dataset for this project is composed of three separate datasets, merged based on the flight source and destination country. The first set includes data on 59,036 flights since 2012. This data was obtained from the Flight Route Database [3]. For each flight, information on the origin, destination, and various characteristics of the flight are included. 
 
 The second set includes data on the Per Capita GDP (ppp) for each country from 1960 to 2016. This dataset was obtained from ‘The World Bank’ website [2]. For our purposes, the dataset was filtered for GDP entries from 2010 to 2016. 
 
-The third, and final, set includes data on the current  (2018) estimated population of each country. This simple data set, obtained from ‘The World Population Review’ website, simply contains the country name, its population, and its population rank. Per Capita GDP data was combined with the flight data by matching the country code. Population data was then matched via the source country name and the destination country name to create two population measures per flight.
+The third, and final, set includes data on the current  (2018) estimated population of each country. This simple data set, obtained from ‘The World Population Review’ website, simply contains the country name, its population, and its population rank. Per Capita GDP data was combined with the flight data by matching the country code. [4] Population data was then matched via the source country name and the destination country name to create two population measures per flight.
 
 Our final, combined dataset, includes 33,559 rows, each corresponding to a flight, with the following selected variables of interest:
 
@@ -75,19 +77,19 @@ Our final, combined dataset, includes 33,559 rows, each corresponding to a fligh
 
 ### Regression: Predicting Flights With GDP Growth
 
-To address whether Per Capita GDP growth can be used to predict the number of flights from a particular country, a simple linear regression model was fit using parametric and nonparametric regression procedures. One condition for fitting such a model is Linearity between the variables of interest: average Per Capita GDP growth and counts. To investigate this relationship, scatterplots were generated with the linear regression fit and with the Loess smoother. The smoother fit a curved line, with a peak corresponding to a couple of large outliers. 
+To address whether Per Capita GDP growth can be used to predict the number of flights from a particular country, a simple linear regression model was fit using parametric and nonparametric regression procedures. One condition for fitting such a model is Linearity between the variables of interest: average Per Capita GDP growth and counts. To investigate this relationship, scatterplots were generated with the linear regression fit and with the LOESS smoother. The smoother fit a curved line, with a peak corresponding to a couple of large outliers. 
 
-In an attempt to get a more linear relationship, the counts were then normalized by the population of the source country. We would expect countries with a larger population to have more flights than countries with a smaller population. Therefore, normalization should hopefully remove some unaccounted for variability. Normalization only resulted in minimal changes in the scatterplot and also results in a sharper curve in the loess smoother, particularly due to the pull of an extreme outlier: the Republic Nauru. 
+In an attempt to get a more linear relationship, the counts were then normalized by the population of the source country. We would expect countries with a larger population to have more flights than countries with a smaller population. Therefore, normalization should hopefully remove some unaccounted for variability. Normalization only resulted in minimal changes in the scatterplot and also results in a sharper curve in the loess smoother, particularly due to the pull of an extreme outlier: the Republic of Nauru. 
 
-We then considered possible transformations of the count variable. Plotting the natural log of counts against the average Per Capita growth suggested a weak to moderate, negative association between the two variables. The Loess smoother had a substantial upward curve, but when Nauru, the country previously identified as an outlier, was removed, this curve was removed. Unlike the previous plots, there appears to be less indication of any non-linear trends in the data, especially at higher values of average growth. Given that a condition of regression is Linearity, we chose to proceed with the normalized, natural log flight counts.
+We then considered possible transformations of the count variable. Plotting the natural log of counts against the average Per Capita growth suggested a weak to moderate, negative association between the two variables. The LOESS smoother had a substantial upward curve towards the right, but when Nauru, the country previously identified as an outlier, was removed, this curve was removed. Unlike the previous plots, there appears to be less indication of any non-linear trends in the data, especially at higher values of average growth. Given that a condition of regression is Linearity, we chose to proceed with the normalized, natural log flight counts.
 
-```{r, fig.width = 8, fig.height=3, echo=FALSE}
+```{r, fig.width = 8, fig.height=3, echo=FALSE, fig.align=center}
 grid.raster(readPNG("report_fig1.png"))
 ```
 
-A parametric linear regression model was then fit on `log_counts` as the response variable and `avg_growth.x` as the explanatory variable. The estimated slope coefficient for `avg_growth.x` was $-0.172$ with an associated t-value of $-2.659$ and a p-value of $0.00871$. Additionally, the multiple $R^{2}$ value for the model was $0.04588$. 
+A parametric linear regression model was then fit on the normalized `log_counts` as the response variable and `avg_growth.x` as the explanatory variable. The estimated slope coefficient for `avg_growth.x` was $-0.172$ with an associated t-value of $-2.659$ and a p-value of $0.00871$. Additionally, the multiple $R^{2}$ value for the model was $0.04588$. 
 
-We have already addressed the Linearity condition, but there are some minor concerns for the remaining conditions, particularly the Normality condition. We observed some noticeable deviations from the reference line in the QQ plot, primarily at the upper end. Since we have concerns for Normality, we chose to fit a non-parametric simple linear regression model on the same variables.
+We have already addressed the Linearity condition, but we have lingering concerns for some of the remaining conditions, particularly the Normality condition. We observed some noticeable deviations from the reference line in the QQ plot, primarily at the upper end. Since we have concerns for Normality, we chose to fit a non-parametric simple linear regression model on the same variables.
 
 For the non-parametric model, Normality is no longer a condition. Therefore, we have less concerns regarding whether or not all conditions are truly met. For this model, the estimated slope coefficient for `avg_growth.x` was $-0.178$ with an associated t-vale of $-2.756$ and a p-value of $0.00657$. Additionally, the multiple $R^{2}$ value for the model was $0.0485$.
 
@@ -104,31 +106,28 @@ Since we had some minor concerns for the Normality condition, we next conducted 
 
 Since the Kruskal-Wallis test assumes a shift model, we consder the `log_count` density plot stratified by development status shown below The distribution of developed appears to be potentially bimodal, but roughly symmetric. The two peaks are close together and of similar height. The distribution of developing is also bimodal, but the second peak is significant smaller than the first. Additionally, it appears roughly symmetric. Finally, the distribution of recently developed is also bimodal - if we ignore that third hump at the far right, which corresponds to the Republic of Nauru (identified as an outlier in analysis). The second peak is smaller and located on the left side of the distribution. Although there is some deviation in terms of shape, the distributions appear similar enough  to assume that the shift model assumption of the KW-test is met.
 
-```{r, fig.width=8, fig.height=3,echo=FALSE}
+```{r, fig.width=8, fig.height=3,echo=FALSE, fig.align=center}
 grid.raster(readPNG("report_fig2.png"))
 ```
 
-From the Kruskal Wallis test alone, we cannot determine which pairs have significantly different medians. Thus, we then conducted individual Kruskal Wallis Rank Sum tests and the Dunn test to determine which pairs are significantly different. At a significance level of $0.01$, significant p-values were observed for developed and developing countries as well as for developed and recently developed countries.
+From the Kruskal Wallis test alone, we cannot determine which pairs have significantly different medians. Thus, we then conducted individual Kruskal Wallis Rank Sum tests and the Dunn test to determine which pairs are significantly different. At a significance level of $0.01$, significant p-values were observed for developed and developing countries as well as for developed and recently developed countries. These results correspond to those we found using parametric methods.
 
 
 ### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
 
-```{r, fig.height = 3, fig.width = 8}
+After normalization, we  find that the top 5 destinations of developed nations  are: Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria. For developing nations, the  top 5 destinations are: Palau, the  Maldives, Nauru, Marshall Islands and Vanuatu. An  initial visualization of where these destinations are located in comparison to each other shows an interesting result: popular developed destinations (shown in blue) are situated predominantly between North America and Europe, while popular developing destinations (shown in red) are situated predominantly between Asia and North America.
+
+```{r, fig.height = 3, fig.width = 8,echo=F, fig.align=center}
 grid.raster(readPNG("report_fig4.png"))
 ```
 
-After normalization, we  find that the top 5 destinations of developed nations  are: Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria. For developing nations, the  top 5 destinations are: Palau, the  Maldives, Nauru, Marshall Islands and Vanuatu. We use  proportion tests to compare the proportions of flights to the `top5` developed nation destinations to total nation status flight counts, between developing and developed nations. 
+We then used  proportion and binomial tests to investigate our question statistically. In our tests, we compared the proportions of flights to the `top5` developed nation destinations to total nation status flight counts, between developing and developed nations. So our $p$ is the proporton of developed nation flights are to Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria, while developing nation flight proportions to the same  destinations are $p_0$. Our hypotheses are thus: $H_0:p_0=p$, and $H_A:p_0\neq p$. 
 
-So our $p$ is the proporton of developed nation flights are to Antigua and Barbuda, Iceland, Saint Kitts and Nevis, Bermuda, and Austria, while developing nation flight proportions to the same  destinations are $p_0$. Thus, our hypotheses are: $H_0:p_0=p$, and $H_A:p_0\neq p$. 
+The question of interest here, is to test with statistical significance whether  developing nations fly to popular developed nation destinations as frequently as developed nations. A  stacked  bar plot (see Technical Appendix) shows some initial issues, namely that for three of the destinations being considered, Bermuda, Iceland, and St. Kitts and Nevis (KNA) there were no flights originating in  developing  nations whatsoever, this means that the sample size condition for the  proprtion test that $np_0>10$ and $n(1-p_0)>10$ were not met. Additionally, it is not met for Antigua and Barbuda for  which there were only two developing flights. 
 
-Our question of interest here, therefore, is to test with statistical significance whether  developing nations fly to popular developed nation destinations as frequently as developed nations. A  stacked  bar plot shows some initial issues, namely that for three of the destinations being considered, Bermuda, Iceland, and St. Kitts and Nevis (KNA) there were no flights originating in  developing  nations whatsoever.
+Therefore, we report only the p-value for the proportion test for Austria which  was $5.55e-19$ and thus significant at a $0.01$ significance level, allowing us to conclude that developing countries did not fly to Austria at the same rate  as developed countries.
 
-> Conditions
-
-Because these conditions weren't met for the parametric proportion test, a non-parametric binomial test may prove more useful here. When we conduct  this we  find the following p-values:
-
-> Results - report p-values for Z-test and Binomial
-
+Because these conditions weren't met for the parametric proportion test, a non-parametric binomial test may prove more useful here. When we conducted this on all five popular developed destinations we found the following p-values: $7.73e-02$, $4.72e-30$, $2.747e-01$, $7.46e-08$, and $2.75e-01$, which correspond to Antigua and Barbuda, Austria, Bermuda, Iceland, and Saint Kitts and Nevis respectively. We therefore only found sufficient evidence from the binomial test to reject the null at a $0.01$ significance level for Austria and Iceland. 
 
 ## Results
 
@@ -143,27 +142,30 @@ At all of the most commonly chosen significance levels, the p-values from the AN
 
 The results of Fisher's LSD, the individual Rank Sum tests, and the Dunn test all suggest that center of normalized `log_counts` are significantly different between developed and developing countries as well as between developed and recently developed countries, at a significance leve of $0.05$. However, on the other hand, there is not enough evidence to suggest that there is a significant difference between developing and recently developed countries.
 
-Our results indicate that recently developed countries do not differ from developing countries in terms of the normalized, natural log number of flights. Additionally, since recently developed countries differ from developed countries, we can conclude that travel has not increased in recently developed countries to the level of developed. In other words, recently developed countries are not distinguishable from developing countries in terms of the mean and median normalized, natural log counts of flights.
-
-
 ### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
 
-We find significant results for Austria (AUT) and Iceland (ISL), p-values of  $5.545961e-19$ and $7.775549e-05$, respectively. However, the  other tests are insignificant  at a 0.05 significance level. This is likely because conditions parametric proportion test conditions of at least 10 successes and 10 failures are not met for the other three countries. It is also questionable  whether we can consider are  trials independent. If we ignore  these questionable  conditions, we'd conclude that developing  countries fly  to Austria and  Iceland at different levels as developed countries.
+Using a significance  level of $\alpha=0.01$, from the two-sample proportion test, we found significant results only for  Austria, $p=5.55e-19$. This is likely because conditions parametric proportion test conditions of at least 10 successes and 10 failures are not met for the other three countries. It is also questionable  whether we can consider our trials independent. If we ignore  these questionable  conditions, however, we'd conclude that developing  countries fly  to Austria at different rates as developed countries.
 
-Our  binomial test results differ from our proportion test results in that  they find that the Austria test is now insignificant (p=$0.2747$).  It also finds Iceland insignificant, but  not the other 3 countries. So  we might conclude that developing countries fly to Barbuda, Bermuda, and St. Kitts and Nevis in differentproportions as developed nations.
-
+In contrast, the binomial test found significant travel differences for Iceland ($p=7.46e-08$) and an even lower p-value for  Austria ($p=4.72e-30$).  Therefore, from these results, we'd conclude  that developing  countries fly  to Austria and Iceland at different rates as developed countries.
 
 ## Conclusion
 
-> Regression
-> ANOVA
-> Proportion
+From our regression analysis we found that average per capita GDP (PPP) growth is a highly significant predictor of the log, normalized count of flights originating in a country. However, we also found that as a model, average per capita GPD (PPP) growth does sufficiently explain the variation in log, normalized counts of flights. Non-parametric methods agreed with our parametric methods here.
+
+From our ANOVA, KW-test, and multiple comparison tests, we found  that development status, our categorical  variable with three  levels, was significant variable in  explaining differences in the centers of the log, normalized count of flights. However, we found that significant differences in center existed  only between the two pairs of developing  and developed — as one might  expect — and between developed and recently developed countries. Our results, equivalent for both parametric and non-parametric methods, indicate that recently developed countries do not differ from developing countries in terms of the centers of normalized, natural log number of flights. Additionally, since recently developed countries differ from developed countries, we can conclude that travel has not increased in recently developed countries to the level of developed nations. In other words, recently developed countries are not distinguishable from developing countries in terms of the mean and median normalized, natural log counts of flights.
+
+From our proportion and binomial tests we found sufficient evidence to conclude  that developing nations  do  not fly to Austria, a popular developed  nation destination, at the same rate as developed nations. However, our non-parametric method  differed from our parametric  method in finding that there were additionally differences in travel patterns between developed and developing nations to Iceland. 
+
 > Limitations
 
 ## References
 
-[1] Kaggle dataset, originally from openflights.org, available at: https://www.kaggle.com/open-flights/flight-route-database
 
-[2] World  Bank GDP per capita, (PPP)  figures  in dollars: https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD 
+[1] World  Bank GDP per capita, (PPP)  figures  in dollars: https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD 
 
-[3] World Bank definition of high-income economies defines it as $12,236 for the 2018 fiscal year: https://datahelpdesk.worldbank.org/knowledgebase/articles/906519#High_income
+[2] World Bank definition of high-income economies defines it as $12,236 for the 2018 fiscal year: https://datahelpdesk.worldbank.org/knowledgebase/articles/906519#High_income
+
+[3] Kaggle dataset, originally from openflights.org, available at: https://www.kaggle.com/open-flights/flight-route-database
+
+[4] World Bank population data:
+https://data.worldbank.org/indicator/SP.POP.TOTL
