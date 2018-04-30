@@ -98,7 +98,7 @@ A parametric ANOVA was conducted in order to investigate whether or not there ar
 
 The boxplot and residual plot (see Technical Appendix) suggest that the spreads of developed and developing countries appear to be very similar, but the spread of recently developed countries is slightly smaller. Comparing standard deviations, recently developed countries have the largest, $1.817$, and developed countries have the smallest, $1.394$. Since the ratio of the largest standard deviation to the smallest is less than $2$ (approximately $1.303$), the Equal Variance condition appears to be roughly satisfied. The QQ plot shows some divergence from the reference line near both ends, as a result any p-values derived  from parametric ANOVA should be interpreted with caution.
 
-From the ANOVA, the F-value for `recent_development.x` is $32.734$, with an associated p-value of $1.55e-12$. From the ANOVA by itself, we cannot determine which pairs have significantly different means. So we conducted Fisher's LSD to determine which pairs are significantly different. The p-value between developed and developing countries was $9.2e-13$. Similarly, the p-value between developed and recently developed countries was $0.01$. Finally, the p-value between developing and recently developed countries was $0.61$.
+From the ANOVA, the F-value for `recent_development.x` is $32.734$, with an associated p-value of $1.55e-12$. From the ANOVA by itself, we cannot determine which pairs have significantly different means. So we conducted Fisher's LSD to determine which pairs are significantly different. At a signficance level of $0.01$, significant p-values were observed for developed and developing countries as well as between developed and recently developed countries. 
 
 Since we had some minor concerns for the Normality condition, we next conducted a Krusall-Wallis rank sum test, which  provides an alternative to the One-Way Parametric ANOVA. Similar to the ANOVA, it tests for differences in center. Unlike the ANOVA, however, which tests for differences in means, Kruskal-Wallis tests for difference in medians. The test gives us a Chi-squared test statistic of $52.653$ with $2$ degrees of freedom, and therefore, an associated p-value of $3.686e-12$.
 
@@ -108,7 +108,7 @@ Since the Kruskal-Wallis test assumes a shift model, we consder the `log_count` 
 grid.raster(readPNG("report_fig2.png"))
 ```
 
-From the Kruskal Wallis test alone, we cannot determine which pairs have significantly different medians. Thus, we then conducted individual Kruskal Wallis Rank Sum tests and the Dunn test to determine which pairs are significantly different. For developed and developing countries the p-value was $3.5e-12$ and approximately $0$, respectively. For developed and recently developed countries, the p-value was $0.0091$ and $0.0029$. Finally, for developinga and recently developed countries, the associated p-value was $0.76$ and $0.41$.
+From the Kruskal Wallis test alone, we cannot determine which pairs have significantly different medians. Thus, we then conducted individual Kruskal Wallis Rank Sum tests and the Dunn test to determine which pairs are significantly different. At a significance level of $0.01$, significant p-values were observed for developed and developing countries as well as for developed and recently developed countries.
 
 
 ### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
@@ -131,22 +131,11 @@ For both the parametric and non-parametric model, we find that `avg_growth.x` is
 
 ### ANOVA: Investigating the  Significance of Development Status
 
+At all of the most commonly chosen significance levels, the p-values from the ANOVA and Kruskal Wallis test are significant. Therefore, we can reject the null hypothesis that there is no difference in the mean and median normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in means between development status groups. 
 
-At all of the most commonly chosen significance levels, this is a significant p-value. We can reject the null hypothesis that there is no difference in the mean normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in means between development status groups. 
+The results of Fisher's LSD, the individual Rank Sum tests, and the Dunn test all suggest that center of normalized `log_counts` are significantly different between developed and developing countries as well as between developed and recently developed countries, at a significance leve of $0.05$. However, on the other hand, there is not enough evidence to suggest that there is a significant difference between developing and recently developed countries.
 
-> Fisher's LSD:
-
-These results suggest that the mean normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $= 0.01$), at a significance level of $0.05$. At any significant $\alpha$ level, however, we cannot reject the null hypothesis that there is no difference in means for developing and recently developed countries. 
-
-> KW Conclusions
-
-Therefore, we return to our p-value. At all of the most commonly chosen significance levels, this is a significant p-value. We can reject the null hypothesis that there is no difference in the median normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in medians between development status groups. 
-
-> Dunn conclusions
-
-The results of the Dunn test suggest that the median normalized `log_counts` are significantly different between developed and developing countries (p-value $\approx 0$) as well as between developed and recently developed countries (p-value $ = 0.0091$ & $ = 0.0029$), at a significance level of $0.01$. At any significant $\alpha$ level, however, we cannot conclude that there is a difference in medians between developing and recently developed countries.
-
-Our results indicate that recently developed countries do not differ from developing countries in terms of the normalized, natural log number of flights. Additionally, since recently developed countries differ from developed countries, we can conclude that travel has not increased in recently developed countries. In other words, recently developed countries are not distinguishable from developing countries in terms of the mean and median normalized, natural log counts of flights.
+Our results indicate that recently developed countries do not differ from developing countries in terms of the normalized, natural log number of flights. Additionally, since recently developed countries differ from developed countries, we can conclude that travel has not increased in recently developed countries to the level of developed. In other words, recently developed countries are not distinguishable from developing countries in terms of the mean and median normalized, natural log counts of flights.
 
 
 ### Proportion Tests: Exploring Whether Developing Fly to Popular Developed Destinations
