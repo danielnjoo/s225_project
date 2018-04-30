@@ -158,7 +158,8 @@ From our ANOVA, KW-test, and multiple comparison tests, we found  that developme
 
 From our proportion and binomial tests we found sufficient evidence to conclude  that developing nations  do  not fly to Austria, a popular developed  nation destination, at the same rate as developed nations. However, our non-parametric method  differed from our parametric  method in finding that there were additionally differences in travel patterns between developed and developing nations to Iceland. We offers these conclusions with some caution, as we had concerns for the conditions for both the parametric and non-parametric procedures.
 
-> Limitations
+The conclusions drawn from our analysis are limited by our inability to account for the year in which the flight occurred. If a `Year` variable was available, additional regression models could have been fit using each countries GDP per year and flights flown that year. Additional comparisons could have also been made between flights in 2010 for countries of various developmental status to flights in 2016. For our current analysis, year may serve as a confounding variable that we cannot adequately account for. More nuanced and helpful models could have been produced and additional conclusions could have been drawn if this variable was made available.
+
 
 ## References
 
