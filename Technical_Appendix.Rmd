@@ -11,6 +11,10 @@ output:
   html_document: default
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
+
 ```{r, include = FALSE}
 library(tidyverse)
 require(mosaic)
@@ -25,10 +29,7 @@ set.seed(4)
 
 ### Data Read-In:
 ```{r, message = FALSE, warning = FALSE}
-# groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata.csv") 
-# groupfdata <- groupfdata %>% dplyr::select(-X1) #ignore first row
-groupfdata <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
-# write.csv(groupfdata, "data.csv")
+groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata2.csv")
 dim(groupfdata)
 ```
 
@@ -728,7 +729,8 @@ In both the  absolute count and  proportional  count cases we see  a significant
 We then  run a parametric 2-sample proportion test whose conditions are (1) independence and randomization we might question because of the time element involved with our data, and (2) sample size $np_0$ and $cn(1-p_0)$ both  greater than 10 which is met  only in the case of Austria, as number of successes and failures are not greater than 10 in  any of the other countries. As a result, we only conduct the 2-sample proportion test for Austria.
 
 ```{r}
-prop.test(x = c(p_AUT, p_AUT2), n = c(total_developed, total_developing)) -> aut; aut
+aut <- prop.test(x = c(p_AUT, p_AUT2), n = c(total_developed, total_developing)) 
+aut
 aut$p.value
 ```
 
@@ -757,12 +759,12 @@ In this case we test whether developing countries fly to Antigua and Barbuda  (A
 
 Doing this for the other countries:
 
-```{r}
+```{r why}
 pvals <- c(0,5.5460e-19,0,0,0)
-for(i in (1:5)[-2]){
-  pvals[i] <- (prop.test(c(successes[i],failures[i]),
-                          n=total_developing[i],p=prop_developedcounts[i]))$p.value
-}
+prop.test(x = c(p_ATG, p_ATG2), n = c(total_developed, total_developing)) %>% .$p.value  -> pvals[1]
+prop.test(x = c(p_BMU, p_BMU2), n = c(total_developed, total_developing)) %>% .$p.value  -> pvals[3]
+prop.test(x = c(p_ISL, p_ISL2), n = c(total_developed, total_developing)) %>% .$p.value  -> pvals[4]
+prop.test(x = c(p_KNA, p_KNA2), n = c(total_developed, total_developing)) %>% .$p.value  -> pvals[5]
 
 pvals2 <- rep(0,4)
 for(i in 2:5){
@@ -775,14 +777,15 @@ pvals2 <- c(atg2$p.value,pvals2); pvals2
 We find that only the binomial test for Austria and Iceland ($7.46e-08$) is significant at a 5% significance level. If we compare these p-values to our p-values from the parametric test:
 
 ```{r}
-data.frame(`z-test`=pvals,binom=pvals2,Country=c("ATG","AUT","BMU","ISL","KNA")) %>% 
+data.frame(`z-test`=pvals+0.1,binom=pvals2,Country=c("ATG","AUT","BMU","ISL","KNA")) %>% 
   melt() %>% 
   ggplot(aes(Country,value,col=variable)) + 
   geom_point() + 
   scale_y_log10() +
   ggtitle("Comparison of pvalues from binomial and z-tests") +
   theme(legend.position="bottom") +
-  geom_hline(yintercept = 0.05)
+  geom_hline(yintercept = 0.05) 
+  
 ```
 
 We find that  in all 5 cases, the  binomial  test gives us as much or more evidence to reject the null. Comparing our results  to the line drawn at 0.05, representing a 5% significance level, we find that only the tests, both the z-test and binomial test, find sufficient evidence in the Austria test, while the binomial test finds sufficient evidence in the Iceland test. In either case, the sufficient evidence the tests provide allow us to  reject the null that  developing  nations fly  to the those destinations at the same rates as developed  countries. 

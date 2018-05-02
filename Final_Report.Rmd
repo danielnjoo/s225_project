@@ -2,7 +2,6 @@
 title:  "Capital and Flights (Group F)"
 subtitle: "A Final Report Prepared For S225"
 author: "Jocelyn, Daniel"
-date: "4/28/2018"
 header-includes:
     - \usepackage{setspace}\doublespacing
 output: 
@@ -16,13 +15,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, echo = FALSE, message=F,warning=F}
 library(tidyverse)
-# require(mosaic)
-# require(NSM3)
-# require(Rfit)
-# require(dunn.test)
 library(reshape2)
-# set.seed(4)
-groupfdata <- read.csv("Data/final_data.csv") %>% .[2:ncol(.)]
+groupfdata <- read_csv("https://awagaman.people.amherst.edu/stat225/datasetsS2018/groupFdata2.csv")
 library(png)
 library(grid)
 ```
