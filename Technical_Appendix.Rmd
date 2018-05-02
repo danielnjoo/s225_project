@@ -1,5 +1,6 @@
 ---
-title: "Travel in Developed and Developing Countries"
+title: "Capital and Flights (Group F)"
+subtitle: "A Technical Appencix Prepared For S225"
 author: "Jocelyn, Daniel"
 output:
   pdf_document:
@@ -9,8 +10,6 @@ output:
     toc_depth: 5
   html_document: default
 ---
-
-# Technical Appendix
 
 ```{r, include = FALSE}
 library(tidyverse)
@@ -313,7 +312,7 @@ normal %>% ggplot(aes(avg_growth.x, log_count)) +
 
 While the relationship between average growth and the natural log of counts does not appear to be a strong one, it is more linear. The linear regression line (blue) fit through the above scatterplot suggests a weak to moderate, negative association between average growth and the natural log of counts.
 
-The Loess smoother still suggests a more curved relationship between the two variables. There is only one data point above an average growth of $10$ that appears to be influencing the smoother. We remove this point below:
+The Loess smoother still suggests a more curved relationship between the two variables. There is only one data point above an average growth of $10$ that appears to be influencing the smoother. We remove this outlier, the Republic of Nauru, a small Pacific island country northeast of Australia, and the new plot is:
 
 ```{r, warning = FALSE}
 normal_minus <- normal %>% filter(avg_growth.x < 12)
@@ -328,7 +327,7 @@ normal_minus %>% ggplot(aes(avg_growth.x, log_count)) +
 
 ```
 
-The outlier was the Republic of Nauru, a small Pacific island country northeast of Australia. Without Nauru, the Loess smoother fits an almost linear line ($Span = 0.75$). For positive `avg_growth.x` values, the smoother is practically linear and deviates only slightly from the least squares fitted line. For negative `avg_growth.x` values, the loess smoother shows a curve downward, away from the least squares fitted line. Despite this, the true estimate of the relationship between the normalized `log_counts` of flights and `avg_growth.x` appears to be linear enough to satisfy the Linearity condition required to proceed with regression.
+Without Nauru, the Loess smoother fits an almost linear line ($Span = 0.75$). For positive `avg_growth.x` values, the smoother is practically linear and deviates only slightly from the least squares fitted line. For negative `avg_growth.x` values, the loess smoother shows a curve downward, away from the least squares fitted line. Despite this, the true estimate of the relationship between the normalized `log_counts` of flights and `avg_growth.x` appears to be linear enough to satisfy the Linearity condition required to proceed with regression.
 
 For this analysis, parametric and non-parametric regression procedures will be carried out on average GDP growth and the normalized, natural log of the number of flights per source country, with the outlier, Nauru, removed.
 
@@ -411,12 +410,14 @@ check %>% ggplot(aes(avg_growth.x, log_count, color = recent_development.x)) +
 
 ```
 
-From the above scatterplot, developed countries appear to be clustered at higher normalized `log_count` values across most of the range of average Per Capita GDP growth, with some exceptions. Similarly, developing countries appear to be clustered at lower normalized `log_count` values across most of the range of average Per Capita GDP growth. There is a region of significant overlap around $-5$ `log_count` for developed and developing. However, the fitted lines suggest that there may be a difference in the average `log_count`. Recently developed countries appear to have lower normalized `log_count`, with the exception of the Republic of Nauru. Additionally, these countries are clustered at the upper half of the average Per Capita GDP growth range. The plot suggests that there may be a difference in center between at least two of the development classifications.
+From the above scatterplot, developed countries appear to be clustered at higher normalized `log_count` values across most of the range of average Per Capita GDP growth, with some exceptions. Similarly, developing countries appear to be clustered at lower normalized `log_count` values across most of the range of average Per Capita GDP growth. There is a region of significant overlap around $-5$ `log_count` for developed and developing. 
+
+However, the fitted lines suggest that there may be a difference in the average `log_count` between these groups of nations. Additiojnally, recently developed countries appear to have lower normalized `log_count`, with the exception of the Republic of Nauru. Additionally, these countries are clustered at the upper half of the average Per Capita GDP growth range. Overall, the plot suggests that there may be a difference in center between at least two of the development classifications.
 
 
 ### Parametric ANOVA
 
-To determine if there is a difference in the mean number of normalized, natural log of the number of flights between developed, developing, and recently developed countries, we first fit a parallel slopes model and carry out the parametric ANOVA.
+To determine if there is at least one difference in the mean number of normalized, natural log of the number of flights between developed, developing, and recently developed countries, we first fit a parallel slopes model and carry out the parametric ANOVA.
 
 ```{r}
 p_mod2 <- lm(log_count ~ recent_development.x, data = check)
@@ -438,9 +439,9 @@ The boxplot and residual plot suggest that the spreads of developed and developi
 
 Additionally, the asymmetry of the recently developed box in the boxplot suggests that we may have concerns for Normality. Looking at the QQ plot, there appears to be some divergence from the reference line near both ends. While the rest of the QQ plot appears to adhere to the reference line, we still have some concerns regarding whether or not the Normality condition is met.
 
-Therefore, we interpret the p-value associated with the parametric ANOVA with some caution. At all of the most commonly chosen significance levels, this is a significant p-value. We can reject the null hypothesis that there is no difference in the mean normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in means between development status groups. 
+Therefore, we interpret the p-value associated with the parametric ANOVA with some caution. At all of the most commonly chosen significance levels, this is a significant p-value. Given the p-value  result, we can reject the null hypothesis that there is no difference in the mean normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in means between development status groups. 
 
-From the ANOVA by itself, we cannot determine which pairs have significantly different means. Below, we conduct Fisher's LSD to determine which pairs are significantly different:
+From the ANOVA by itself, however, we cannot determine which pairs have significantly different means. Below, we conduct Fisher's LSD to determine which pairs are significantly different:
 
 ```{r}
 # Fisher's LSD:
@@ -469,7 +470,7 @@ check %>% ggplot(aes(log_count, color = recent_development.x)) + geom_density() 
 
 The distribution of developed appears to be potentially bimodal, but roughly symmetric. The two peaks are close together and of similar height. The distribution of developing is also bimodal, but the second peak is significant smaller than the first. Additionally, it appears roughly symmetric. Finally, the distribution of recently developed is also bimodal - if we ignore that third hump at the far right, which corresponds to the Republic of Nauru. The second peak is smaller and located on the left side of the distribution. Although there is some deviation in terms of shape, the distributions appear similar enough.
 
-Since we are looking for differences in medians, we can compare the IQRs of each distribution to compare spread. The IQRS for developed, developing, and recently developed are $1.733$, $1.615$, and $1.026$, respectively. While there is some difference in spread, the differences between the IQRs is not drastic. Although not exactly the same in shape and spread, the distributions appear to be close enough to assume a shift model.
+Since we are looking for differences in medians, we can compare the IQRs of each distribution to compare spread. The IQRs for developed, developing, and recently developed are $1.733$, $1.615$, and $1.026$, respectively. While there is some difference in spread, the differences between the IQRs is not drastic. Although not exactly the same in shape and spread, the distributions appear to be close enough to assume a shift model.
 
 Therefore, we return to our p-value. This is a significant p-value at a 0.01 significance level. We can reject the null hypothesis that there is no difference in the median normalized `log_counts` between countries of different development status. We conclude that there is at least one difference in medians between development status groups. 
 
@@ -541,7 +542,7 @@ head(developed_dests_n_ext,5)
 
 We find instead that for developed countries, the most popular destinations (once normalized for destination population) are Antigua and Barbuda, Iceland, St. Kitts and Nevis, Bermuda, and Austria.
 
-None  of these countries  appeared earlier in our non-normalized `top5` developed country destinations, and it's interesting to note that the `top4` of these five destinations  are countries with small  populations ($<35,000$) and thus had proportionally more flights than other countries.
+None  of these countries  appeared earlier in our non-normalized `top5` developed country destinations, and it's interesting to note that the top 4 of these five destinations  are countries with small  populations ($<35,000$) and thus had proportionally more flights than other countries.
 
 It's interesting to note how  the top5 countries here really stand out from the rest of the group in terms of log normalized count, as shown below:
 
@@ -724,7 +725,7 @@ data.frame(Countries=c("ATG","AUT","BMU","ISL","KNA"), Developed=prop_developedc
 
 In both the  absolute count and  proportional  count cases we see  a significant difference between developed/developing nation flights  to the  top5  developed nation destinations,  especially in the  cases of  Bermuda, Iceland, and St.  Kitts  and Nevis because there were 0 flights from developing countries.
 
-We then  run a parametric 2-sample proportion test whose conditions are (1) independence and randomization we might question because of the time element involved with our data, and (2) sample size $ np_0$ and $ n(1-p_0)$ both  greater than 10 which is met  only in the case of Austria, as number of successes and failures are not greater than 10 in  any of the other countries. As a result, we only conduct the 2-sample proportion test for Austria.
+We then  run a parametric 2-sample proportion test whose conditions are (1) independence and randomization we might question because of the time element involved with our data, and (2) sample size $np_0$ and $cn(1-p_0)$ both  greater than 10 which is met  only in the case of Austria, as number of successes and failures are not greater than 10 in  any of the other countries. As a result, we only conduct the 2-sample proportion test for Austria.
 
 ```{r}
 prop.test(x = c(p_AUT, p_AUT2), n = c(total_developed, total_developing)) -> aut; aut
@@ -752,14 +753,14 @@ binom.test(c(successes[1],failures[1]),n=total_developing[1],p=prop_developedcou
 atg2$p.value
 ```
 
-In this case we test whether developing countries fly to Antigua and Barbuda  (ATG) with the same proportion as developed nations (0.0006146012), and find instead that given the results of 2 flights  to  Antigua and Barbuda   from developing countries out of a total  of 10780 from developing countries that $p =p_0$, and a 95%CI for $p$ is  (2.246918e-05 6.700313e-04), and a p-value of  0.07733. At a 5%  significance level, we therefore find that  developing countries fly to Antigua and Barbuda at the  same normalized proportion as developed nations.
+In this case we test whether developing countries fly to Antigua and Barbuda  (ATG) with the same proportion as developed nations (0.0006146012), and find instead that given the results of 2 flights  to  Antigua and Barbuda   from developing countries out of a total  of 10780 from developing countries that $p=p_0$, and a 95%CI for $p$ is  (2.246918e-05 6.700313e-04), and a p-value of  0.07733. At a 5%  significance level, we therefore find that  developing countries fly to Antigua and Barbuda at the  same normalized proportion as developed nations.
 
 Doing this for the other countries:
 
 ```{r}
 pvals <- c(0,5.5460e-19,0,0,0)
 for(i in (1:5)[-2]){
-  pvals[i] <- (binom.test(c(successes[i],failures[i]),
+  pvals[i] <- (prop.test(c(successes[i],failures[i]),
                           n=total_developing[i],p=prop_developedcounts[i]))$p.value
 }
 
@@ -771,7 +772,7 @@ for(i in 2:5){
 pvals2 <- c(atg2$p.value,pvals2); pvals2
 ```
 
-We find that only the binomial test for Austria is significant at a 5% significance level. If we compare these p-values to our p-values from the parametric test:
+We find that only the binomial test for Austria and Iceland ($7.46e-08$) is significant at a 5% significance level. If we compare these p-values to our p-values from the parametric test:
 
 ```{r}
 data.frame(`z-test`=pvals,binom=pvals2,Country=c("ATG","AUT","BMU","ISL","KNA")) %>% 
@@ -784,7 +785,7 @@ data.frame(`z-test`=pvals,binom=pvals2,Country=c("ATG","AUT","BMU","ISL","KNA"))
   geom_hline(yintercept = 0.05)
 ```
 
-We find that  in all 5 cases, the  binomial  test gives us as much or more evidence to reject the null. Comparing our results  to the line drawn at 0.05, representing a 5% significance level, we find that only the tests, both the z-test and binomial test, for Austria and Iceland find sufficient evidence to reject the null that  developing  nations fly  to the those destinations at the same rates as developed  countries.  However, the  parametric results are only meaningful  in the  case  of  Austria, which fulfilled the  conditions of the  parametric test.
+We find that  in all 5 cases, the  binomial  test gives us as much or more evidence to reject the null. Comparing our results  to the line drawn at 0.05, representing a 5% significance level, we find that only the tests, both the z-test and binomial test, find sufficient evidence in the Austria test, while the binomial test finds sufficient evidence in the Iceland test. In either case, the sufficient evidence the tests provide allow us to  reject the null that  developing  nations fly  to the those destinations at the same rates as developed  countries. 
 
 ## Conclusions and Limitations
 
@@ -792,7 +793,7 @@ From our analysis, we can conclude the following:
 
 - Average Per Capita GDP Growth from between 2010 and 2016 is a significant predictor of the natural log of the normalized flight counts for each country. However, the model itself has no predictive power and therefore, is not useful.
 - In terms of the natural log of normalized flight counts, recently developed countries are significantly different from developed countries, but not significantly different from developing ones.
-- From our proportion  tests, we find that our  data does not allow to conclusively say that developing countries  do  not  fly to  the most popular  developed destinations at the same rate as developed countries. We do. however, find evidence that they do not fly to  Austria at the same  rate as developed  countries.
+- From our proportion tests, we find that our  data does not allow to conclusively say that developing countries  do  not  fly to  the most popular  developed destinations at the same rate as developed countries. We do, however, find evidence that they do not fly to  Austria at the same  rate as developed  countries.
 
 However, there are limitations to our analysis. The greatest limitation being that there was no `Year` variable for each flight. Therefore, time is a possible confounding variable that we are unable to accurately account for in our analysis.
 
